@@ -1,6 +1,7 @@
 #ifndef LCD_DRIVER_H_
 #define LCD_DRIVER_H_
 
+#include "driver/gpio.h"
 #include "esp_lcd_io_i80.h"
 
 //LCD data lines
@@ -19,6 +20,22 @@
 #define DISPLAY_PIN_DC (gpio_num_t) 8
 #define DISPLAY_PIN_WR (gpio_num_t) 9
 #define DISPLAY_PIN_RD (gpio_num_t) 10
+
+#define DISPLAY_WIDTH 320
+#define DISPLAY_HEIGHT 170
+#define LVGL_LCD_BUF_SIZE (DISPLAY_WIDTH * DISPLAY_HEIGHT) / 4
+
+// Alignment settings for PSRAM and SRAM transfers
+#define DISPLAY_PSRAM_TRANS_ALIGN 64                  // Alignment for PSRAM transfers
+#define DISPLAY_SRAM_TRANS_ALIGN 4                    // Alignment for SRAM transfers
+#define DISPLAY_PIXEL_CLOCK_HZ (6528000)              // Pixel clock for LCD in Hz (60 FPS, 170 x 320 pixels)
+
+// Bit sizes for LCD commands and parameters
+#define DISPLAY_LCD_CMD_BITS 8                 // Bits for LCD commands
+#define DISPLAY_LCD_PARAM_BITS 8               // Bits for LCD parameters
+
+esp_err_t init_display();
+bool onLvglFlashReady(esp_lcd_panel_io_handle_t panelIo, esp_lcd_panel_io_event_data_t* edata, void* userCtx);
 
 
 #endif

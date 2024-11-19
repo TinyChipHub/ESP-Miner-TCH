@@ -25,6 +25,7 @@
 #include "led_controller.h"
 #include "nvs_config.h"
 #include "vcore.h"
+#include "lcd_driver.h"
 
 static const char * TAG = "SystemModule";
 
@@ -106,6 +107,7 @@ void SYSTEM_init_peripherals(GlobalState * GLOBAL_STATE) {
     }
 
     //TODO: Init TFT Screen
+    ESP_ERROR_CHECK(init_display());
 
     netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
 

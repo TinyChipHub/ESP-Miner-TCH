@@ -14,6 +14,7 @@ SRCS
     "vcore.c"
     "work_queue.c"
     "nvs_device.c"
+    "./display/lcd_driver.c"
     "./http_server/http_server.c"
     "./tasks/stratum_task.c"
     "./tasks/create_jobs_task.c"
@@ -25,6 +26,7 @@ SRCS
 INCLUDE_DIRS
     "."
     "tasks"
+    "display"
     "http_server"
     "../components/asic/include"
     "../components/connect/include"
@@ -41,6 +43,7 @@ PRIV_REQUIRES
     "esp_netif"
     "esp_timer"
     "esp_wifi"
+    "esp_lcd"
     "json"
     "nvs_flash"
     "spiffs"

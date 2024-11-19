@@ -59,7 +59,7 @@ static const char * TAG = "bm1370Module";
 
 static uint8_t asic_response_buffer[SERIAL_BUF_SIZE];
 static task_result result;
-static int chipSubmitCount[6];
+static int chipSubmitCount[8];
 static int norceCount=0;
 
 /// @brief
@@ -328,7 +328,7 @@ static uint8_t _send_init(uint64_t frequency, uint16_t asic_count)
 
     int chip_counter = 0;
     while (true) {
-        if (SERIAL_rx(asic_response_buffer, 11, 1000) > 0) {
+        if (SERIAL_rx(asic_response_buffer, 11, 2000) > 0) {
             chip_counter++;
         } else {
             break;
@@ -341,7 +341,7 @@ static uint8_t _send_init(uint64_t frequency, uint16_t asic_count)
          // This restart for chip voltage balancing, Since at very begining, TPS outout not enought voltage.
         ESP_LOGE(TAG, "Initializing BM1366 fail - Mismatch amount of chips. This may caused by TPS not yet initialize and provide not enough voltage");
         vTaskDelay(2000 / portTICK_PERIOD_MS);
-        exit(EXIT_FAILURE);
+        //exit(EXIT_FAILURE);
     }
 
     // set version mask
@@ -364,7 +364,7 @@ static uint8_t _send_init(uint64_t frequency, uint16_t asic_count)
 
     // split the chip address space evenly
     uint8_t address_interval = 2;
-    for (uint8_t i = 0; i < chip_counter; i++) {
+    for (uint8_t i = 0; i < 8; i++) {
         _set_chip_address(i * address_interval);
         // unsigned char init8[7] = {0x55, 0xAA, 0x40, 0x05, 0x00, 0x00, 0x1C};
         // _send_simple(init8, 7);
@@ -395,7 +395,7 @@ static uint8_t _send_init(uint64_t frequency, uint16_t asic_count)
     unsigned char init13[11] = {0x55, 0xAA, 0x51, 0x09, 0x00, 0x58, 0x02, 0x11, 0x11, 0x11, 0x06};
     _send_simple(init13, 11);
 
-    for (uint8_t i = 0; i < chip_counter; i++) {
+    for (uint8_t i = 0; i < 8; i++) {
         //Reg_A8
         unsigned char set_a8_register[6] = {i * address_interval, 0xA8, 0x00, 0x07, 0x01, 0xF0};
         _send_BM1370((TYPE_CMD | GROUP_SINGLE | CMD_WRITE), set_a8_register, 6, false);
@@ -428,7 +428,7 @@ static uint8_t _send_init(uint64_t frequency, uint16_t asic_count)
     // unsigned char set_10_hash_counting[6] = {0x00, 0x10, 0x00, 0x0F, 0x00, 0x00}; //supposedly the "full" 32bit nonce range
     _send_BM1370((TYPE_CMD | GROUP_ALL | CMD_WRITE), set_10_hash_counting, 6, false);
 
-    return chip_counter;
+    return 8;
 }
 
 // reset the BM1370 via the RTS line
@@ -609,11 +609,12 @@ task_result * BM1370_proccess_work(void * pvParameters)
     chipSubmitCount[asic_nr]=chipSubmitCount[asic_nr]+1;
     GlobalState * GLOBAL_STATE = (GlobalState *) pvParameters;
     if(norceCount%10==0){
-        ESP_LOGI(TAG, "Asic Submit Count: [%d, %d, %d, %d, %d, %d]" PRIX32, chipSubmitCount[0],chipSubmitCount[1],chipSubmitCount[2],chipSubmitCount[3],chipSubmitCount[4],chipSubmitCount[5]);
+        ESP_LOGI(TAG, "Asic Submit Count: [%d, %d, %d, %d, %d, %d, %d, %d]" PRIX32, chipSubmitCount[0],chipSubmitCount[1],chipSubmitCount[2],chipSubmitCount[3],
+        chipSubmitCount[4],chipSubmitCount[5],chipSubmitCount[6],chipSubmitCount[7]);
     }
     norceCount++;
     if(norceCount==1000000){
-        for(int a=0;a<6;a++)
+        for(int a=0;a<8;a++)
             chipSubmitCount[a]=0;
     }
     if (GLOBAL_STATE->valid_jobs[job_id] == 0) {
