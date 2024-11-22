@@ -95,6 +95,7 @@ void POWER_MANAGEMENT_task(void * pvParameters)
         TPS546_print_status();
         power_management->voltage = TPS546_get_vin() * 1000;
         power_management->current = TPS546_get_iout() * 1000;
+        ESP_LOGI(TAG, "IOut: %.2f", power_management->current);
         power_management->power = (TPS546_get_vout() * power_management->current) / 1000 + targetPwOffset;
         power_management->chip_temp_avg = (TMP1075_read_temperature(0)+TMP1075_read_temperature(1))/2+targetTempOffset;
 		power_management->vr_temp = (float)TPS546_get_temperature();

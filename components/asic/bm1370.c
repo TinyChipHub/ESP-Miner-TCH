@@ -317,21 +317,23 @@ static uint8_t _send_init(uint64_t frequency, uint16_t asic_count)
     //enable and set version rolling mask to 0xFFFF (again)
     //unsigned char init2[11] = {0x55, 0xAA, 0x51, 0x09, 0x00, 0xA4, 0x90, 0x00, 0xFF, 0xFF, 0x1C};
     //_send_simple(init2, 11);
+    vTaskDelay(3500 / portTICK_PERIOD_MS);
     
     for (int i = 0; i < 3; i++) {
         BM1370_set_version_mask(STRATUM_DEFAULT_VERSION_MASK);
     }
 
-    //read register 00 on all chips (should respond AA 55 13 68 00 00 00 00 00 00 0F)
+    //read register 00 on all chips (should respond AA 55 13 700 00 00 00 00 00 00 0F)
     unsigned char init3[7] = {0x55, 0xAA, 0x52, 0x05, 0x00, 0x00, 0x0A};
     _send_simple(init3, 7);
 
     int chip_counter = 0;
-    while (true) {
+    int temp =2;
+    while (temp>0) {
         if (SERIAL_rx(asic_response_buffer, 11, 2000) > 0) {
             chip_counter++;
         } else {
-            break;
+            temp--;
         }
     }
     ESP_LOGI(TAG, "%i chip(s) detected on the chain, expected %i", chip_counter, asic_count);
@@ -385,9 +387,9 @@ static uint8_t _send_init(uint64_t frequency, uint16_t asic_count)
     // _send_simple(init11, 11);
     BM1370_set_job_difficulty_mask(BM1370_ASIC_DIFFICULTY);
 
-    //Analog Mux Control
-    unsigned char init12[11] = {0x55, 0xAA, 0x51, 0x09, 0x00, 0x54, 0x00, 0x00, 0x00, 0x03, 0x1D};
-    _send_simple(init12, 11);
+    // //Analog Mux Control
+    // unsigned char init12[11] = {0x55, 0xAA, 0x51, 0x09, 0x00, 0x54, 0x00, 0x00, 0x00, 0x03, 0x1D};
+    // _send_simple(init12, 11);
 
     //Set the IO Driver Strength on chip 00
     //**TX: 55 AA 51 09 00 58 00 01 11 11 0D  //command all chips, write chip address 00, register 58, data 01 11 11 11 - Set the IO Driver Strength on chip 00
@@ -413,6 +415,16 @@ static uint8_t _send_init(uint64_t frequency, uint16_t asic_count)
         unsigned char set_3c_register_third[6] = {i * address_interval, 0x3C, 0x80, 0x00, 0x82, 0xAA};
         _send_BM1370((TYPE_CMD | GROUP_SINGLE | CMD_WRITE), set_3c_register_third, 6, false);
     }
+
+    //Some misc settings?
+    // TX: 55 AA 51 09 [00 B9 00 00 44 80] 0D    //command all chips, write chip address 00, register B9, data 00 00 44 80
+    _send_BM1370((TYPE_CMD | GROUP_ALL | CMD_WRITE), (uint8_t[]){0x00, 0xB9, 0x00, 0x00, 0x44, 0x80}, 6, BM1370_SERIALTX_DEBUG);
+    // TX: 55 AA 51 09 [00 54 00 00 00 02] 18    //command all chips, write chip address 00, register 54, data 00 00 00 02 - Analog Mux Control - rumored to control the temp diode
+    _send_BM1370((TYPE_CMD | GROUP_ALL | CMD_WRITE), (uint8_t[]){0x00, 0x54, 0x00, 0x00, 0x00, 0x02}, 6, BM1370_SERIALTX_DEBUG);
+    // TX: 55 AA 51 09 [00 B9 00 00 44 80] 0D    //command all chips, write chip address 00, register B9, data 00 00 44 80 -- duplicate of first command in series
+    _send_BM1370((TYPE_CMD | GROUP_ALL | CMD_WRITE), (uint8_t[]){0x00, 0xB9, 0x00, 0x00, 0x44, 0x80}, 6, BM1370_SERIALTX_DEBUG);
+    // TX: 55 AA 51 09 [00 3C 80 00 8D EE] 1B    //command all chips, write chip address 00, register 3C, data 80 00 8D EE
+    _send_BM1370((TYPE_CMD | GROUP_ALL | CMD_WRITE), (uint8_t[]){0x00, 0x3C, 0x80, 0x00, 0x8D, 0xEE}, 6, BM1370_SERIALTX_DEBUG);
 
     do_frequency_ramp_up();
 
@@ -608,7 +620,7 @@ task_result * BM1370_proccess_work(void * pvParameters)
     ESP_LOGI(TAG, "Job ID: %02X, Core: %d/%d, Ver: %08" PRIX32, job_id, core_id, small_core_id, version_bits);
     chipSubmitCount[asic_nr]=chipSubmitCount[asic_nr]+1;
     GlobalState * GLOBAL_STATE = (GlobalState *) pvParameters;
-    if(norceCount%10==0){
+    if(norceCount%50==0){
         ESP_LOGI(TAG, "Asic Submit Count: [%d, %d, %d, %d, %d, %d, %d, %d]" PRIX32, chipSubmitCount[0],chipSubmitCount[1],chipSubmitCount[2],chipSubmitCount[3],
         chipSubmitCount[4],chipSubmitCount[5],chipSubmitCount[6],chipSubmitCount[7]);
     }

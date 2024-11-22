@@ -18,5 +18,5 @@ boardversion,data,string,900
 flipscreen,data,u16,1
 invertfanpol,data,u16,1
 autofanspeed,data,u16,0
-fanspeed,data,u16,100
+fanspeed,data,u16,45
 selftest,data,u16,0
