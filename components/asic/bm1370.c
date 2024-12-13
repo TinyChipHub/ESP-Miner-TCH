@@ -326,6 +326,8 @@ static uint8_t _send_init(uint64_t frequency, uint16_t asic_count)
     //read register 00 on all chips (should respond AA 55 13 700 00 00 00 00 00 00 0F)
     unsigned char init3[7] = {0x55, 0xAA, 0x52, 0x05, 0x00, 0x00, 0x0A};
     _send_simple(init3, 7);
+    _send_simple(init3, 7);
+    //_send_simple(init3, 7);
 
     int chip_counter = 0;
     int temp =2;
@@ -439,6 +441,23 @@ static uint8_t _send_init(uint64_t frequency, uint16_t asic_count)
     unsigned char set_10_hash_counting[6] = {0x00, 0x10, 0x00, 0x00, 0x1E, 0xB5}; //S21 Pro-Stock Default
     // unsigned char set_10_hash_counting[6] = {0x00, 0x10, 0x00, 0x0F, 0x00, 0x00}; //supposedly the "full" 32bit nonce range
     _send_BM1370((TYPE_CMD | GROUP_ALL | CMD_WRITE), set_10_hash_counting, 6, false);
+
+    // unsigned char init3[7] = {0x55, 0xAA, 0x52, 0x05, 0x00, 0x00, 0x0A};
+    
+    // _send_simple(init3, 7);
+    // _send_simple(init3, 7);
+    // _send_simple(init3, 7);
+
+    // chip_counter = 0;
+    // temp =2;
+    // while (temp>0) {
+    //     if (SERIAL_rx(asic_response_buffer, 11, 2000) > 0) {
+    //         chip_counter++;
+    //     } else {
+    //         temp--;
+    //     }
+    // }
+    // ESP_LOGI(TAG, "%i chip(s) detected on the chain, expected %i", chip_counter, asic_count);
 
     return 8;
 }

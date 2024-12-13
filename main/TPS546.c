@@ -453,6 +453,12 @@ void TPS546_write_entire_config(void)
         return;
     }
 
+    // Set up stack config
+    ESP_LOGI(TAG, "Setting Stack Config");
+    smb_write_word(PMBUS_STACK_CONFIG, PMBUS_STACK_CONFIG_ZYBER);
+    ESP_LOGI(TAG, "Setting Sync Config");
+    smb_write_byte(PMBUS_SYNC_CONFIG, PMBUS_SYNC_CONFIG_ZYBER);
+
     /* Switch frequency */
     ESP_LOGI(TAG, "Setting FREQUENCY");
     // smb_write_word(PMBUS_FREQUENCY_SWITCH, int_2_slinear11(_tps_config.TPS546_INIT_SW_FREQ));
@@ -638,6 +644,20 @@ float TPS546_get_vout(void)
 void TPS546_print_status(void) {
     uint16_t u16_value;
     uint8_t u8_value;
+
+    smb_write_byte(0x04,0xff);
+
+    if (smb_read_word(PMBUS_STATUS_PHASE, &u16_value) != ESP_OK) {
+        ESP_LOGE(TAG, "Could not read STATUS_PHASE");
+    } else{
+        ESP_LOGI(TAG, "STATUS_PHASE Status: %04X", u16_value);
+    }
+
+    if (smb_read_byte(PMBUS_STATUS_MFR_SPECIFIC, &u8_value) != ESP_OK) {
+        ESP_LOGE(TAG, "Could not read STATUS_MFR_SPECIFIC");
+    } else{
+        ESP_LOGI(TAG, "STATUS_MFR_SPECIFIC Status: %02X", u8_value);
+    }
 
     if (smb_read_word(PMBUS_STATUS_WORD, &u16_value) != ESP_OK) {
         ESP_LOGE(TAG, "Could not read STATUS_WORD");

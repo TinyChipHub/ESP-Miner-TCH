@@ -11,7 +11,7 @@ fbstratumurl,data,string,xnas.xaiten.com
 fbstratumport,data,u16,14400
 fbstratumuser,data,string,1ER7ciDN5iL9Nr4r9XWiCJYSGA9ERJffkD.Gamma
 asicfrequency,data,u16,625
-asicvoltage,data,u16,1150
+asicvoltage,data,u16,1200
 asicmodel,data,string,BM1370
 devicemodel,data,string,gamma
 boardversion,data,string,601

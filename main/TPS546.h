@@ -73,7 +73,7 @@ static TPS546_CONFIG ZYBER_CONFIG = {
   .TPS546_INIT_IOUT_OC_FAULT_LIMIT=52,
 
   /* SW Ferq */
-  .TPS546_INIT_SW_FREQ=850,
+  .TPS546_INIT_SW_FREQ=750,
 
 };
 
@@ -146,6 +146,10 @@ static TPS546_CONFIG ZYBER_CONFIG = {
 #define PMBUS_FAULT_INPUT     0x2000 /* need to check STATUS_INPUT */
 #define PMBUS_FAULT_IOUT      0x4000 /* need to check STATUS_IOUT  */
 #define PMBUS_FAULT_VOUT      0x8000 /* need to check STATUS_VOUT  */
+
+#define PMBUS_SYNC_CONFIG_ZYBER 0xD0  //enable auto detect sync
+#define PMBUS_STACK_CONFIG_ZYBER 0x0001  //One-Slave,2-phase
+// #define 
 
 
 /* public functions */
