@@ -82,7 +82,8 @@ void POWER_MANAGEMENT_task(void * pvParameters)
     float targetTempOffset = 0.0f;
 
     switch (GLOBAL_STATE->device_model) {
-        case DEVICE_ZYBER_OCTO:
+        case DEVICE_ZYBER_8S:
+        case DEVICE_ZYBER_8G:
             targetPwOffset = ZYBER_POWER_OFFSET;
             targetTempOffset = ZYBER_TEMP_OFFSET;
             break;

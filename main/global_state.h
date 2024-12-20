@@ -23,7 +23,8 @@
 typedef enum
 {
     DEVICE_UNKNOWN = -1,
-    DEVICE_ZYBER_OCTO,
+    DEVICE_ZYBER_8S,
+    DEVICE_ZYBER_8G,
 } DeviceModel;
 
 typedef enum

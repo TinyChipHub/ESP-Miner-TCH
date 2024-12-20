@@ -13,7 +13,7 @@ fbstratumuser,data,string,1ER7ciDN5iL9Nr4r9XWiCJYSGA9ERJffkD.GammaHex
 asicfrequency,data,u16,625
 asicvoltage,data,u16,1150
 asicmodel,data,string,BM1370
-devicemodel,data,string,zyberocto
+devicemodel,data,string,zyber8g
 boardversion,data,string,900
 flipscreen,data,u16,1
 invertfanpol,data,u16,1

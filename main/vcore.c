@@ -10,7 +10,8 @@ static const char *TAG = "vcore.c";
 
 uint8_t VCORE_init(GlobalState * global_state) {
     uint8_t result=-1;
-    if(global_state->device_model==DEVICE_ZYBER_OCTO){
+    if(global_state->device_model == DEVICE_ZYBER_8G||
+        global_state->device_model == DEVICE_ZYBER_8S){
         return TPS546_init(ZYBER_CONFIG);
     }
     return result;
@@ -20,7 +21,8 @@ uint8_t VCORE_init(GlobalState * global_state) {
 bool VCORE_set_voltage(float core_voltage, GlobalState * global_state)
 {
     switch (global_state->device_model) {
-            case DEVICE_ZYBER_OCTO:
+            case DEVICE_ZYBER_8S:
+            case DEVICE_ZYBER_8G:
             ESP_LOGI(TAG, "Set ASIC voltage = %.3fV", core_voltage);
             TPS546_set_vout(core_voltage * (float)global_state->voltage_domain);
         break;
@@ -33,7 +35,8 @@ bool VCORE_set_voltage(float core_voltage, GlobalState * global_state)
 uint16_t VCORE_get_voltage_mv(GlobalState * global_state) {
 
     switch (global_state->device_model) {
-        case DEVICE_ZYBER_OCTO:
+        case DEVICE_ZYBER_8S:
+        case DEVICE_ZYBER_8G:
             return (TPS546_get_vout() * 1000) / global_state->voltage_domain;
             break;
         default:

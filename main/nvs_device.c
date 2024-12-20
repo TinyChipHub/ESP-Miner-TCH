@@ -40,13 +40,19 @@ esp_err_t NVSDevice_parse_config(GlobalState * GLOBAL_STATE) {
     ESP_LOGI(TAG, "NVS_CONFIG_ASIC_FREQ %f", (float)GLOBAL_STATE->POWER_MANAGEMENT_MODULE.frequency_value);
 
     GLOBAL_STATE->device_model_str = nvs_config_get_string(NVS_CONFIG_DEVICE_MODEL, "");
-    if (strcmp(GLOBAL_STATE->device_model_str, "zyberocto") == 0) {
-        ESP_LOGI(TAG, "DEVICE: ZyberOcto");
-        GLOBAL_STATE->device_model = DEVICE_ZYBER_OCTO;
+    if (strcmp(GLOBAL_STATE->device_model_str, "zyber8g") == 0) {
+        ESP_LOGI(TAG, "DEVICE: Zyber 8G");
+        GLOBAL_STATE->device_model = DEVICE_ZYBER_8G;
         GLOBAL_STATE->asic_count = 8;
         GLOBAL_STATE->voltage_domain = 4;
         GLOBAL_STATE->has_chip_temp = false;
-    }  else {
+    }else if (strcmp(GLOBAL_STATE->device_model_str, "zyber8s") == 0) {
+        ESP_LOGI(TAG, "DEVICE: Zyber 8S");
+        GLOBAL_STATE->device_model = DEVICE_ZYBER_8S;
+        GLOBAL_STATE->asic_count = 8;
+        GLOBAL_STATE->voltage_domain = 4;
+        GLOBAL_STATE->has_chip_temp = false;
+    }else {
         ESP_LOGE(TAG, "Invalid DEVICE model");
         // maybe should return here to now execute anything with a faulty device parameter !
         // this stops crashes/reboots and allows dev testing without an asic
