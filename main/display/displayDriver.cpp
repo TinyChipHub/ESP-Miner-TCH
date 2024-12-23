@@ -1,3 +1,4 @@
+
 #include "driver/gpio.h"
 #include "rom/gpio.h"
 #include "esp_lcd_io_i80.h"
@@ -7,16 +8,21 @@
 #include "lvgl.h"
 #include "esp_log.h"
 #include "global_state.h"
+#include "ui.h"
 
-#include "lcd_driver.h"
+#include "displayDriver.h"
 
-static const char * TAG = "lcd_display";
-static esp_lcd_i80_bus_handle_t d_bus_handle = NULL;
-static esp_lcd_panel_io_handle_t d_io_handle = NULL;
-static esp_lcd_panel_handle_t d_panel_handle = NULL;
+static const char * TAG = "DisplayDriver";
 
-esp_err_t init_display(GlobalState * GLOBAL_STATE) {
+DisplayDriver::DisplayDriver(){
+    isDisplayOn = true;
+}
 
+lv_obj_t *DisplayDriver::initDisplay(){
+
+    static lv_disp_draw_buf_t disp_buf; // contains internal graphic buffer(s) called draw buffer(s)
+    static lv_disp_drv_t disp_drv;      // contains callback functions
+    
     ESP_LOGI(TAG, "Turn off LCD backlight");
     gpio_config_t bk_gpio_config = {.pin_bit_mask = 1ULL << DISPLAY_PIN_BK_PWR, .mode = GPIO_MODE_OUTPUT};
     ESP_ERROR_CHECK(gpio_config(&bk_gpio_config));
@@ -110,11 +116,37 @@ esp_err_t init_display(GlobalState * GLOBAL_STATE) {
 
     ESP_LOGI(TAG, "Initial LCD display with Intel i80 Done! ");
     ESP_LOGI(TAG, ".............................................");
-    ESP_LOGI(TAG, "Initialize LVGL library");
-
-    lv_init();
     
+    ESP_LOGI(TAG, "Initialize LVGL library");
+    lv_init();
+    // alloc draw buffers used by LVGL
+    // it's recommended to choose the size of the draw buffer(s) to be at least 1/10 screen sized
+    lv_color_t *buf1 = (lv_color_t*) heap_caps_malloc(LVGL_LCD_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    assert(buf1);
+    //    lv_color_t *buf2 = heap_caps_malloc(LVGL_LCD_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA );
+    //    assert(buf2);
+    // initialize LVGL draw buffers
+    lv_disp_draw_buf_init(&disp_buf, buf1, NULL, LVGL_LCD_BUF_SIZE);
 
+    ESP_LOGI(TAG, "Register display driver to LVGL");
+    lv_disp_drv_init(&disp_drv);
+    disp_drv.hor_res = DISPLAY_WIDTH;
+    disp_drv.ver_res = DISPLAY_HEIGHT;
+    disp_drv.flush_cb = lvglFlushCallback;
+    disp_drv.draw_buf = &disp_buf;
+    disp_drv.user_data = d_panel_handle;
+    lv_disp_t *disp = lv_disp_drv_register(&disp_drv);
 
-    return ret;
+    ESP_LOGI(TAG, "Install LVGL tick timer");
+    // Tick interface for LVGL (using esp_timer to generate 2ms periodic event)
+    /*const esp_timer_create_args_t lvgl_tick_timer_args = {
+        .callback = &example_increaseLvglTick,
+        .name = "lvgl_tick"
+    };*/
+    esp_timer_handle_t lvgl_tick_timer = NULL;
+
+    ESP_LOGI(TAG, "Display LVGL animation");
+    lv_obj_t *scr = lv_disp_get_scr_act(disp);
+
+    return scr;
 }

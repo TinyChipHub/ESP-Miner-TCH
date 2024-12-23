@@ -107,7 +107,8 @@ void SYSTEM_init_peripherals(GlobalState * GLOBAL_STATE) {
     }
 
     //TODO: Init TFT Screen
-    ESP_ERROR_CHECK(init_display());
+    ESP_ERROR_CHECK(init_display(GLOBAL_STATE));
+    //ESP_LOGI(TAG, "%d\n",d_bus_handle==NULL);
 
     netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
 

@@ -24,7 +24,8 @@
         "system.h": "c",
         "lvgl.h": "c",
         "lcd_driver.h": "c",
-        "emc2302.h": "c"
+        "emc2302.h": "c",
+        "lv_mem.h": "c"
     },
     "editor.formatOnSave": false,
     "cSpell.words": [
