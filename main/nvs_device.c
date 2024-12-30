@@ -4,6 +4,7 @@
 #include "nvs_flash.h"
 #include "nvs_config.h"
 #include "nvs_device.h"
+#include "display/themes/themes.h"
 
 #include "connect.h"
 #include "global_state.h"
@@ -46,12 +47,14 @@ esp_err_t NVSDevice_parse_config(GlobalState * GLOBAL_STATE) {
         GLOBAL_STATE->asic_count = 8;
         GLOBAL_STATE->voltage_domain = 4;
         GLOBAL_STATE->has_chip_temp = false;
+        GLOBAL_STATE->theme = new ThemeZyber8G();
     }else if (strcmp(GLOBAL_STATE->device_model_str, "zyber8s") == 0) {
         ESP_LOGI(TAG, "DEVICE: Zyber 8S");
         GLOBAL_STATE->device_model = DEVICE_ZYBER_8S;
         GLOBAL_STATE->asic_count = 8;
         GLOBAL_STATE->voltage_domain = 4;
         GLOBAL_STATE->has_chip_temp = false;
+        GLOBAL_STATE->theme = new ThemeZyber8S();
     }else {
         ESP_LOGE(TAG, "Invalid DEVICE model");
         // maybe should return here to now execute anything with a faulty device parameter !

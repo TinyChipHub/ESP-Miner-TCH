@@ -1,8 +1,8 @@
 key,type,encoding,value
 main,namespace,,
 hostname,data,string,bitaxe
-wifissid,data,string,Zorizala
-wifipass,data,string,Tom638789
+wifissid,data,string,Cristalize2.4
+wifipass,data,string,Xaiten1678
 stratumurl,data,string,cksolo.xaiten.com
 stratumport,data,u16,14444
 stratumuser,data,string,1ER7ciDN5iL9Nr4r9XWiCJYSGA9ERJffkD.GammaHex
