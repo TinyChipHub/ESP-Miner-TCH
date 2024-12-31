@@ -12,7 +12,7 @@
 #include "serial.h"
 #include "stratum_api.h"
 #include "work_queue.h"
-#include "display/themes/themes.h"
+//#include "display/themes/themes.h"
 
 #define STRATUM_USER CONFIG_STRATUM_USER
 #define FALLBACK_STRATUM_USER CONFIG_FALLBACK_STRATUM_USER
@@ -110,7 +110,7 @@ typedef struct
     int sock;
     bool ASIC_initalized;
 
-    Theme *theme;
+    //Theme *theme;
 } GlobalState;
 
 #endif /* GLOBAL_STATE_H_ */

@@ -99,7 +99,7 @@
                 <p-chart [data]="chartData" [options]="chartOptions"></p-chart>
             </div>
         </div>
-        <ng-template #supraUltraPower>
+        <!-- <ng-template #supraUltraPower>
             <div class="grid text-center">
                 <div class="col-6 sm:col-4">
                     <p-knob [min]="3" [max]="35" [readonly]="true" [(ngModel)]="info.power"
@@ -120,13 +120,14 @@
                     ASIC Voltage Requested
                 </div>
             </div>
-        </ng-template>
+        </ng-template> -->
         <div class="col-12 lg:col-12 xl:col-4">
             <div class="card">
                 <h5>Power</h5>
-                <div class="grid text-center" *ngIf="info.deviceModelStr=='hex'|| info.deviceModelStr=='suprahex'; else supraUltraPower">
+                <!-- <div class="grid text-center" *ngIf="info.deviceModelStr=='hex'|| info.deviceModelStr=='suprahex'; else supraUltraPower"> -->
+                <div class="grid text-center">
                     <div class="col-6 sm:col-4">
-                        <p-knob [min]="10" [max]="120" [readonly]="true" [(ngModel)]="info.power"
+                        <p-knob [min]="10" [max]="280" [readonly]="true" [(ngModel)]="info.power"
                             valueTemplate="{value}W"></p-knob>
                         Power
                     </div>

@@ -289,8 +289,8 @@ static uint8_t _send_init(uint64_t frequency, uint16_t asic_count)
     //read register 00 on all chips (should respond AA 55 13 68 00 00 00 00 00 00 0F)
     unsigned char init3[7] = {0x55, 0xAA, 0x52, 0x05, 0x00, 0x00, 0x0A};
     _send_simple(init3, 7);
-    _send_simple(init3, 7);
-    _send_simple(init3, 7);
+    //_send_simple(init3, 7);
+    //_send_simple(init3, 7);
 
     int chip_counter = 0;
     int temp =2;
