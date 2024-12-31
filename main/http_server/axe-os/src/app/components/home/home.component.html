@@ -158,7 +158,7 @@
                             valueTemplate="{value}C"></p-knob>
                         ASIC Temperature
 
-                        <span class="danger" *ngIf="(info.hasChipTemp && info.temp >= 85)||(!info.hasChipTemp && info.temp >= 70)">&nbsp;
+                        <span class="danger" *ngIf="info.temp >= 85">&nbsp;
                             Danger:
                             High Temperature</span>
                     </div>

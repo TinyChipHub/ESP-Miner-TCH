@@ -13,7 +13,8 @@ SRCS
     #"max6689.c"
     "vcore.c"
     "work_queue.c"
-    "nvs_device.c"
+    "nvs_device.cpp"
+   
     "./display/lcd_driver.c"
     "./http_server/http_server.c"
     "./tasks/stratum_task.c"
@@ -22,11 +23,13 @@ SRCS
     "./tasks/asic_result_task.c"
     "./tasks/user_input_task.c"
     "./tasks/power_management_task.c"
+    "./display/themes/themes.c"
 
 INCLUDE_DIRS
     "."
     "tasks"
     "display"
+    "display/themes"
     "http_server"
     "../components/asic/include"
     "../components/connect/include"
@@ -49,6 +52,7 @@ PRIV_REQUIRES
     "spiffs"
     "vfs"
     "esp_driver_i2c"
+    "lvgl"
 )
 
 set(WEB_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/http_server/axe-os")

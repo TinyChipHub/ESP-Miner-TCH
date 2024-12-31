@@ -645,19 +645,19 @@ void TPS546_print_status(void) {
     uint16_t u16_value;
     uint8_t u8_value;
 
-    smb_write_byte(0x04,0xff);
+    // smb_write_byte(0x04,0xff);
 
-    if (smb_read_word(PMBUS_STATUS_PHASE, &u16_value) != ESP_OK) {
-        ESP_LOGE(TAG, "Could not read STATUS_PHASE");
-    } else{
-        ESP_LOGI(TAG, "STATUS_PHASE Status: %04X", u16_value);
-    }
+    // if (smb_read_word(PMBUS_STATUS_PHASE, &u16_value) != ESP_OK) {
+    //     ESP_LOGE(TAG, "Could not read STATUS_PHASE");
+    // } else{
+    //     ESP_LOGI(TAG, "STATUS_PHASE Status: %04X", u16_value);
+    // }
 
-    if (smb_read_byte(PMBUS_STATUS_MFR_SPECIFIC, &u8_value) != ESP_OK) {
-        ESP_LOGE(TAG, "Could not read STATUS_MFR_SPECIFIC");
-    } else{
-        ESP_LOGI(TAG, "STATUS_MFR_SPECIFIC Status: %02X", u8_value);
-    }
+    // if (smb_read_byte(PMBUS_STATUS_MFR_SPECIFIC, &u8_value) != ESP_OK) {
+    //     ESP_LOGE(TAG, "Could not read STATUS_MFR_SPECIFIC");
+    // } else{
+    //     ESP_LOGI(TAG, "STATUS_MFR_SPECIFIC Status: %02X", u8_value);
+    // }
 
     if (smb_read_word(PMBUS_STATUS_WORD, &u16_value) != ESP_OK) {
         ESP_LOGE(TAG, "Could not read STATUS_WORD");

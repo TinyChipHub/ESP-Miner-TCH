@@ -578,7 +578,7 @@ task_result * BM1368_proccess_work(void * pvParameters)
     ESP_LOGI(TAG, "Asic Num: %d, Job ID: %02X, Core: %d/%d, Ver: %08" PRIX32, asic_nr,job_id, core_id, small_core_id, version_bits);
     chipSubmitCount[asic_nr]=chipSubmitCount[asic_nr]+1;
     GlobalState * GLOBAL_STATE = (GlobalState *) pvParameters;
-    if(norceCount%10==0){
+    if(norceCount%20==0){
         ESP_LOGI(TAG, "Asic Submit Count: [%d, %d, %d, %d, %d, %d, %d, %d]" PRIX32, chipSubmitCount[0],chipSubmitCount[1],
         chipSubmitCount[2],chipSubmitCount[3],chipSubmitCount[4],chipSubmitCount[5],chipSubmitCount[6],chipSubmitCount[7]);
     }

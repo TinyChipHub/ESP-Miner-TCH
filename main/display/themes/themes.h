@@ -4,12 +4,12 @@
 
 class Theme{
     protected:
-        const lv_img_dec_t *ui_logoBg;
-        const lv_img_dec_t *ui_setupBg;
-        const lv_img_dec_t *ui_miningStatBg;
-        const lv_img_dec_t *ui_deviceInfoBg;
-        const lv_img_dec_t *ui_networkBg;
-        const lv_img_dec_t *ui_overheatBg;
+        const lv_img_dsc_t *ui_logoBg;
+        const lv_img_dsc_t *ui_setupBg;
+        const lv_img_dsc_t *ui_miningStatBg;
+        const lv_img_dsc_t *ui_deviceInfoBg;
+        const lv_img_dsc_t *ui_networkBg;
+        const lv_img_dsc_t *ui_overheatBg;
 
     public:
         Theme(){
@@ -61,15 +61,15 @@ class Theme{
 LV_IMG_DECLARE(logoScreenB);
 
 class ThemeZyber8S : public Theme{
-    public:
-        ThemeZyber8S() : Theme(){
-            setLogoBg(&logoScreenB);
-        }
-}
+public:
+    ThemeZyber8S() : Theme(){
+        setLogoBg(&logoScreenB);
+    }
+};
 
 class ThemeZyber8G : public Theme{
-    public:
-        ThemeZyber8S() : Theme(){
-            
-        }
-}
+public:
+    ThemeZyber8G() : Theme(){
+        
+    }
+};
