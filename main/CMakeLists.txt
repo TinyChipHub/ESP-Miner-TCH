@@ -13,7 +13,7 @@ SRCS
     #"max6689.c"
     "vcore.c"
     "work_queue.c"
-    "nvs_device.cpp"
+    "nvs_device.c"
    
     "./display/lcd_driver.c"
     "./http_server/http_server.c"
@@ -23,13 +23,13 @@ SRCS
     "./tasks/asic_result_task.c"
     "./tasks/user_input_task.c"
     "./tasks/power_management_task.c"
-    "./display/themes/themes.c"
+    #"./display/themes/themes.c"
 
 INCLUDE_DIRS
     "."
     "tasks"
     "display"
-    "display/themes"
+    #"display/themes"
     "http_server"
     "../components/asic/include"
     "../components/connect/include"

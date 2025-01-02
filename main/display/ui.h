@@ -1,8 +1,13 @@
-#pragma once
+#ifndef UI_H_
+#define UI_H_
 
 #include "lvgl.h"
 
 #define DISPLAY_LVGL_TICK_PERIOD_MS 30
+
+
+
+
 
 class DisplayDriver;
 
@@ -66,3 +71,5 @@ public:
 
     friend class DisplayDriver;
 }
+
+#endif
