@@ -23,13 +23,14 @@ SRCS
     "./tasks/asic_result_task.c"
     "./tasks/user_input_task.c"
     "./tasks/power_management_task.c"
-    #"./display/themes/themes.c"
+    "./display/themes/themes.c"
+    "./display/ui.c"
 
 INCLUDE_DIRS
     "."
     "tasks"
     "display"
-    #"display/themes"
+    "display/themes"
     "http_server"
     "../components/asic/include"
     "../components/connect/include"

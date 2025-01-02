@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+
 #include "asic_task.h"
 #include "bm1368.h"
 #include "bm1366.h"
@@ -12,7 +13,8 @@
 #include "serial.h"
 #include "stratum_api.h"
 #include "work_queue.h"
-//#include "display/themes/themes.h"
+#include "display/ui.h"
+
 
 #define STRATUM_USER CONFIG_STRATUM_USER
 #define FALLBACK_STRATUM_USER CONFIG_FALLBACK_STRATUM_USER
@@ -110,7 +112,8 @@ typedef struct
     int sock;
     bool ASIC_initalized;
 
-    //Theme *theme;
+    UI ui;
+
 } GlobalState;
 
 #endif /* GLOBAL_STATE_H_ */
