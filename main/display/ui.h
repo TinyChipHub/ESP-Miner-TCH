@@ -5,6 +5,11 @@
 #include "themes/themes.h"
 
 #define DISPLAY_LVGL_TICK_PERIOD_MS 30
+#define LV_FONT_CUSTOM_DECLARE
+LV_FONT_DECLARE(font_XinYin_reg13);
+LV_FONT_DECLARE(font_XinYin_reg14);
+LV_FONT_DECLARE(font_XinYin_reg24);
+LV_FONT_DECLARE(font_XinYin_reg45);
 
 
 typedef struct
