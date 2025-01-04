@@ -9,6 +9,7 @@
 #include "asic_result_task.h"
 #include "asic_task.h"
 #include "create_jobs_task.h"
+#include "display_task.h"
 #include "esp_netif.h"
 #include "system.h"
 #include "http_server.h"
@@ -68,6 +69,9 @@ void app_main(void)
     xTaskCreate(SYSTEM_task, "SYSTEM_task", 4096, (void *) &GLOBAL_STATE, 3, NULL);
     xTaskCreate(POWER_MANAGEMENT_task, "power mangement", 8192, (void *) &GLOBAL_STATE, 10, NULL);
 
+    //Create Display Task
+    xTaskCreate(display_task, "Display Showing Task",8192, (void *) &GLOBAL_STATE,5,NULL);
+
     //start the API for AxeOS
     start_rest_server((void *) &GLOBAL_STATE);
     EventBits_t result_bits = wifi_connect();
@@ -75,6 +79,7 @@ void app_main(void)
     if (result_bits & WIFI_CONNECTED_BIT) {
         ESP_LOGI(TAG, "Connected to SSID: %s", wifi_ssid);
         strncpy(GLOBAL_STATE.SYSTEM_MODULE.wifi_status, "Connected!", 20);
+        GLOBAL_STATE.wifi_connected=true;
     } else if (result_bits & WIFI_FAIL_BIT) {
         ESP_LOGE(TAG, "Failed to connect to SSID: %s", wifi_ssid);
 

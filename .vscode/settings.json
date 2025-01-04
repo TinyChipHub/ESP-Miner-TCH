@@ -26,7 +26,10 @@
         "lcd_driver.h": "c",
         "emc2302.h": "c",
         "lv_mem.h": "c",
-        "lv_draw.h": "c"
+        "lv_draw.h": "c",
+        "global_state.h": "c",
+        "lv_conf.h": "c",
+        "esp_log.h": "c"
     },
     "editor.formatOnSave": false,
     "cSpell.words": [

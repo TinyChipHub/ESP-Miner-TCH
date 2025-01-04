@@ -4,7 +4,6 @@
 #include "lvgl.h"
 #include "themes/themes.h"
 
-#define DISPLAY_LVGL_TICK_PERIOD_MS 30
 #define LV_FONT_CUSTOM_DECLARE
 LV_FONT_DECLARE(font_XinYin_reg13);
 LV_FONT_DECLARE(font_XinYin_reg14);
@@ -56,11 +55,15 @@ typedef struct
 } UI;
 
 lv_obj_t * createDefalutLabel(lv_obj_t *parent, const char* text);
-void initLogoScreen(UI ui);
-void initSetupScreen(UI ui);
-void initMiningStatScreen(UI ui);
-void initDeviceInfoScreen(UI ui);
-void initNetworkScreen(UI ui);
-void initOverheatScreen(UI ui);
+lv_obj_t * createDefalutImage(lv_obj_t *parent, const void* src);
+
+void initLogoScreen(UI *ui);
+void initSetupScreen(UI *ui);
+void initMiningStatScreen(UI *ui);
+void initDeviceInfoScreen(UI *ui);
+void initNetworkScreen(UI *ui);
+void initOverheatScreen(UI *ui);
+
+void ui_screen_change(lv_obj_t * target, lv_scr_load_anim_t fademode, int spd, int delay);
 
 #endif

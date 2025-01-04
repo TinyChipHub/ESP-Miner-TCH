@@ -15,12 +15,22 @@ typedef struct
 } Theme;
 
 // image files for theme Zyber8S
-LV_IMG_DECLARE(img_logoScreen8S);
+LV_IMG_DECLARE(img_logo_screen_8s);
+LV_IMG_DECLARE(img_setup_screen_8s);
+LV_IMG_DECLARE(img_mining_screen_8s);
+LV_IMG_DECLARE(img_device_screen_8s);
+LV_IMG_DECLARE(img_network_screen_8s);
+LV_IMG_DECLARE(img_overheat_screen_8s);
 
-static const Theme theme_zyber8s={
-    .ui_logoBg = &img_logoScreen8S,
+static Theme theme_zyber8s={
+    .ui_logoBg = &img_logo_screen_8s,
+    .ui_setupBg = &img_setup_screen_8s,
+    .ui_miningStatBg = &img_mining_screen_8s,
+    .ui_deviceInfoBg = &img_device_screen_8s,
+    .ui_networkBg = &img_network_screen_8s,
+    .ui_overheatBg = &img_overheat_screen_8s
 };
 
-static const Theme theme_zyber8G;
+static Theme theme_zyber8G;
 
 #endif

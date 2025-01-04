@@ -41,8 +41,11 @@
 #define DISPLAY_LCD_CMD_BITS 8                 // Bits for LCD commands
 #define DISPLAY_LCD_PARAM_BITS 8               // Bits for LCD parameters
 
+
 esp_err_t init_display(GlobalState * GLOBAL_STATE);
 bool onLvglFlashReady(esp_lcd_panel_io_handle_t panelIo, esp_lcd_panel_io_event_data_t* edata, void* userCtx);
+void lvglFlushCallback(lv_disp_drv_t* drv, const lv_area_t* area, lv_color_t* colorMap);
+void toggleScreenOnOff(GlobalState * , bool);
 
 
 #endif

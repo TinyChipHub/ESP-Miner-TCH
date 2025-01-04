@@ -4,16 +4,36 @@
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_ops.h"
 #include "esp_lcd_panel_vendor.h"
-#include "lvgl.h"
+#include "esp_timer.h"
 #include "esp_log.h"
 #include "global_state.h"
-
+#include "lv_conf.h"
+#include "lvgl.h"
 #include "lcd_driver.h"
 
 static const char * TAG = "lcd_display";
 static esp_lcd_i80_bus_handle_t d_bus_handle = NULL;
 static esp_lcd_panel_io_handle_t d_io_handle = NULL;
 static esp_lcd_panel_handle_t d_panel_handle = NULL;
+
+static lv_disp_draw_buf_t disp_buf; // contains internal graphic buffer(s) called draw buffer(s)
+static lv_disp_drv_t disp_drv;      // contains callback functions
+
+bool onLvglFlashReady(esp_lcd_panel_io_handle_t panelIo, esp_lcd_panel_io_event_data_t* edata, void* userCtx) {
+    lv_disp_drv_t* dispDriver = (lv_disp_drv_t*)userCtx;
+    lv_disp_flush_ready(dispDriver);
+    return false;
+}
+
+void lvglFlushCallback(lv_disp_drv_t* drv, const lv_area_t* area, lv_color_t* colorMap){
+    esp_lcd_panel_handle_t panelHandle = (esp_lcd_panel_handle_t)drv->user_data;
+    int offsetx1 = area->x1;
+    int offsetx2 = area->x2;
+    int offsety1 = area->y1;
+    int offsety2 = area->y2;
+    // Copy buffer content to the display
+    esp_lcd_panel_draw_bitmap(panelHandle, offsetx1, offsety1, offsetx2 + 1, offsety2 + 1, colorMap);
+}
 
 esp_err_t init_display(GlobalState * GLOBAL_STATE) {
 
@@ -65,8 +85,8 @@ esp_err_t init_display(GlobalState * GLOBAL_STATE) {
         .cs_gpio_num = DISPLAY_PIN_CS,
         .pclk_hz = DISPLAY_PIXEL_CLOCK_HZ,
         .trans_queue_depth = 20,
-        //.on_color_trans_done = onLvglFlashReady,
-        //.user_ctx = &disp_drv,
+        .on_color_trans_done = onLvglFlashReady,
+        .user_ctx = &disp_drv,
         .lcd_cmd_bits = DISPLAY_LCD_CMD_BITS,
         .lcd_param_bits = DISPLAY_LCD_PARAM_BITS,
         .dc_levels =
@@ -113,8 +133,48 @@ esp_err_t init_display(GlobalState * GLOBAL_STATE) {
     ESP_LOGI(TAG, "Initialize LVGL library");
 
     lv_init();
+    // alloc draw buffers used by LVGL
+    // it's recommended to choose the size of the draw buffer(s) to be at least 1/10 screen sized
+    lv_color_t *buf1 = (lv_color_t*) heap_caps_malloc(LVGL_LCD_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
+    assert(buf1);
+    //    lv_color_t *buf2 = heap_caps_malloc(LVGL_LCD_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA );
+    //    assert(buf2);
+    // initialize LVGL draw buffers
+    lv_disp_draw_buf_init(&disp_buf, buf1, NULL, LVGL_LCD_BUF_SIZE);
+    assert(buf1);
+    //    lv_color_t *buf2 = heap_caps_malloc(LVGL_LCD_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA );
+    //    assert(buf2);
+    // initialize LVGL draw buffers
+    lv_disp_draw_buf_init(&disp_buf, buf1, NULL, LVGL_LCD_BUF_SIZE);
+
+    ESP_LOGI(TAG, "Register display driver to LVGL");
+    lv_disp_drv_init(&disp_drv);
+    disp_drv.hor_res = DISPLAY_WIDTH;
+    disp_drv.ver_res = DISPLAY_HEIGHT;
+    disp_drv.flush_cb = lvglFlushCallback;
+    disp_drv.draw_buf = &disp_buf;
+    disp_drv.user_data = d_panel_handle;
+    lv_disp_t *disp = lv_disp_drv_register(&disp_drv);
+
+    //lv_disp_get_scr_act(disp);
+
+    // Configuration is completed.
+    esp_timer_handle_t lvgl_tick_timer = NULL;
+    // ESP_ERROR_CHECK(esp_timer_create(&lvgl_tick_timer_args, &lvgl_tick_timer));
+    // ESP_ERROR_CHECK(esp_timer_start_periodic(lvgl_tick_timer, TDISPLAYS3_LVGL_TICK_PERIOD_MS * 1000));
+
+    ESP_LOGI(TAG, "Display LVGL animation");
+    lv_obj_t *scr = lv_disp_get_scr_act(disp);
+
+    GLOBAL_STATE->initDoneDate = esp_timer_get_time();
+    GLOBAL_STATE->displayState = D_READY;
     
-
-
     return ret;
+}
+
+void toggleScreenOnOff(GlobalState * GLOBAL_STATE, bool onoff){
+    gpio_set_level(DISPLAY_PIN_PWR, onoff);
+    gpio_set_level(DISPLAY_PIN_BK_PWR, onoff?DISPLAY_LCD_BK_LIGHT_ON:DISPLAY_LCD_BK_LIGHT_OFF);
+    ESP_LOGI(TAG, "Screen %s",onoff?"On":"Off");
+    GLOBAL_STATE->isScreenOn = onoff;
 }

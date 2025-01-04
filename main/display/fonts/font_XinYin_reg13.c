@@ -1027,7 +1027,7 @@ static lv_font_fmt_txt_dsc_t font_dsc = {
 #endif
 };
 
-extern const lv_font_t LV_FONT_MONTSERRAT_14;
+// extern const lv_font_t LV_FONT_MONTSERRAT_14;
 
 
 /*-----------------
@@ -1052,9 +1052,9 @@ lv_font_t font_XinYin_reg13 = {
     .underline_thickness = 1,
 #endif
     .dsc = &font_dsc,          /*The custom font data. Will be accessed by `get_glyph_bitmap/dsc` */
-#if LV_VERSION_CHECK(8, 2, 0) || LVGL_VERSION_MAJOR >= 9
-    .fallback = &LV_FONT_MONTSERRAT_14,
-#endif
+// #if LV_VERSION_CHECK(8, 2, 0) || LVGL_VERSION_MAJOR >= 9
+//     .fallback = &LV_FONT_MONTSERRAT_14,
+// #endif
     .user_data = NULL,
 };
 

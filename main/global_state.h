@@ -38,6 +38,18 @@ typedef enum
     ASIC_BM1370,
 } AsicModel;
 
+typedef enum
+{
+    D_STARTUP,
+    D_READY,
+    D_LOGO,
+    D_SETUP_INFO,
+    D_MINING_INFO,
+    D_DEVICE_INFO,
+    D_NETWORK_INFO,
+    D_OVERHEAT,
+} DisplayState;
+
 typedef struct
 {
     uint8_t (*init_fn)(uint64_t, uint16_t);
@@ -111,8 +123,18 @@ typedef struct
     bool has_chip_temp;
     int sock;
     bool ASIC_initalized;
+    bool wifi_connected;
 
+    //Display relative
     UI ui;
+    DisplayState displayState;
+    bool isDBtnShortPressed;
+    bool isDBtnLongPressed;
+    bool isScreenChanging;
+    bool isScreenOn;
+    bool isDisplayInit;
+    bool screenSwitch;
+    uint64_t initDoneDate;
 
 } GlobalState;
 

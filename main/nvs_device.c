@@ -38,6 +38,15 @@ esp_err_t NVSDevice_get_wifi_creds(GlobalState * GLOBAL_STATE, char ** wifi_ssid
 esp_err_t NVSDevice_parse_config(GlobalState * GLOBAL_STATE) {
 
     GLOBAL_STATE->POWER_MANAGEMENT_MODULE.frequency_value = nvs_config_get_u16(NVS_CONFIG_ASIC_FREQ, CONFIG_ASIC_FREQUENCY);
+    GLOBAL_STATE->displayState=D_STARTUP;
+    // GLOBAL_STATE->isDBtnShortPressed = false;
+    // GLOBAL_STATE->isDBtnLongPressed = false;
+    // GLOBAL_STATE->isScreenChanging = false;
+    GLOBAL_STATE->isScreenOn = true;
+    // GLOBAL_STATE->isDisplayInit = false;
+    // GLOBAL_STATE->screenSwitch = false;
+    GLOBAL_STATE->initDoneDate = 0;
+
     ESP_LOGI(TAG, "NVS_CONFIG_ASIC_FREQ %f", (float)GLOBAL_STATE->POWER_MANAGEMENT_MODULE.frequency_value);
 
     GLOBAL_STATE->device_model_str = nvs_config_get_string(NVS_CONFIG_DEVICE_MODEL, "");

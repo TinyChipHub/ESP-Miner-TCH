@@ -4,7 +4,7 @@ SRCS
     "EMC2302.c"
     "fonts.c"
     "i2c_bitaxe.c"
-    "led_controller.c"
+    #"led_controller.c"
     "main.c"
     "nvs_config.c"
     "system.c"
@@ -18,6 +18,7 @@ SRCS
     "./display/lcd_driver.c"
     "./http_server/http_server.c"
     "./tasks/stratum_task.c"
+    "./tasks/display_task.c"
     "./tasks/create_jobs_task.c"
     "./tasks/asic_task.c"
     "./tasks/asic_result_task.c"
@@ -26,11 +27,21 @@ SRCS
     "./display/themes/themes.c"
     "./display/ui.c"
 
+    #Fonts
+    "./display/fonts/font_XinYin_reg13.c"
+    "./display/fonts/font_XinYin_reg14.c"
+    "./display/fonts/font_XinYin_reg24.c"
+    "./display/fonts/font_XinYin_reg45.c"
+
+
+
+
 INCLUDE_DIRS
     "."
     "tasks"
     "display"
     "display/themes"
+    "display/fonts"
     "http_server"
     "../components/asic/include"
     "../components/connect/include"

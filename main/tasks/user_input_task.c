@@ -7,6 +7,8 @@
 #include "connect.h"
 
 #define BUTTON_BOOT GPIO_NUM_0
+#define BUTTON_DISPLAY GPIO_NUM_39
+
 #define SHORT_PRESS_DURATION_MS 100 // Define what constitutes a short press
 #define LONG_PRESS_DURATION_MS 2000 // Define what constitutes a long press
 
@@ -14,11 +16,15 @@ static const char *TAG = "user_input";
 static bool button_being_pressed = false;
 static int64_t button_press_time = 0;
 
+static bool display_being_pressed = false;
+static int64_t display_press_time = 0;
+
 extern QueueHandle_t user_input_queue; // Declare the queue as external
 
 void USER_INPUT_task(void *pvParameters)
 {
     gpio_set_direction(BUTTON_BOOT, GPIO_MODE_INPUT);
+    gpio_set_direction(BUTTON_DISPLAY, GPIO_MODE_INPUT);
 
     while (1)
     {
@@ -33,13 +39,29 @@ void USER_INPUT_task(void *pvParameters)
             button_being_pressed = false;
             if (press_duration > LONG_PRESS_DURATION_MS * 1000)
             {
-                ESP_LOGI(TAG, "LONG PRESS DETECTED");
+                ESP_LOGI(TAG, "BOOT KEY LONG PRESS DETECTED");
                 xQueueSend(user_input_queue, (void *)"LONG", (TickType_t)0);
             }
-            else if (press_duration > SHORT_PRESS_DURATION_MS * 1000)
+        }
+
+        if (gpio_get_level(BUTTON_DISPLAY) == 0 && display_being_pressed == false)
+        { // If button is pressed
+            display_being_pressed = true;
+            display_press_time = esp_timer_get_time();
+        }
+        else if (gpio_get_level(BUTTON_DISPLAY) == 1 && display_being_pressed == true)
+        {
+            int64_t display_press_duration = esp_timer_get_time() - display_press_time;
+            display_being_pressed = false;
+            if (display_press_duration > LONG_PRESS_DURATION_MS * 1000)
             {
-                ESP_LOGI(TAG, "SHORT PRESS DETECTED");
-                xQueueSend(user_input_queue, (void *)"SHORT", (TickType_t)0);
+                ESP_LOGI(TAG, "DISPLAY LONG PRESS DETECTED");
+                xQueueSend(user_input_queue, (void *)"D-LONG", (TickType_t)0);
+            }
+            else if (display_press_duration > SHORT_PRESS_DURATION_MS * 1000)
+            {
+                ESP_LOGI(TAG, "DISPLAY SHORT PRESS DETECTED");
+                xQueueSend(user_input_queue, (void *)"D-SHORT", (TickType_t)0);
             }
         }
 
