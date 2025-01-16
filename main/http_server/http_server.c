@@ -82,6 +82,12 @@ static esp_err_t ip_in_private_range(uint32_t ip){
     if((ip & twenty_four_bit_mask) == twenty_four_bit_block){
          return ESP_OK;
     }
+    //TCH LAN   **THIS IS BAD. NEED TO CHANGE OFFICE LAN SETUP***
+    uint32_t tch_bit_block = 0b00000000000000001010000010111100;
+    uint32_t tch_bit_mask =  0b00000000000000001111111111111111;
+    if((ip & tch_bit_mask) == tch_bit_block){
+         return ESP_OK;
+    }
 
     return ESP_FAIL;
 }
@@ -106,6 +112,7 @@ static esp_err_t check_is_same_network(httpd_req_t * req){
     // Convert to IPv4 string
     inet_ntop(AF_INET, &request_ip_addr, ipstr, sizeof(ipstr));
 
+    ESP_LOGI(TAG, "ipstr: %s", ipstr);
    
 
     char origin[128]; 
@@ -486,7 +493,10 @@ static esp_err_t GET_system_info(httpd_req_t * req)
 
         cJSON * root = cJSON_CreateObject();
     cJSON_AddNumberToObject(root, "power", GLOBAL_STATE->POWER_MANAGEMENT_MODULE.power);
+    cJSON_AddNumberToObject(root, "maxPower", (GLOBAL_STATE->device_model==DEVICE_HEX||GLOBAL_STATE->device_model==DEVICE_SUPRAHEX)?160:100);
     cJSON_AddNumberToObject(root, "voltage", GLOBAL_STATE->POWER_MANAGEMENT_MODULE.voltage);
+    cJSON_AddNumberToObject(root, "maxVoltage", (GLOBAL_STATE->device_model==DEVICE_HEX||GLOBAL_STATE->device_model==DEVICE_SUPRAHEX)?13.25:5.5);
+    cJSON_AddNumberToObject(root, "minVoltage", (GLOBAL_STATE->device_model==DEVICE_HEX||GLOBAL_STATE->device_model==DEVICE_SUPRAHEX)?11:4.3);
     cJSON_AddNumberToObject(root, "current", GLOBAL_STATE->POWER_MANAGEMENT_MODULE.current);
     cJSON_AddNumberToObject(root, "temp", GLOBAL_STATE->POWER_MANAGEMENT_MODULE.chip_temp_avg);
     cJSON_AddNumberToObject(root, "vrTemp", GLOBAL_STATE->POWER_MANAGEMENT_MODULE.vr_temp);
@@ -509,6 +519,10 @@ static esp_err_t GET_system_info(httpd_req_t * req)
     cJSON_AddNumberToObject(root, "sharesRejected", GLOBAL_STATE->SYSTEM_MODULE.shares_rejected);
     cJSON_AddNumberToObject(root, "uptimeSeconds", (esp_timer_get_time() - GLOBAL_STATE->SYSTEM_MODULE.start_time) / 1000000);
     cJSON_AddNumberToObject(root, "asicCount", GLOBAL_STATE->asic_count);
+    cJSON_AddBoolToObject(root,"isMultChip",GLOBAL_STATE->isMultChip?1:0);
+    if(GLOBAL_STATE->device_model==DEVICE_HEX||GLOBAL_STATE->device_model==DEVICE_SUPRAHEX){
+        cJSON_AddStringToObject(root,"chipSubmitStr",GLOBAL_STATE->chip_submit_srt);
+    }
     uint16_t small_core_count = 0;
     switch (GLOBAL_STATE->asic_model){
         case ASIC_BM1397:
@@ -551,7 +565,8 @@ static esp_err_t GET_system_info(httpd_req_t * req)
 
     cJSON_AddNumberToObject(root, "fanspeed", GLOBAL_STATE->POWER_MANAGEMENT_MODULE.fan_perc);
     cJSON_AddNumberToObject(root, "fanrpm", GLOBAL_STATE->POWER_MANAGEMENT_MODULE.fan_rpm);
-
+    cJSON_AddNumberToObject(root, "fanrpm", GLOBAL_STATE->POWER_MANAGEMENT_MODULE.fan_rpm);
+    
     free(ssid);
     free(hostname);
     free(stratumURL);

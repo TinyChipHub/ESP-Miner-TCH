@@ -27,6 +27,8 @@ typedef enum
     DEVICE_ULTRA,
     DEVICE_SUPRA,
     DEVICE_GAMMA,
+    DEVICE_HEX,
+    DEVICE_SUPRAHEX,
 } DeviceModel;
 
 typedef enum
@@ -123,6 +125,9 @@ typedef struct
 
     int sock;
     bool ASIC_initalized;
+    int chip_submit[6];
+    char chip_submit_srt[64];
+    bool isMultChip;
 } GlobalState;
 
 #endif /* GLOBAL_STATE_H_ */

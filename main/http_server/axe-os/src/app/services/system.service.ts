@@ -22,7 +22,10 @@ export class SystemService {
       return of(
         {
           power: 11.670000076293945,
+          maxPower: 100,
           voltage: 5208.75,
+          maxVoltage: 5.5,
+          minVoltage: 4.3,
           current: 2237.5,
           temp: 60,
           vrTemp: 45,
@@ -63,7 +66,9 @@ export class SystemService {
 
           boardtemp1: 30,
           boardtemp2: 40,
-          overheat_mode: 0
+          overheat_mode: 0,
+          chipSubmitStr: "[0]",
+          isMultChip: false
         }
       ).pipe(delay(1000));
     }

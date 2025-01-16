@@ -63,6 +63,8 @@ static const char * TAG = "bm1370Module";
 
 static uint8_t asic_response_buffer[SERIAL_BUF_SIZE];
 static task_result result;
+static int norceCount=0;
+static bool multiChip=false;
 
 /// @brief
 /// @param ftdi
@@ -215,6 +217,8 @@ static void do_frequency_ramp_up(float target_frequency) {
 
 static uint8_t _send_init(uint64_t frequency, uint16_t asic_count)
 {
+    multiChip = asic_count>1;
+
     // set version mask
     for (int i = 0; i < 3; i++) {
         BM1370_set_version_mask(STRATUM_DEFAULT_VERSION_MASK);
@@ -252,7 +256,7 @@ static uint8_t _send_init(uint64_t frequency, uint16_t asic_count)
     // _send_simple(init7, 7);
 
     // split the chip address space evenly
-    uint8_t address_interval = (uint8_t) (256 / chip_counter);
+    uint8_t address_interval = 2;
     for (uint8_t i = 0; i < chip_counter; i++) {
         _set_chip_address(i * address_interval);
         // unsigned char init8[7] = {0x55, 0xAA, 0x40, 0x05, 0x00, 0x00, 0x1C};
@@ -517,6 +521,22 @@ task_result * BM1370_proccess_work(void * pvParameters)
     ESP_LOGI(TAG, "Job ID: %02X, Core: %d/%d, Ver: %08" PRIX32, job_id, core_id, small_core_id, version_bits);
 
     GlobalState * GLOBAL_STATE = (GlobalState *) pvParameters;
+
+    if(multiChip){
+        uint8_t asic_nr = (asic_result->nonce & 0x0000fc00)>>10;
+        GLOBAL_STATE->chip_submit[asic_nr]= GLOBAL_STATE->chip_submit[asic_nr]+1;
+        if(norceCount%10==0){
+            sprintf(GLOBAL_STATE->chip_submit_srt,"[%d, %d, %d, %d, %d, %d]",
+                GLOBAL_STATE->chip_submit[0], GLOBAL_STATE->chip_submit[1], GLOBAL_STATE->chip_submit[2],
+                GLOBAL_STATE->chip_submit[3], GLOBAL_STATE->chip_submit[4], GLOBAL_STATE->chip_submit[5]);
+            ESP_LOGI(TAG, "Asic Submit Count: %s", (char*)(GLOBAL_STATE->chip_submit_srt));
+        }
+        norceCount++;
+        if(norceCount==1000000){
+            for(int a=0;a<6;a++)
+                 GLOBAL_STATE->chip_submit[a]=0;
+        }
+    }
 
     if (GLOBAL_STATE->valid_jobs[job_id] == 0) {
         ESP_LOGE(TAG, "Invalid job nonce found, 0x%02X", job_id);

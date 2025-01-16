@@ -5,7 +5,10 @@ export interface ISystemInfo {
     flipscreen: number;
     invertscreen: number;
     power: number,
+    maxPower:number,
     voltage: number,
+    maxVoltage:number,
+    minVoltage:number,
     current: number,
     temp: number,
     vrTemp: number,
@@ -43,5 +46,8 @@ export interface ISystemInfo {
 
     boardtemp1?: number,
     boardtemp2?: number,
-    overheat_mode: number
+    overheat_mode: number,
+
+    chipSubmitStr: string,
+    isMultChip: boolean
 }

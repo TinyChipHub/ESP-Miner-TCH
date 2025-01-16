@@ -27,7 +27,7 @@ esp_err_t VCORE_init(GlobalState * global_state) {
         case DEVICE_ULTRA:
         case DEVICE_SUPRA:
             if (global_state->board_version >= 402 && global_state->board_version <= 499) {
-                if (TPS546_init() != ESP_OK) {
+                if (TPS546_init(DEFAULT_CONFIG) != ESP_OK) {
                     ESP_LOGE(TAG, "TPS546 init failed!");
                     return ESP_FAIL;
                 }
@@ -36,12 +36,18 @@ esp_err_t VCORE_init(GlobalState * global_state) {
             }
             break;
         case DEVICE_GAMMA:
-            if (TPS546_init() != ESP_OK) {
+            if (TPS546_init(DEFAULT_CONFIG) != ESP_OK) {
                 ESP_LOGE(TAG, "TPS546 init failed!");
                 return ESP_FAIL;
             }
             break;
-        // case DEVICE_HEX:
+        case DEVICE_HEX:
+        case DEVICE_SUPRAHEX:
+            if (TPS546_init(HEX_CONFIG) != ESP_OK) {
+                ESP_LOGE(TAG, "TPS546 init failed!");
+                return ESP_FAIL;
+            }
+            break;
         default:
     }
     return ESP_OK;
@@ -94,7 +100,10 @@ esp_err_t VCORE_set_voltage(float core_voltage, GlobalState * global_state)
                 ESP_LOGI(TAG, "Set ASIC voltage = %.3fV", core_voltage);
                 TPS546_set_vout(core_voltage * (float)global_state->voltage_domain);
             break;
-        // case DEVICE_HEX:
+        case DEVICE_HEX:
+        case DEVICE_SUPRAHEX:
+            ESP_LOGI(TAG, "Set ASIC voltage = %.3fV", core_voltage);
+            TPS546_set_vout(core_voltage * (float)global_state->voltage_domain);
         default:
     }
 

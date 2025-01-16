@@ -13,9 +13,9 @@ fbstratumuser,data,string,1ER7ciDN5iL9Nr4r9XWiCJYSGA9ERJffkD.Ultra
 fbstratumpass,data,string,x
 asicfrequency,data,u16,550
 asicvoltage,data,u16,1250
-asicmodel,data,string,BM1368
-devicemodel,data,string,supra
-boardversion,data,string,402
+asicmodel,data,string,BM1366
+devicemodel,data,string,hex
+boardversion,data,string,303
 flipscreen,data,u16,1
 invertfanpol,data,u16,1
 autofanspeed,data,u16,1

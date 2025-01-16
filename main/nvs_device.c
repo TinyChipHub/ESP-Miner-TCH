@@ -60,7 +60,19 @@ esp_err_t NVSDevice_parse_config(GlobalState * GLOBAL_STATE) {
         GLOBAL_STATE->device_model = DEVICE_GAMMA;
         GLOBAL_STATE->asic_count = 1;
         GLOBAL_STATE->voltage_domain = 1;
-    } else {
+    } else if (strcmp(GLOBAL_STATE->device_model_str, "hex") == 0) {
+        ESP_LOGI(TAG, "DEVICE: Hex");
+        GLOBAL_STATE->device_model = DEVICE_HEX;
+        GLOBAL_STATE->asic_count = 6;
+        GLOBAL_STATE->voltage_domain = 3;
+        GLOBAL_STATE->isMultChip=true;
+    }else if (strcmp(GLOBAL_STATE->device_model_str, "suprahex") == 0) {
+        ESP_LOGI(TAG, "DEVICE: SupraHex");
+        GLOBAL_STATE->device_model = DEVICE_SUPRAHEX;
+        GLOBAL_STATE->asic_count = 6;
+        GLOBAL_STATE->voltage_domain = 3;
+        GLOBAL_STATE->isMultChip=true;
+    }else {
         ESP_LOGE(TAG, "Invalid DEVICE model");
         // maybe should return here to now execute anything with a faulty device parameter !
         // this stops crashes/reboots and allows dev testing without an asic

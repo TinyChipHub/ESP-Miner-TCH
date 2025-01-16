@@ -63,6 +63,8 @@ static const char * TAG = "bm1366Module";
 
 static uint8_t asic_response_buffer[SERIAL_BUF_SIZE];
 static task_result result;
+static int norceCount=0;
+static bool multiChip=false;
 
 /// @brief
 /// @param ftdi
@@ -248,6 +250,8 @@ static uint8_t _send_init(uint64_t frequency, uint16_t asic_count)
     }
     ESP_LOGI(TAG, "%i chip(s) detected on the chain, expected %i", chip_counter, asic_count);
 
+    multiChip = asic_count>1;
+
     unsigned char init4[11] = {0x55, 0xAA, 0x51, 0x09, 0x00, 0xA8, 0x00, 0x07, 0x00, 0x00, 0x03};
     _send_simple(init4, 11);
 
@@ -258,7 +262,7 @@ static uint8_t _send_init(uint64_t frequency, uint16_t asic_count)
     _send_chain_inactive();
 
     // split the chip address space evenly
-    uint8_t address_interval = (uint8_t) (256 / chip_counter);
+    uint8_t address_interval = 2;
     for (uint8_t i = 0; i < chip_counter; i++) {
         //{ 0x55, 0xAA, 0x40, 0x05, 0x00, 0x00, 0x1C };
         _set_chip_address(i * address_interval);
@@ -502,6 +506,22 @@ task_result * BM1366_proccess_work(void * pvParameters)
     if (GLOBAL_STATE->valid_jobs[job_id] == 0) {
         ESP_LOGE(TAG, "Invalid job found, 0x%02X", job_id);
         return NULL;
+    }
+
+    if(multiChip){
+        uint8_t asic_nr = (asic_result->nonce & 0x0000fc00)>>10;
+        GLOBAL_STATE->chip_submit[asic_nr]= GLOBAL_STATE->chip_submit[asic_nr]+1;
+        if(norceCount%10==0){
+            sprintf(GLOBAL_STATE->chip_submit_srt,"[%d, %d, %d, %d, %d, %d]",
+                GLOBAL_STATE->chip_submit[0], GLOBAL_STATE->chip_submit[1], GLOBAL_STATE->chip_submit[2],
+                GLOBAL_STATE->chip_submit[3], GLOBAL_STATE->chip_submit[4], GLOBAL_STATE->chip_submit[5]);
+            ESP_LOGI(TAG, "Asic Submit Count: %s", (char*)(GLOBAL_STATE->chip_submit_srt));
+        }
+        norceCount++;
+        if(norceCount==1000000){
+            for(int a=0;a<6;a++)
+                 GLOBAL_STATE->chip_submit[a]=0;
+        }
     }
 
     uint32_t rolled_version = GLOBAL_STATE->ASIC_TASK_MODULE.active_jobs[job_id]->version | version_bits;
