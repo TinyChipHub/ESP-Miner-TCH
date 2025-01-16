@@ -33,6 +33,7 @@ void lvglFlushCallback(lv_disp_drv_t* drv, const lv_area_t* area, lv_color_t* co
     int offsety2 = area->y2;
     // Copy buffer content to the display
     esp_lcd_panel_draw_bitmap(panelHandle, offsetx1, offsety1, offsetx2 + 1, offsety2 + 1, colorMap);
+    ESP_LOGI(TAG, "lvglFlushCallback done");
 }
 
 esp_err_t init_display(GlobalState * GLOBAL_STATE) {
@@ -136,16 +137,16 @@ esp_err_t init_display(GlobalState * GLOBAL_STATE) {
     // alloc draw buffers used by LVGL
     // it's recommended to choose the size of the draw buffer(s) to be at least 1/10 screen sized
     lv_color_t *buf1 = (lv_color_t*) heap_caps_malloc(LVGL_LCD_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA);
-    assert(buf1);
-    //    lv_color_t *buf2 = heap_caps_malloc(LVGL_LCD_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA );
-    //    assert(buf2);
-    // initialize LVGL draw buffers
-    lv_disp_draw_buf_init(&disp_buf, buf1, NULL, LVGL_LCD_BUF_SIZE);
-    assert(buf1);
-    //    lv_color_t *buf2 = heap_caps_malloc(LVGL_LCD_BUF_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA );
-    //    assert(buf2);
-    // initialize LVGL draw buffers
-    lv_disp_draw_buf_init(&disp_buf, buf1, NULL, LVGL_LCD_BUF_SIZE);
+    if (buf1 == NULL) {
+        ESP_LOGE(TAG, "Failed to allocate LVGL draw buffer");
+        return ESP_ERR_NO_MEM;
+    }
+    // Initialize LVGL draw buffer with single buffer mode
+    if (lv_disp_draw_buf_init(&disp_buf, buf1, NULL, LVGL_LCD_BUF_SIZE) != LV_RES_OK) {
+        ESP_LOGE(TAG, "Failed to initialize LVGL draw buffer");
+        heap_caps_free(buf1);
+        return ESP_FAIL;
+    }
 
     ESP_LOGI(TAG, "Register display driver to LVGL");
     lv_disp_drv_init(&disp_drv);
@@ -155,14 +156,11 @@ esp_err_t init_display(GlobalState * GLOBAL_STATE) {
     disp_drv.draw_buf = &disp_buf;
     disp_drv.user_data = d_panel_handle;
     lv_disp_t *disp = lv_disp_drv_register(&disp_drv);
+    lv_theme_t *m_theme =
+        lv_theme_default_init(disp, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED), false, LV_FONT_DEFAULT);
+    lv_disp_set_theme(disp, m_theme);
 
-    //lv_disp_get_scr_act(disp);
-
-    // Configuration is completed.
-    esp_timer_handle_t lvgl_tick_timer = NULL;
-    // ESP_ERROR_CHECK(esp_timer_create(&lvgl_tick_timer_args, &lvgl_tick_timer));
-    // ESP_ERROR_CHECK(esp_timer_start_periodic(lvgl_tick_timer, TDISPLAYS3_LVGL_TICK_PERIOD_MS * 1000));
-
+    // Configuration is completed
     ESP_LOGI(TAG, "Display LVGL animation");
     lv_obj_t *scr = lv_disp_get_scr_act(disp);
 
