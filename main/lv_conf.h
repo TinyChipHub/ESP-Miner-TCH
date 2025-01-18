@@ -1,7 +1,7 @@
 #ifndef LV_CONF_H
 #define LV_CONF_H
 
-#define LV_COLOR_DEPTH 1
+#define LV_COLOR_DEPTH 16
 
 #define LV_USE_OS LV_OS_FREERTOS
 
@@ -13,18 +13,18 @@
 #define LV_DRAW_SW_SUPPORT_AL88     0
 #define LV_DRAW_SW_SUPPORT_A8       0
 
-#define LV_DRAW_SW_COMPLEX 0
+#define LV_DRAW_SW_COMPLEX 1
 
 #define LV_USE_FLOAT 1
 
 #define LV_FONT_MONTSERRAT_14 0
 
-#define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_portfolio_6x8)
-#define LV_FONT_DEFAULT        &lv_font_portfolio_6x8
+#define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(font_XinYin_reg13) LV_FONT_DECLARE(font_XinYin_reg14) LV_FONT_DECLARE(font_XinYin_reg24) LV_FONT_DECLARE(font_XinYin_reg45)
+#define LV_FONT_DEFAULT        &font_XinYin_reg14
 
 #define LV_WIDGETS_HAS_DEFAULT_VALUE 0
 
-#define LV_USE_ANIMIMG      0
+#define LV_USE_ANIMIMG      1
 #define LV_USE_ARC          0
 #define LV_USE_BAR          0
 #define LV_USE_BUTTON       0

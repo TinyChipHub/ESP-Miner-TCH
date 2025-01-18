@@ -29,7 +29,7 @@ static const char * TAG = "display";
 static lv_theme_t theme;
 static lv_style_t scr_style;
 
-extern const lv_font_t lv_font_portfolio_6x8;
+extern const lv_font_t font_XinYin_reg14;
 
 static void theme_apply(lv_theme_t *theme, lv_obj_t *obj) {
     if (lv_obj_get_parent(obj) == NULL) {
@@ -113,7 +113,7 @@ esp_err_t display_init(void * pvParameters)
 
         if (lvgl_port_lock(0)) {
             lv_style_init(&scr_style);
-            lv_style_set_text_font(&scr_style, &lv_font_portfolio_6x8);
+            lv_style_set_text_font(&scr_style, &font_XinYin_reg14);
             lv_style_set_bg_opa(&scr_style, LV_OPA_COVER);
 
             lv_theme_set_apply_cb(&theme, theme_apply);

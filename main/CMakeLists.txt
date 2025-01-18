@@ -14,7 +14,6 @@ SRCS
     "vcore.c"
     "work_queue.c"
     "nvs_device.c"
-    "lv_font_portfolio-6x8.c"
     "logo.c"
     "./http_server/http_server.c"
     "./http_server/theme_api.c"
@@ -25,11 +24,18 @@ SRCS
     "./tasks/asic_result_task.c"
     "./tasks/power_management_task.c"
 
+    #Fonts
+    "./fonts/font_XinYin_reg13.c"
+    "./fonts/font_XinYin_reg14.c"
+    "./fonts/font_XinYin_reg24.c"
+    "./fonts/font_XinYin_reg45.c"
+
 INCLUDE_DIRS
     "."
     "tasks"
     "http_server"
     "self_test"
+    "fonts"
     "../components/asic/include"
     "../components/connect/include"
     "../components/dns_server/include"
@@ -51,6 +57,7 @@ PRIV_REQUIRES
     "spiffs"
     "vfs"
     "esp_driver_i2c"
+    "lvgl"
 )
 
 idf_build_set_property(COMPILE_OPTIONS "-DLV_CONF_INCLUDE_SIMPLE=1" APPEND)

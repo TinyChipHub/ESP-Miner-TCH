@@ -56,7 +56,11 @@
         "utils.h": "c",
         "task.h": "c",
         "stdlib.h": "c",
-        "global_state.h": "c"
+        "global_state.h": "c",
+        "lvgl.h": "c",
+        "lv_font.h": "c",
+        "lv_binfont_loader.h": "c",
+        "lv_theme_private.h": "c"
     },
     "editor.formatOnSave": false,
     "cSpell.words": [
