@@ -493,10 +493,10 @@ static esp_err_t GET_system_info(httpd_req_t * req)
 
         cJSON * root = cJSON_CreateObject();
     cJSON_AddNumberToObject(root, "power", GLOBAL_STATE->POWER_MANAGEMENT_MODULE.power);
-    cJSON_AddNumberToObject(root, "maxPower", (GLOBAL_STATE->device_model==DEVICE_HEX||GLOBAL_STATE->device_model==DEVICE_SUPRAHEX)?160:100);
+    cJSON_AddNumberToObject(root, "maxPower", (GLOBAL_STATE->device_model==DEVICE_ZYBER8S||GLOBAL_STATE->device_model==DEVICE_ZYBER8G)?160:280);
     cJSON_AddNumberToObject(root, "voltage", GLOBAL_STATE->POWER_MANAGEMENT_MODULE.voltage);
-    cJSON_AddNumberToObject(root, "maxVoltage", (GLOBAL_STATE->device_model==DEVICE_HEX||GLOBAL_STATE->device_model==DEVICE_SUPRAHEX)?13.25:5.5);
-    cJSON_AddNumberToObject(root, "minVoltage", (GLOBAL_STATE->device_model==DEVICE_HEX||GLOBAL_STATE->device_model==DEVICE_SUPRAHEX)?11:4.3);
+    cJSON_AddNumberToObject(root, "maxVoltage", 13.25);
+    cJSON_AddNumberToObject(root, "minVoltage", 11.0);
     cJSON_AddNumberToObject(root, "current", GLOBAL_STATE->POWER_MANAGEMENT_MODULE.current);
     cJSON_AddNumberToObject(root, "temp", GLOBAL_STATE->POWER_MANAGEMENT_MODULE.chip_temp_avg);
     cJSON_AddNumberToObject(root, "vrTemp", GLOBAL_STATE->POWER_MANAGEMENT_MODULE.vr_temp);
@@ -520,14 +520,10 @@ static esp_err_t GET_system_info(httpd_req_t * req)
     cJSON_AddNumberToObject(root, "uptimeSeconds", (esp_timer_get_time() - GLOBAL_STATE->SYSTEM_MODULE.start_time) / 1000000);
     cJSON_AddNumberToObject(root, "asicCount", GLOBAL_STATE->asic_count);
     cJSON_AddBoolToObject(root,"isMultChip",GLOBAL_STATE->isMultChip?1:0);
-    if(GLOBAL_STATE->device_model==DEVICE_HEX||GLOBAL_STATE->device_model==DEVICE_SUPRAHEX){
-        cJSON_AddStringToObject(root,"chipSubmitStr",GLOBAL_STATE->chip_submit_srt);
-    }
+    cJSON_AddStringToObject(root,"chipSubmitStr",GLOBAL_STATE->chip_submit_srt);
+    
     uint16_t small_core_count = 0;
     switch (GLOBAL_STATE->asic_model){
-        case ASIC_BM1397:
-            small_core_count = BM1397_SMALL_CORE_COUNT;
-            break;
         case ASIC_BM1366:
             small_core_count = BM1366_SMALL_CORE_COUNT;
             break;

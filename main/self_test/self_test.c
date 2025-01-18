@@ -5,12 +5,11 @@
 // #include "driver/gpio.h"
 
 #include "esp_log.h"
+#include "esp_err.h"
+#include "esp_check.h"
 #include "esp_timer.h"
 
 #include "i2c_bitaxe.h"
-#include "DS4432U.h"
-#include "EMC2101.h"
-#include "INA260.h"
 #include "adc.h"
 #include "global_state.h"
 #include "nvs_config.h"
@@ -21,6 +20,7 @@
 #include "vcore.h"
 #include "utils.h"
 #include "TPS546.h"
+#include "EMC2302.h"
 #include "esp_psram.h"
 
 #define GPIO_ASIC_ENABLE CONFIG_GPIO_ASIC_ENABLE
@@ -54,10 +54,9 @@ static const char * TAG = "self_test";
 static void tests_done(GlobalState * GLOBAL_STATE, bool test_result);
 
 bool should_test(GlobalState * GLOBAL_STATE) {
-    bool is_max = GLOBAL_STATE->asic_model == ASIC_BM1397;
     uint64_t best_diff = nvs_config_get_u64(NVS_CONFIG_BEST_DIFF, 0);
     uint16_t should_self_test = nvs_config_get_u16(NVS_CONFIG_SELF_TEST, 0);
-    if (should_self_test == 1 && !is_max && best_diff < 1) {
+    if (should_self_test == 1 &&  best_diff < 1) {
         return true;
     }
     return false;
@@ -78,11 +77,9 @@ static esp_err_t test_fan_sense(GlobalState * GLOBAL_STATE)
 {
     uint16_t fan_speed = 0;
     switch (GLOBAL_STATE->device_model) {
-        case DEVICE_MAX:
-        case DEVICE_ULTRA:
-        case DEVICE_SUPRA:
-        case DEVICE_GAMMA:
-            fan_speed = EMC2101_get_fan_speed();
+        case DEVICE_ZYBER8S:
+        case DEVICE_ZYBER8G:
+            fan_speed = EMC2302_get_fan_speed(0);
             break;
         default:
     }
@@ -94,16 +91,6 @@ static esp_err_t test_fan_sense(GlobalState * GLOBAL_STATE)
     //fan test failed
     ESP_LOGE(TAG, "FAN test failed!");
     display_msg("FAN:WARN", GLOBAL_STATE);  
-    return ESP_FAIL;
-}
-
-static esp_err_t test_INA260_power_consumption(int target_power, int margin)
-{
-    float power = INA260_read_power() / 1000;
-    ESP_LOGI(TAG, "Power: %f", power);
-    if (power > target_power -margin && power < target_power +margin) {
-        return ESP_OK;
-    }
     return ESP_FAIL;
 }
 
@@ -136,10 +123,8 @@ static esp_err_t test_core_voltage(GlobalState * GLOBAL_STATE)
 esp_err_t test_display(GlobalState * GLOBAL_STATE) {
     // Display testing
     switch (GLOBAL_STATE->device_model) {
-        case DEVICE_MAX:
-        case DEVICE_ULTRA:
-        case DEVICE_SUPRA:
-        case DEVICE_GAMMA:
+        case DEVICE_ZYBER8S:
+        case DEVICE_ZYBER8G:
             if (display_init(GLOBAL_STATE) != ESP_OK) {
                 display_msg("DISPLAY:FAIL", GLOBAL_STATE);
                 return ESP_FAIL;
@@ -161,10 +146,8 @@ esp_err_t test_display(GlobalState * GLOBAL_STATE) {
 esp_err_t test_input(GlobalState * GLOBAL_STATE) {
     // Input testing
     switch (GLOBAL_STATE->device_model) {
-        case DEVICE_MAX:
-        case DEVICE_ULTRA:
-        case DEVICE_SUPRA:
-        case DEVICE_GAMMA:
+        case DEVICE_ZYBER8S:
+        case DEVICE_ZYBER8G:
             if (input_init(NULL, reset_self_test) != ESP_OK) {
                 display_msg("INPUT:FAIL", GLOBAL_STATE);
                 return ESP_FAIL;
@@ -181,10 +164,8 @@ esp_err_t test_input(GlobalState * GLOBAL_STATE) {
 esp_err_t test_screen(GlobalState * GLOBAL_STATE) {
     // Screen testing
     switch (GLOBAL_STATE->device_model) {
-        case DEVICE_MAX:
-        case DEVICE_ULTRA:
-        case DEVICE_SUPRA:
-        case DEVICE_GAMMA:
+        case DEVICE_ZYBER8S:
+        case DEVICE_ZYBER8G:
             if (screen_start(GLOBAL_STATE) != ESP_OK) {
                 display_msg("SCREEN:FAIL", GLOBAL_STATE);
                 return ESP_FAIL;
@@ -200,6 +181,7 @@ esp_err_t test_screen(GlobalState * GLOBAL_STATE) {
 }
 
 esp_err_t init_voltage_regulator(GlobalState * GLOBAL_STATE) {
+
     ESP_RETURN_ON_ERROR(VCORE_init(GLOBAL_STATE), TAG, "VCORE init failed!");
 
     ESP_RETURN_ON_ERROR(VCORE_set_voltage(nvs_config_get_u16(NVS_CONFIG_ASIC_VOLTAGE, CONFIG_ASIC_VOLTAGE) / 1000.0, GLOBAL_STATE), TAG, "VCORE set voltage failed!");
@@ -209,43 +191,11 @@ esp_err_t init_voltage_regulator(GlobalState * GLOBAL_STATE) {
 
 esp_err_t test_voltage_regulator(GlobalState * GLOBAL_STATE) {
     
-    //enable the voltage regulator GPIO on HW that supports it
-    switch (GLOBAL_STATE->device_model) {
-        case DEVICE_MAX:
-        case DEVICE_ULTRA:
-        case DEVICE_SUPRA:
-            // turn ASIC on
-            gpio_set_direction(GPIO_ASIC_ENABLE, GPIO_MODE_OUTPUT);
-            gpio_set_level(GPIO_ASIC_ENABLE, 0);
-            break;
-        case DEVICE_GAMMA:
-        default:
-    }
-
     if (init_voltage_regulator(GLOBAL_STATE) != ESP_OK) {
         ESP_LOGE(TAG, "VCORE init failed!");
         display_msg("VCORE:FAIL", GLOBAL_STATE);
         //tests_done(GLOBAL_STATE, TESTS_FAILED);
         return ESP_FAIL;
-    }
-
-    // VCore regulator testing
-    switch (GLOBAL_STATE->device_model) {
-        case DEVICE_MAX:
-        case DEVICE_ULTRA:
-        case DEVICE_SUPRA:
-            if (GLOBAL_STATE->board_version < 402){
-                if (DS4432U_test() != ESP_OK) {
-                    ESP_LOGE(TAG, "DS4432 test failed!");
-                    display_msg("DS4432U:FAIL", GLOBAL_STATE);
-                    //tests_done(GLOBAL_STATE, TESTS_FAILED);
-                    return ESP_FAIL;
-                }
-            }
-            break;
-        case DEVICE_GAMMA:
-            break;
-        default:
     }
 
     ESP_LOGI(TAG, "Voltage Regulator test success!");
@@ -256,32 +206,12 @@ esp_err_t test_init_peripherals(GlobalState * GLOBAL_STATE) {
     
     //Init the EMC2101 fan and temperature monitoring
     switch (GLOBAL_STATE->device_model) {
-        case DEVICE_MAX:
-        case DEVICE_ULTRA:
-        case DEVICE_SUPRA:
-            ESP_RETURN_ON_ERROR(EMC2101_init(nvs_config_get_u16(NVS_CONFIG_INVERT_FAN_POLARITY, 1)), TAG, "EMC2101 init failed!");
-            EMC2101_set_fan_speed(1);
+        case DEVICE_ZYBER8S:
+        case DEVICE_ZYBER8G:
+            ESP_RETURN_ON_ERROR(EMC2302_init(nvs_config_get_u16(NVS_CONFIG_INVERT_FAN_POLARITY, 1)), TAG, "EMC2101 init failed!");
+            EMC2302_set_fan_speed(0,1);
+            EMC2302_set_fan_speed(1,1);
             break;
-        case DEVICE_GAMMA:
-            ESP_RETURN_ON_ERROR(EMC2101_init(nvs_config_get_u16(NVS_CONFIG_INVERT_FAN_POLARITY, 1)), TAG, "EMC2101 init failed!");
-            EMC2101_set_fan_speed(1);
-            EMC2101_set_ideality_factor(EMC2101_IDEALITY_1_0319);
-            EMC2101_set_beta_compensation(EMC2101_BETA_11);
-            break;
-        default:
-    }
-
-    //initialize the INA260, if we have one.
-    switch (GLOBAL_STATE->device_model) {
-        case DEVICE_MAX:
-        case DEVICE_ULTRA:
-        case DEVICE_SUPRA:
-            if (GLOBAL_STATE->board_version < 402) {
-                // Initialize the LED controller
-                ESP_RETURN_ON_ERROR(INA260_init(), TAG, "INA260 init failed!");
-            }
-            break;
-        case DEVICE_GAMMA:
         default:
     }
 
@@ -454,16 +384,13 @@ void self_test(void * pvParameters)
     ESP_LOGI(TAG, "Hashrate: %f", hash_rate);
 
     switch (GLOBAL_STATE->device_model) {
-        case DEVICE_MAX:
-        case DEVICE_ULTRA:
-            break;
-        case DEVICE_SUPRA:
+        case DEVICE_ZYBER8S:
             if(hash_rate < HASHRATE_TARGET_SUPRA){
                 display_msg("HASHRATE:FAIL", GLOBAL_STATE);
                 tests_done(GLOBAL_STATE, TESTS_FAILED);
             }
             break;
-        case DEVICE_GAMMA:
+        case DEVICE_ZYBER8G:
             if(hash_rate < HASHRATE_TARGET_GAMMA){
                 display_msg("HASHRATE:FAIL", GLOBAL_STATE);
                 tests_done(GLOBAL_STATE, TESTS_FAILED);
@@ -479,33 +406,33 @@ void self_test(void * pvParameters)
         tests_done(GLOBAL_STATE, TESTS_FAILED);
     }
 
-    switch (GLOBAL_STATE->device_model) {
-        case DEVICE_MAX:
-        case DEVICE_ULTRA:
-        case DEVICE_SUPRA:
-            if(GLOBAL_STATE->board_version >= 402 && GLOBAL_STATE->board_version <= 499){
-                if (test_TPS546_power_consumption(POWER_CONSUMPTION_TARGET_402, POWER_CONSUMPTION_MARGIN) != ESP_OK) {
-                    ESP_LOGE(TAG, "TPS546 Power Draw Failed, target %.2f", (float)POWER_CONSUMPTION_TARGET_402);
-                    display_msg("POWER:FAIL", GLOBAL_STATE);
-                    tests_done(GLOBAL_STATE, TESTS_FAILED);
-                }
-            } else {
-                if (test_INA260_power_consumption(POWER_CONSUMPTION_TARGET_SUB_402, POWER_CONSUMPTION_MARGIN) != ESP_OK) {
-                    ESP_LOGE(TAG, "INA260 Power Draw Failed, target %.2f", (float)POWER_CONSUMPTION_TARGET_SUB_402);
-                    display_msg("POWER:FAIL", GLOBAL_STATE);
-                    tests_done(GLOBAL_STATE, TESTS_FAILED);
-                }
-            }
-            break;
-        case DEVICE_GAMMA:
-                if (test_TPS546_power_consumption(POWER_CONSUMPTION_TARGET_GAMMA, POWER_CONSUMPTION_MARGIN) != ESP_OK) {
-                    ESP_LOGE(TAG, "TPS546 Power Draw Failed, target %.2f", (float)POWER_CONSUMPTION_TARGET_GAMMA);
-                    display_msg("POWER:FAIL", GLOBAL_STATE);
-                    tests_done(GLOBAL_STATE, TESTS_FAILED);
-                }
-            break;
-        default:
-    }
+    // switch (GLOBAL_STATE->device_model) {
+    //     case DEVICE_MAX:
+    //     case DEVICE_ULTRA:
+    //     case DEVICE_SUPRA:
+    //         if(GLOBAL_STATE->board_version >= 402 && GLOBAL_STATE->board_version <= 499){
+    //             if (test_TPS546_power_consumption(POWER_CONSUMPTION_TARGET_402, POWER_CONSUMPTION_MARGIN) != ESP_OK) {
+    //                 ESP_LOGE(TAG, "TPS546 Power Draw Failed, target %.2f", (float)POWER_CONSUMPTION_TARGET_402);
+    //                 display_msg("POWER:FAIL", GLOBAL_STATE);
+    //                 tests_done(GLOBAL_STATE, TESTS_FAILED);
+    //             }
+    //         } else {
+    //             if (test_INA260_power_consumption(POWER_CONSUMPTION_TARGET_SUB_402, POWER_CONSUMPTION_MARGIN) != ESP_OK) {
+    //                 ESP_LOGE(TAG, "INA260 Power Draw Failed, target %.2f", (float)POWER_CONSUMPTION_TARGET_SUB_402);
+    //                 display_msg("POWER:FAIL", GLOBAL_STATE);
+    //                 tests_done(GLOBAL_STATE, TESTS_FAILED);
+    //             }
+    //         }
+    //         break;
+    //     case DEVICE_GAMMA:
+    //             if (test_TPS546_power_consumption(POWER_CONSUMPTION_TARGET_GAMMA, POWER_CONSUMPTION_MARGIN) != ESP_OK) {
+    //                 ESP_LOGE(TAG, "TPS546 Power Draw Failed, target %.2f", (float)POWER_CONSUMPTION_TARGET_GAMMA);
+    //                 display_msg("POWER:FAIL", GLOBAL_STATE);
+    //                 tests_done(GLOBAL_STATE, TESTS_FAILED);
+    //             }
+    //         break;
+    //     default:
+    // }
 
     if (test_fan_sense(GLOBAL_STATE) != ESP_OK) {     
         ESP_LOGE(TAG, "Fan test failed!"); 
@@ -520,10 +447,8 @@ void self_test(void * pvParameters)
 static void tests_done(GlobalState * GLOBAL_STATE, bool test_result) 
 {
     switch (GLOBAL_STATE->device_model) {
-        case DEVICE_MAX:
-        case DEVICE_ULTRA:
-        case DEVICE_SUPRA:
-        case DEVICE_GAMMA:
+        case DEVICE_ZYBER8S:
+        case DEVICE_ZYBER8G:
             GLOBAL_STATE->SELF_TEST_MODULE.result = test_result;
             GLOBAL_STATE->SELF_TEST_MODULE.finished = true;
             break;

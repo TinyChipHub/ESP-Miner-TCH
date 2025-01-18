@@ -511,15 +511,16 @@ task_result * BM1366_proccess_work(void * pvParameters)
     if(multiChip){
         uint8_t asic_nr = (asic_result->nonce & 0x0000fc00)>>10;
         GLOBAL_STATE->chip_submit[asic_nr]= GLOBAL_STATE->chip_submit[asic_nr]+1;
-        if(norceCount%10==0){
-            sprintf(GLOBAL_STATE->chip_submit_srt,"[%d, %d, %d, %d, %d, %d]",
+        if(norceCount%20==0){
+            sprintf(GLOBAL_STATE->chip_submit_srt,"[%d, %d, %d, %d, %d, %d, %d, %d]",
                 GLOBAL_STATE->chip_submit[0], GLOBAL_STATE->chip_submit[1], GLOBAL_STATE->chip_submit[2],
-                GLOBAL_STATE->chip_submit[3], GLOBAL_STATE->chip_submit[4], GLOBAL_STATE->chip_submit[5]);
+                GLOBAL_STATE->chip_submit[3], GLOBAL_STATE->chip_submit[4], GLOBAL_STATE->chip_submit[5],
+                GLOBAL_STATE->chip_submit[6], GLOBAL_STATE->chip_submit[7]);
             ESP_LOGI(TAG, "Asic Submit Count: %s", (char*)(GLOBAL_STATE->chip_submit_srt));
         }
         norceCount++;
         if(norceCount==1000000){
-            for(int a=0;a<6;a++)
+            for(int a=0;a<8;a++)
                  GLOBAL_STATE->chip_submit[a]=0;
         }
     }

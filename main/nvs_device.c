@@ -9,8 +9,6 @@
 #include "global_state.h"
 
 static const char * TAG = "nvs_device";
-static const double NONCE_SPACE = 4294967296.0; //  2^32
-
 
 esp_err_t NVSDevice_init(void) {
     esp_err_t err = nvs_flash_init();
@@ -40,37 +38,17 @@ esp_err_t NVSDevice_parse_config(GlobalState * GLOBAL_STATE) {
     ESP_LOGI(TAG, "NVS_CONFIG_ASIC_FREQ %f", (float)GLOBAL_STATE->POWER_MANAGEMENT_MODULE.frequency_value);
 
     GLOBAL_STATE->device_model_str = nvs_config_get_string(NVS_CONFIG_DEVICE_MODEL, "");
-    if (strcmp(GLOBAL_STATE->device_model_str, "max") == 0) {
-        ESP_LOGI(TAG, "DEVICE: Max");
-        GLOBAL_STATE->device_model = DEVICE_MAX;
-        GLOBAL_STATE->asic_count = 1;
-        GLOBAL_STATE->voltage_domain = 1;
-    } else if (strcmp(GLOBAL_STATE->device_model_str, "ultra") == 0) {
-        ESP_LOGI(TAG, "DEVICE: Ultra");
-        GLOBAL_STATE->device_model = DEVICE_ULTRA;
-        GLOBAL_STATE->asic_count = 1;
-        GLOBAL_STATE->voltage_domain = 1;
-    } else if (strcmp(GLOBAL_STATE->device_model_str, "supra") == 0) {
-        ESP_LOGI(TAG, "DEVICE: Supra");
-        GLOBAL_STATE->device_model = DEVICE_SUPRA;
-        GLOBAL_STATE->asic_count = 1;
-        GLOBAL_STATE->voltage_domain = 1;
-        } else if (strcmp(GLOBAL_STATE->device_model_str, "gamma") == 0) {
-        ESP_LOGI(TAG, "DEVICE: Gamma");
-        GLOBAL_STATE->device_model = DEVICE_GAMMA;
-        GLOBAL_STATE->asic_count = 1;
-        GLOBAL_STATE->voltage_domain = 1;
-    } else if (strcmp(GLOBAL_STATE->device_model_str, "hex") == 0) {
-        ESP_LOGI(TAG, "DEVICE: Hex");
-        GLOBAL_STATE->device_model = DEVICE_HEX;
-        GLOBAL_STATE->asic_count = 6;
-        GLOBAL_STATE->voltage_domain = 3;
+    if (strcmp(GLOBAL_STATE->device_model_str, "zyber8s") == 0) {
+        ESP_LOGI(TAG, "DEVICE: Zyber8S");
+        GLOBAL_STATE->device_model = DEVICE_ZYBER8S;
+        GLOBAL_STATE->asic_count = 8;
+        GLOBAL_STATE->voltage_domain = 4;
         GLOBAL_STATE->isMultChip=true;
-    }else if (strcmp(GLOBAL_STATE->device_model_str, "suprahex") == 0) {
-        ESP_LOGI(TAG, "DEVICE: SupraHex");
-        GLOBAL_STATE->device_model = DEVICE_SUPRAHEX;
-        GLOBAL_STATE->asic_count = 6;
-        GLOBAL_STATE->voltage_domain = 3;
+    } else if (strcmp(GLOBAL_STATE->device_model_str, "zyber8g") == 0) {
+        ESP_LOGI(TAG, "DEVICE: Zyber8G");
+        GLOBAL_STATE->device_model = DEVICE_ZYBER8G;
+        GLOBAL_STATE->asic_count = 8;
+        GLOBAL_STATE->voltage_domain = 4;
         GLOBAL_STATE->isMultChip=true;
     }else {
         ESP_LOGE(TAG, "Invalid DEVICE model");
@@ -128,19 +106,6 @@ esp_err_t NVSDevice_parse_config(GlobalState * GLOBAL_STATE) {
         //GLOBAL_STATE.asic_job_frequency_ms = (NONCE_SPACE / (double) (GLOBAL_STATE.POWER_MANAGEMENT_MODULE.frequency_value * BM1368_CORE_COUNT * 1000)) / (double) GLOBAL_STATE.asic_count; // version-rolling so Small Cores have different Nonce Space
         GLOBAL_STATE->asic_job_frequency_ms = 500; //ms
         GLOBAL_STATE->ASIC_difficulty = BM1368_ASIC_DIFFICULTY;
-
-        GLOBAL_STATE->ASIC_functions = ASIC_functions;
-    } else if (strcmp(GLOBAL_STATE->asic_model_str, "BM1397") == 0) {
-        ESP_LOGI(TAG, "ASIC: %dx BM1397 (%" PRIu64 " cores)", GLOBAL_STATE->asic_count, BM1397_SMALL_CORE_COUNT);
-        GLOBAL_STATE->asic_model = ASIC_BM1397;
-        AsicFunctions ASIC_functions = {.init_fn = BM1397_init,
-                                        .receive_result_fn = BM1397_proccess_work,
-                                        .set_max_baud_fn = BM1397_set_max_baud,
-                                        .set_difficulty_mask_fn = BM1397_set_job_difficulty_mask,
-                                        .send_work_fn = BM1397_send_work,
-                                        .set_version_mask = BM1397_set_version_mask};
-        GLOBAL_STATE->asic_job_frequency_ms = (NONCE_SPACE / (double) (GLOBAL_STATE->POWER_MANAGEMENT_MODULE.frequency_value * BM1397_SMALL_CORE_COUNT * 1000)) / (double) GLOBAL_STATE->asic_count; // no version-rolling so same Nonce Space is splitted between Small Cores
-        GLOBAL_STATE->ASIC_difficulty = BM1397_ASIC_DIFFICULTY;
 
         GLOBAL_STATE->ASIC_functions = ASIC_functions;
     } else {

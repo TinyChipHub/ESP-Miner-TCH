@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include "esp_log.h"
+#include "esp_check.h"
+#include "esp_err.h"
 #include "i2c_bitaxe.h"
 
 #include "TMP1075.h"

@@ -7,7 +7,6 @@
 #include "bm1370.h"
 #include "bm1368.h"
 #include "bm1366.h"
-#include "bm1397.h"
 #include "common.h"
 #include "power_management_task.h"
 #include "serial.h"
@@ -23,18 +22,13 @@
 typedef enum
 {
     DEVICE_UNKNOWN = -1,
-    DEVICE_MAX,
-    DEVICE_ULTRA,
-    DEVICE_SUPRA,
-    DEVICE_GAMMA,
-    DEVICE_HEX,
-    DEVICE_SUPRAHEX,
+    DEVICE_ZYBER8S,
+    DEVICE_ZYBER8G,
 } DeviceModel;
 
 typedef enum
 {
     ASIC_UNKNOWN = -1,
-    ASIC_BM1397,
     ASIC_BM1366,
     ASIC_BM1368,
     ASIC_BM1370,
@@ -106,7 +100,6 @@ typedef struct
     work_queue stratum_queue;
     work_queue ASIC_jobs_queue;
 
-    bm1397Module BM1397_MODULE;
     SystemModule SYSTEM_MODULE;
     AsicTaskModule ASIC_TASK_MODULE;
     PowerManagementModule POWER_MANAGEMENT_MODULE;
@@ -125,7 +118,7 @@ typedef struct
 
     int sock;
     bool ASIC_initalized;
-    int chip_submit[6];
+    int chip_submit[8];
     char chip_submit_srt[64];
     bool isMultChip;
 } GlobalState;
