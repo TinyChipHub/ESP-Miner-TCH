@@ -71,6 +71,7 @@ void app_main(void)
 
     //Create Display Task
     xTaskCreate(display_task, "Display Showing Task",8192, (void *) &GLOBAL_STATE,5,NULL);
+    //xTaskCreatePinnedToCore(display_task, "Display Showing Task",8192,(void *) &GLOBAL_STATE,5,NULL,1);
 
     //start the API for AxeOS
     start_rest_server((void *) &GLOBAL_STATE);

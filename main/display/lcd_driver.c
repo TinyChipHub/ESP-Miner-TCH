@@ -33,7 +33,7 @@ void lvglFlushCallback(lv_disp_drv_t* drv, const lv_area_t* area, lv_color_t* co
     int offsety2 = area->y2;
     // Copy buffer content to the display
     esp_lcd_panel_draw_bitmap(panelHandle, offsetx1, offsety1, offsetx2 + 1, offsety2 + 1, colorMap);
-    ESP_LOGI(TAG, "lvglFlushCallback done");
+    //ESP_LOGI(TAG, "lvglFlushCallback done");
 }
 
 esp_err_t init_display(GlobalState * GLOBAL_STATE) {
@@ -142,11 +142,7 @@ esp_err_t init_display(GlobalState * GLOBAL_STATE) {
         return ESP_ERR_NO_MEM;
     }
     // Initialize LVGL draw buffer with single buffer mode
-    if (lv_disp_draw_buf_init(&disp_buf, buf1, NULL, LVGL_LCD_BUF_SIZE) != LV_RES_OK) {
-        ESP_LOGE(TAG, "Failed to initialize LVGL draw buffer");
-        heap_caps_free(buf1);
-        return ESP_FAIL;
-    }
+    lv_disp_draw_buf_init(&disp_buf, buf1, NULL, LVGL_LCD_BUF_SIZE);
 
     ESP_LOGI(TAG, "Register display driver to LVGL");
     lv_disp_drv_init(&disp_drv);

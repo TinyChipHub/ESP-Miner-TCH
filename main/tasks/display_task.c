@@ -101,7 +101,7 @@ void display_task(void * pvParameters){
             if(GLOBAL_STATE->ui.ui_logoScreen==NULL){
                 initLogoScreen(&(GLOBAL_STATE->ui));
             }
-            ui_screen_change(GLOBAL_STATE->ui.ui_logoScreen, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0);
+            ui_screen_change(GLOBAL_STATE->ui.ui_logoScreen, LV_SCR_LOAD_ANIM_FADE_ON, 200, 0);
             lastChangeScreenTime = esp_timer_get_time();
         }else{
             if((currentTime-lastChangeScreenTime)/1000>10000){
