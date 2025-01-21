@@ -37,6 +37,7 @@
     <div class="col-12 lg:col-6 xl:col-4">
         <div class="card">
             <h2>Update Firmware <span *ngIf="firmwareUpdateProgress != null">{{firmwareUpdateProgress}}%</span></h2>
+            <h6 class="text-yellow-500">The official firmware may not support multichip devices. Be sure you are using the correct firmware.</h6>
             <!-- <input type="file" id="file" (change)="otaUpdate($event)" accept=".bin"> -->
             <p-fileUpload #firmwareUpload [customUpload]="true" mode="basic" accept=".bin" (uploadHandler)="otaUpdate($event)"
                 [auto]="true" chooseLabel="Browse"></p-fileUpload>
@@ -48,7 +49,7 @@
     <div class="col-12 lg:col-12 xl:col-4">
         <div class="card">
             <h2>Update Website <span *ngIf="websiteUpdateProgress != null">{{websiteUpdateProgress}}%</span></h2>
-
+            <h6 class="text-yellow-500">The official firmware may not support multichip devices. Be sure you are using the correct firmware.</h6>
             <p-fileUpload #websiteUpload [customUpload]="true" mode="basic" accept=".bin" (uploadHandler)="otaWWWUpdate($event)"
                 [auto]="true" chooseLabel="Browse"></p-fileUpload>
 
