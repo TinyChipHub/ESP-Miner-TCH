@@ -4,6 +4,10 @@
 #include "esp_timer.h"
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_ops.h"
+#include "driver/gpio.h"
+#include "rom/gpio.h"
+#include "esp_lcd_io_i80.h"
+#include "esp_lcd_panel_vendor.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_check.h"
@@ -13,16 +17,9 @@
 #include "global_state.h"
 #include "nvs_config.h"
 #include "i2c_bitaxe.h"
-#include "driver/i2c_master.h"
-#include "driver/i2c_types.h"
-#include "esp_lcd_panel_ssd1306.h"
-
-#define SSD1306_I2C_ADDRESS    0x3C
-
-#define LCD_H_RES              128
-#define LCD_V_RES              32
-#define LCD_CMD_BITS           8
-#define LCD_PARAM_BITS         8
+// #include "driver/i2c_master.h"
+// #include "driver/i2c_types.h"
+// #include "esp_lcd_panel_ssd1306.h"
 
 static const char * TAG = "display";
 
@@ -35,6 +32,77 @@ static void theme_apply(lv_theme_t *theme, lv_obj_t *obj) {
     if (lv_obj_get_parent(obj) == NULL) {
         lv_obj_add_style(obj, &scr_style, LV_PART_MAIN);
     }
+}
+
+esp_err_t display_init(void * pvParameters){
+     GlobalState * GLOBAL_STATE = (GlobalState *) pvParameters;
+
+    uint8_t flip_screen = nvs_config_get_u16(NVS_CONFIG_FLIP_SCREEN, 1);
+    uint8_t invert_screen = nvs_config_get_u16(NVS_CONFIG_INVERT_SCREEN, 0);
+
+    ESP_LOGI(TAG, "=============Starting Display Initialization Sequence============");
+    ESP_LOGI(TAG, "Turn off LCD backlight");
+    gpio_config_t bk_gpio_config = {.pin_bit_mask = 1ULL << DISPLAY_PIN_BK_PWR, .mode = GPIO_MODE_OUTPUT};
+    ESP_ERROR_CHECK(gpio_config(&bk_gpio_config));
+    
+    gpio_pad_select_gpio(DISPLAY_PIN_BK_PWR);
+    gpio_pad_select_gpio(DISPLAY_PIN_RD);
+    gpio_pad_select_gpio(DISPLAY_PIN_PWR);
+
+    gpio_set_direction(DISPLAY_PIN_RD, GPIO_MODE_OUTPUT);
+    gpio_set_direction(DISPLAY_PIN_BK_PWR, GPIO_MODE_OUTPUT);
+    gpio_set_direction(DISPLAY_PIN_PWR, GPIO_MODE_OUTPUT);
+
+    gpio_set_level(DISPLAY_PIN_RD, true);
+    gpio_set_level(DISPLAY_PIN_BK_PWR, DISPLAY_LCD_BK_LIGHT_OFF);
+
+    ESP_LOGI(TAG, "Initial LCD display with Intel i80 interface.....");
+    esp_err_t ret = ESP_OK;
+
+    esp_lcd_i80_bus_config_t bus_config = {
+        .clk_src = LCD_CLK_SRC_DEFAULT,
+        .dc_gpio_num = DISPLAY_PIN_DC,
+        .wr_gpio_num = DISPLAY_PIN_WR,
+        .data_gpio_nums = {
+            DISPLAY_PIN_DATA0,
+            DISPLAY_PIN_DATA1,
+            DISPLAY_PIN_DATA2,
+            DISPLAY_PIN_DATA3,
+            DISPLAY_PIN_DATA4,
+            DISPLAY_PIN_DATA5,
+            DISPLAY_PIN_DATA6,
+            DISPLAY_PIN_DATA7,
+        },
+        .bus_width = 8,
+        .max_transfer_bytes = LVGL_LCD_BUF_SIZE * sizeof(uint16_t), // transfer 100 lines of pixels (assume pixel is RGB565) at most in one transaction
+        .psram_trans_align = DISPLAY_PSRAM_TRANS_ALIGN,
+        .sram_trans_align = DISPLAY_SRAM_TRANS_ALIGN
+    };
+
+    ret = esp_lcd_new_i80_bus(&bus_config, &d_bus_handle);
+
+    if(ret!=ESP_OK){
+        ESP_LOGE(TAG,"esp_lcd_new_i80_bus create fail!");
+        return ret;
+    }
+
+    esp_lcd_panel_io_i80_config_t io_config = {
+        .cs_gpio_num = DISPLAY_PIN_CS,
+        .pclk_hz = DISPLAY_PIXEL_CLOCK_HZ,
+        .trans_queue_depth = 20,
+        .on_color_trans_done = onLvglFlashReady,
+        .user_ctx = &disp_drv,
+        .lcd_cmd_bits = DISPLAY_LCD_CMD_BITS,
+        .lcd_param_bits = DISPLAY_LCD_PARAM_BITS,
+        .dc_levels =
+            {
+                .dc_idle_level = 0,
+                .dc_cmd_level = 0,
+                .dc_dummy_level = 0,
+                .dc_data_level = 1,
+            }
+    };
+
 }
 
 esp_err_t display_init(void * pvParameters)
