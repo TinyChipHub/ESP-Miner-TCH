@@ -78,7 +78,6 @@ static void event_handler(void * arg, esp_event_base_t event_base, int32_t event
         MINER_set_wifi_status(WIFI_RETRYING, s_retry_num, event->reason);
 
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
-
         ip_event_got_ip_t * event = (ip_event_got_ip_t *) event_data;
         snprintf(_ip_addr_str, IP4ADDR_STRLEN_MAX, IPSTR, IP2STR(&event->ip_info.ip));
 
@@ -222,7 +221,7 @@ void wifi_init(const char * wifi_ssid, const char * wifi_pass, const char * host
 
     /* Initialize AP */
     ESP_LOGI(TAG, "ESP_WIFI Access Point On");
-    wifi_init_softap();
+    esp_netif_t * esp_netif_ap wifi_init_softap();
 
     /* Initialize STA */
     ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
@@ -241,6 +240,16 @@ void wifi_init(const char * wifi_ssid, const char * wifi_pass, const char * host
     } else {
         ESP_LOGI(TAG, "ESP_WIFI setting hostname to: %s", hostname);
     }
+
+    /* Get AP Ip info*/
+    esp_netif_ip_info_t ap_ip_info;
+    err = esp_netif_get_ip_info(esp_netif_ap,&ap_ip_info);
+   if (err != ERR_OK) {
+        ESP_LOGW(TAG, "Cannot get the AP gateway ip");
+    } else {
+        MINER_set_ap_gw(&ap_ip_info);
+    }
+
 
     ESP_LOGI(TAG, "wifi_init_sta finished.");
 

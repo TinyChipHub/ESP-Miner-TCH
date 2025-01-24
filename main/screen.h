@@ -4,17 +4,16 @@
 typedef enum {
     SCR_SELF_TEST,
     SCR_OVERHEAT,
-    SCR_INVALID_ASIC,
-    SCR_CONFIGURE,
-    SCR_CONNECTION,
+    SCR_SETUP,
     SCR_LOGO,
-    SCR_URLS,
-    SCR_STATS,
+    SCR_MINING_STAT,
+    SCR_DEVICE_INFO,
+    SCR_NETWORK,
     MAX_SCREENS,
 } screen_t;
 
-#define SCR_CAROUSEL_START SCR_URLS
-#define SCR_CAROUSEL_END SCR_STATS
+#define SCR_CAROUSEL_START SCR_MINING_STAT
+#define SCR_CAROUSEL_END SCR_NETWORK
 
 esp_err_t screen_start(void * pvParameters);
 void screen_next(void);

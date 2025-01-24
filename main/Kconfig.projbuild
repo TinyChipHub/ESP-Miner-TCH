@@ -1,5 +1,18 @@
 menu "Bitaxe Configuration"
 
+    menu "Board models"
+        choice
+            prompt "Select board model"
+            default BOARD_ZYBER_8S
+            help
+                Select the board molde to compile
+            config BOARD_ZYBER_8S
+                bool "Zyber 8S"
+            config BOARD_ZYBER_8G
+                bool "Zyber 8G"
+        endchoice    
+    endmenu
+
     menu "GPIO Pin Configuration"
 
         config GPIO_BUTTON_BOOT

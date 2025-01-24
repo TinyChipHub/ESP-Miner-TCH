@@ -166,3 +166,7 @@ void MINER_set_wifi_status(wifi_status_t status, int retry_count, int reason)
 void MINER_set_ap_status(bool enabled) {
     GLOBAL_STATE.SYSTEM_MODULE.ap_enabled = enabled;
 }
+
+void MINER_set_ap_gw(esp_netif_ip_info_t *info){
+    snprintf(GLOBAL_STATE.ap_gw,IP4ADDR_STRLEN_MAX,IPSTR,IP2STR(info->gw));
+}

@@ -65,6 +65,7 @@ typedef struct
     char wifi_status[20];
     char ip_addr_str[16]; // IP4ADDR_STRLEN_MAX
     char ap_ssid[32];
+    char ap_gw[16];
     bool ap_enabled;
     char * pool_url;
     char * fallback_pool_url;

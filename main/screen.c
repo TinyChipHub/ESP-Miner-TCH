@@ -9,7 +9,12 @@
 
 // static const char * TAG = "screen";
 
-extern const lv_img_dsc_t logo;
+extern const lv_img_dsc_t bg_logo;
+extern const lv_img_dsc_t bg_mining_stat;
+extern const lv_img_dsc_t bg_setup;
+extern const lv_img_dsc_t bg_network;
+extern const lv_img_dsc_t bg_device_info;
+extern const lv_img_dsc_t bg_overheat;
 
 static lv_obj_t * screens[MAX_SCREENS];
 
@@ -18,15 +23,31 @@ static TickType_t current_screen_counter;
 
 static GlobalState * GLOBAL_STATE;
 
-static lv_obj_t *hashrate_label;
-static lv_obj_t *efficiency_label;
-static lv_obj_t *difficulty_label;
-static lv_obj_t *chip_temp_label;
+static lv_obj_t *ui_lbLogoVersion;
 
-static lv_obj_t *ip_addr_scr_overheat_label;
-static lv_obj_t *ip_addr_scr_urls_label;
-static lv_obj_t *mining_url_scr_urls_label;
-static lv_obj_t *wifi_status_label;
+static lv_obj_t *ui_lbSetupSSID;
+static lv_obj_t *ui_lbSetupIP;
+
+static lv_obj_t *ui_lbMiningHashrate;
+static lv_obj_t *ui_lbMiningTarget;
+static lv_obj_t *ui_lbMiningBD;
+static lv_obj_t *ui_lbMiningAR;
+static lv_obj_t *ui_lbBlockFound;
+
+static lv_obj_t *ui_lbDIChips;
+static lv_obj_t *ui_lbDIVin;
+static lv_obj_t *ui_lbDIVout;
+static lv_obj_t *ui_lbDIPwr;
+static lv_obj_t *ui_lbDIFanPerc;
+static lv_obj_t *ui_lbDITemp;
+
+static lv_obj_t *ui_lbNWSSID;
+static lv_obj_t *ui_lbNWIP;
+static lv_obj_t *ui_lbNWMAC;
+static lv_obj_t *ui_lbNWPool;
+static lv_obj_t *ui_lbNWAddr;
+
+static lv_obj_t *ui_lbOHIP;
 
 static lv_obj_t *self_test_message_label;
 static lv_obj_t *self_test_result_label;
@@ -41,6 +62,38 @@ static bool found_block;
 #define SCREEN_UPDATE_MS 500
 #define LOGO_DELAY_COUNT 5000 / SCREEN_UPDATE_MS
 #define CAROUSEL_DELAY_COUNT 10000 / SCREEN_UPDATE_MS
+
+/* Fonts */
+extern const lv_font_t font_XinYin_reg13;
+extern const lv_font_t font_XinYin_reg14;
+extern const lv_font_t font_XinYin_reg24;
+extern const lv_font_t font_XinYin_reg45;
+
+lv_obj_t *createDefalutLabel(lv_obj_t *parent, uint32_t color, lv_text_align_t align, const lv_font_t *font, int32_t x, int32_t y){
+    lv_obj_t *label = lv_label_create(parent);
+    lv_obj_set_width(label,LV_SIZE_CONTENT);
+    lv_obj_set_height(label,LV_SIZE_CONTENT);
+    lv_obj_set_style_text_opa(label, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(label,lv_color_hex(color),LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(label,align, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(lable,font,LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_x(lable,x);
+    lv_obj_set_y(lable,y);
+
+    return label;
+}
+
+lv_obj_t * createDefalutImage(lv_obj_t *parent, const void* src=NULL){
+    lv_obj_t *img = lv_img_create(parent);
+    lv_img_set_src(img, src);
+    lv_obj_set_width(img,LV_SIZE_CONTENT);
+    lv_obj_set_height(img,LV_SIZE_CONTENT);
+    lv_obj_set_align(img, LV_ALIGN_CENTER);
+    lv_obj_add_flag(img, LV_OBJ_FLAG_ADV_HITTEST);  /// Flags
+    lv_obj_clear_flag(img, LV_OBJ_FLAG_SCROLLABLE);
+
+    return img;
+}
 
 static lv_obj_t * create_scr_self_test() {
     lv_obj_t * scr = lv_obj_create(NULL);
@@ -67,61 +120,29 @@ static lv_obj_t * create_scr_self_test() {
 static lv_obj_t * create_scr_overheat(SystemModule * module) {
     lv_obj_t * scr = lv_obj_create(NULL);
 
-    lv_obj_set_flex_flow(scr, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_flex_align(scr, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
+    lv_obj_clear_flag(scr,LV_OBJ_FLAG_SCROLLABLE);
+    
+    createDefalutImage(scr, &bg_overheat);
 
-    lv_obj_t *label1 = lv_label_create(scr);
-    lv_label_set_text(label1, "DEVICE OVERHEAT!");
-
-    lv_obj_t *label2 = lv_label_create(scr);
-    lv_obj_set_width(label2, LV_HOR_RES);
-    lv_label_set_long_mode(label2, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_label_set_text(label2, "Power, frequency and fan configurations have been reset. Go to AxeOS to reconfigure device.");
-
-    lv_obj_t *label3 = lv_label_create(scr);
-    lv_label_set_text(label3, "Device IP:");
-
-    ip_addr_scr_overheat_label = lv_label_create(scr);
-    lv_label_set_text(ip_addr_scr_overheat_label, module->ip_addr_str);
+    ui_lbOHIP = createDefalutLabel(src,0x000000,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg13,100,92);
+    lv_label_set_text_fmt(ui_lbOHIP,"IP: %s",module->ip_addr_str);   
 
     return scr;
 }
 
-static lv_obj_t * create_scr_invalid_asic(SystemModule * module) {
+static lv_obj_t * create_scr_setup(SystemModule * module) {
     lv_obj_t * scr = lv_obj_create(NULL);
 
-    lv_obj_set_flex_flow(scr, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_flex_align(scr, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
+    lv_obj_clear_flag(scr,LV_OBJ_FLAG_SCROLLABLE);
 
-    lv_obj_t *label1 = lv_label_create(scr);
-    lv_label_set_text(label1, "ASIC MODEL INVALID");
+    createDefalutImage(scr, &bg_setup);
 
-    lv_obj_t *label2 = lv_label_create(scr);
-    lv_label_set_text(label2, "Configuration SSID:");
+    ui_lbSetupSSID = createDefalutLabel(scr,0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg14,142,67);
+    lv_label_set_text_fmt(ui_lbSetupSSID,"%s",module->ap_ssid);
 
-    lv_obj_t *label3 = lv_label_create(scr);
-    lv_label_set_text(label3, module->ap_ssid);
-
-    return scr;
-}
-
-static lv_obj_t * create_scr_configure(SystemModule * module) {
-    lv_obj_t * scr = lv_obj_create(NULL);
-
-    lv_obj_set_flex_flow(scr, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_flex_align(scr, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
-
-    lv_obj_t *label1 = lv_label_create(scr);
-    lv_obj_set_width(label1, LV_HOR_RES);
-    lv_label_set_long_mode(label1, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_label_set_text(label1, "Welcome to your new Bitaxe! Connect to the configuration Wifi and connect the Bitaxe to your network.");
-
-    lv_obj_t *label2 = lv_label_create(scr);
-    lv_label_set_text(label2, "Configuration SSID:");
-
-    lv_obj_t *label3 = lv_label_create(scr);
-    lv_label_set_text(label3, module->ap_ssid);
-
+    ui_lbSetupIP = createDefalutLabel(scr,0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg14,142,108);
+    lv_label_set_text_fmt(ui_lbSetupIP,"%s",module->ap_gw);
+    
     return scr;
 }
 
@@ -152,7 +173,7 @@ static lv_obj_t * create_scr_logo() {
     lv_obj_t * scr = lv_obj_create(NULL);
 
     lv_obj_t *img = lv_img_create(scr);
-    lv_img_set_src(img, &logo);
+    lv_img_set_src(img, &bg_logo);
     lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
 
     return scr;
@@ -208,7 +229,7 @@ static void screen_show(screen_t screen)
         lv_obj_t * scr = screens[screen];
 
         if (scr && lvgl_port_lock(0)) {
-            lv_screen_load_anim(scr, LV_SCR_LOAD_ANIM_MOVE_LEFT, LV_DEF_REFR_PERIOD * 128 / 8, 0, false);
+            lv_screen_load_anim(scr, LV_SCR_LOAD_ANIM_FADE_ON, LV_DEF_REFR_PERIOD * 128 / 8, 0, false);
             lvgl_port_unlock();
         }
 
@@ -233,11 +254,6 @@ static void screen_update_cb(lv_timer_t * timer)
             lv_obj_remove_flag(self_test_finished_label, LV_OBJ_FLAG_HIDDEN);
         }
 
-        return;
-    }
-
-    if (GLOBAL_STATE->ASIC_functions.init_fn == NULL) {
-        screen_show(SCR_INVALID_ASIC);
         return;
     }
 

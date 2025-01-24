@@ -30,6 +30,14 @@ SRCS
     "./fonts/font_XinYin_reg24.c"
     "./fonts/font_XinYin_reg45.c"
 
+    #Backgroud Images
+    "./themes/logo.c"
+    "./themes/device_info.c"
+    "./themes/mining_stat.c"
+    "./themes/network.c"
+    "./themes/setup.c"
+    "./themes/overheat.c"
+
 INCLUDE_DIRS
     "."
     "tasks"
