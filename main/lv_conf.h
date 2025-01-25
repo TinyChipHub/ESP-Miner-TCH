@@ -19,7 +19,7 @@
 
 #define LV_FONT_MONTSERRAT_14 0
 
-#define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(font_XinYin_reg13) LV_FONT_DECLARE(font_XinYin_reg14) LV_FONT_DECLARE(font_XinYin_reg24) LV_FONT_DECLARE(font_XinYin_reg45)
+#define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(font_XinYin_reg8) LV_FONT_DECLARE(font_XinYin_reg13) LV_FONT_DECLARE(font_XinYin_reg14) LV_FONT_DECLARE(font_XinYin_reg18)
 #define LV_FONT_DEFAULT        &font_XinYin_reg14
 
 #define LV_WIDGETS_HAS_DEFAULT_VALUE 0

@@ -27,8 +27,8 @@ SRCS
     #Fonts
     "./fonts/font_XinYin_reg13.c"
     "./fonts/font_XinYin_reg14.c"
-    "./fonts/font_XinYin_reg24.c"
-    "./fonts/font_XinYin_reg45.c"
+    "./fonts/font_XinYin_reg8.c"
+    "./fonts/font_XinYin_reg18.c"
 
     #Backgroud Images
     "./themes/logo.c"

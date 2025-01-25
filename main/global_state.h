@@ -56,6 +56,8 @@ typedef struct
     uint64_t shares_accepted;
     uint64_t shares_rejected;
     int screen_page;
+    double network_diff;
+    uint32_t block_found;
     uint64_t best_nonce_diff;
     char best_diff_string[DIFF_STRING_SIZE];
     uint64_t best_session_nonce_diff;

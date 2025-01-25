@@ -233,8 +233,10 @@ static void _check_for_best_diff(GlobalState * GLOBAL_STATE, double diff, uint8_
     _suffix_string((uint64_t) diff, module->best_diff_string, DIFF_STRING_SIZE, 0);
 
     double network_diff = _calculate_network_difficulty(GLOBAL_STATE->ASIC_TASK_MODULE.active_jobs[job_id]->target);
+    module->network_diff=network_diff;
     if (diff > network_diff) {
         module->FOUND_BLOCK = true;
+        module->block_found+=1;
         ESP_LOGI(TAG, "FOUND BLOCK!!!!!!!!!!!!!!!!!!!!!! %f > %f", diff, network_diff);
     }
     ESP_LOGI(TAG, "Network diff: %f", network_diff);

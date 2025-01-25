@@ -60,7 +60,9 @@
         "lvgl.h": "c",
         "lv_font.h": "c",
         "lv_binfont_loader.h": "c",
-        "lv_theme_private.h": "c"
+        "lv_theme_private.h": "c",
+        "xutility": "c",
+        "xtr1common": "c"
     },
     "editor.formatOnSave": false,
     "cSpell.words": [
