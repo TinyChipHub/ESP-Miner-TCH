@@ -69,6 +69,7 @@ static void reset_self_test() {
     ESP_LOGI(TAG, "Long press detected...");
     // Give the semaphore back
     xSemaphoreGive(BootSemaphore);
+}
 
 static void display_msg(char * msg, GlobalState * GLOBAL_STATE) 
 {
