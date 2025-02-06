@@ -324,8 +324,12 @@ int STRATUM_V1_subscribe(int socket, char * model)
     // Subscribe
     char subscribe_msg[BUFFER_SIZE];
     const esp_app_desc_t *app_desc = esp_app_get_description();
-    const char *version = app_desc->version;	
-    sprintf(subscribe_msg, "{\"id\": %d, \"method\": \"mining.subscribe\", \"params\": [\"bitaxe/%s/%s\"]}\n", send_uid++, model, version);
+    const char *version = app_desc->version;
+    #ifdef CONFIG_BOARD_ZYBER_8S
+    sprintf(subscribe_msg, "{\"id\": %d, \"method\": \"mining.subscribe\", \"params\": [\"Zyber8S/%s/%s\"]}\n", send_uid++, model, version);
+    #elif CONFIG_BOARD_ZYBER_8G
+    sprintf(subscribe_msg, "{\"id\": %d, \"method\": \"mining.subscribe\", \"params\": [\"Zyber8G/%s/%s\"]}\n", send_uid++, model, version);
+    #endif
     debug_stratum_tx(subscribe_msg);
 
     return write(socket, subscribe_msg, strlen(subscribe_msg));

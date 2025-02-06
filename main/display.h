@@ -28,7 +28,7 @@
 
 #define DISPLAY_WIDTH 320
 #define DISPLAY_HEIGHT 170
-#define LVGL_LCD_BUF_SIZE (DISPLAY_WIDTH * DISPLAY_HEIGHT) / 4
+#define LVGL_LCD_BUF_SIZE (DISPLAY_WIDTH * DISPLAY_HEIGHT)
 
 // Alignment settings for PSRAM and SRAM transfers
 #define DISPLAY_PSRAM_TRANS_ALIGN 64                  // Alignment for PSRAM transfers

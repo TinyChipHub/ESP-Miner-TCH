@@ -62,7 +62,10 @@
         "lv_binfont_loader.h": "c",
         "lv_theme_private.h": "c",
         "xutility": "c",
-        "xtr1common": "c"
+        "xtr1common": "c",
+        "screen.h": "c",
+        "nvs_device.h": "c",
+        "lv_async.h": "c"
     },
     "editor.formatOnSave": false,
     "cSpell.words": [

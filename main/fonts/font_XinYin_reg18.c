@@ -4,10 +4,18 @@
  * Opts: --bpp 8 --size 18 --no-compress --font ZiTiQuanXinYiLOGOTi-2.ttf --symbols abcdefghijklmnopqrstuvwxyz,.:0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ|{}"?!@#$%^&*()-_ --format lvgl -o font_XinYin_reg18.c
  ******************************************************************************/
 
+#ifdef __has_include
+    #if __has_include("lvgl.h")
+        #ifndef LV_LVGL_H_INCLUDE_SIMPLE
+            #define LV_LVGL_H_INCLUDE_SIMPLE
+        #endif
+    #endif
+#endif
+
 #ifdef LV_LVGL_H_INCLUDE_SIMPLE
-#include "lvgl.h"
+    #include "lvgl.h"
 #else
-#include "lvgl/lvgl.h"
+    #include "lvgl/lvgl.h"
 #endif
 
 #ifndef FONT_XINYIN_REG18

@@ -232,6 +232,12 @@ void stratum_task(void * pvParameters)
         }
 
         STRATUM_V1_reset_uid();
+
+        while(!GLOBAL_STATE->job_queue_ready){
+            ESP_LOGW(TAG,"Job queue not ready yet!");
+            vTaskDelay(5000 / portTICK_PERIOD_MS);
+            continue;
+        }
         cleanQueue(GLOBAL_STATE);
 
         ///// Start Stratum Action

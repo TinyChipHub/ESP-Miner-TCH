@@ -19,6 +19,7 @@
     "@angular/platform-browser": "17.3.12",
     "@angular/platform-browser-dynamic": "17.3.12",
     "@angular/router": "17.3.12",
+    "axe-os": "file:",
     "chart.js": "^4.4.7",
     "chartjs-adapter-moment": "^1.0.1",
     "moment": "^2.30.1",

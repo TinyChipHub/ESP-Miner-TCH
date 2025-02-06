@@ -113,6 +113,7 @@ void POWER_MANAGEMENT_task(void * pvParameters)
                 TPS546_print_status();
                 power_management->voltage = TPS546_get_vin() * 1000;
                 power_management->current = TPS546_get_iout() * 1000;
+                power_management->outVoltage_mv = TPS546_get_vout();
                 power_management->power = (TPS546_get_vout() * power_management->current) / 1000 + ZYBER_POWER_OFFSET;
                 break;
             default:

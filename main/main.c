@@ -28,11 +28,11 @@ static GlobalState GLOBAL_STATE = {
     .ASIC_initalized = false
 };
 
-static const char * TAG = "bitaxe";
+static const char * TAG = "Zyber";
 
 void app_main(void)
 {
-    ESP_LOGI(TAG, "Welcome to the bitaxe - hack the planet!");
+    ESP_LOGI(TAG, "Welcome to the Zyber - hack the planet!");
 
     // Init I2C
     ESP_ERROR_CHECK(i2c_bitaxe_init());
@@ -78,9 +78,11 @@ void app_main(void)
     // init and connect to wifi
     wifi_init(wifi_ssid, wifi_pass, hostname, GLOBAL_STATE.SYSTEM_MODULE.ip_addr_str);
 
-    generate_ssid(GLOBAL_STATE.SYSTEM_MODULE.ap_ssid);
+    char *mac_str = generate_ssid(GLOBAL_STATE.SYSTEM_MODULE.ap_ssid);
 
     SYSTEM_init_peripherals(&GLOBAL_STATE);
+
+    GLOBAL_STATE.SYSTEM_MODULE.mac=mac_str;
 
     xTaskCreate(POWER_MANAGEMENT_task, "power management", 8192, (void *) &GLOBAL_STATE, 10, NULL);
 
@@ -168,5 +170,6 @@ void MINER_set_ap_status(bool enabled) {
 }
 
 void MINER_set_ap_gw(esp_netif_ip_info_t *info){
-    snprintf(GLOBAL_STATE.ap_gw,IP4ADDR_STRLEN_MAX,IPSTR,IP2STR(info->gw));
+    esp_ip4_addr_t addr = info->gw;
+    snprintf(GLOBAL_STATE.SYSTEM_MODULE.ap_gw,IP4ADDR_STRLEN_MAX,IPSTR,IP2STR(&addr));
 }

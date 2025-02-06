@@ -9,6 +9,7 @@ typedef struct
     float chip_temp_avg;
     float vr_temp;
     float voltage;
+    float outVoltage_mv;
     float frequency_multiplier;
     float frequency_value;
     float power;

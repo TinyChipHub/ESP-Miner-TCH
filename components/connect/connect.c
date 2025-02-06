@@ -81,19 +81,23 @@ static void event_handler(void * arg, esp_event_base_t event_base, int32_t event
         ip_event_got_ip_t * event = (ip_event_got_ip_t *) event_data;
         snprintf(_ip_addr_str, IP4ADDR_STRLEN_MAX, IPSTR, IP2STR(&event->ip_info.ip));
 
-        ESP_LOGI(TAG, "Bitaxe ip: %s", _ip_addr_str);
+        ESP_LOGI(TAG, "Zyber ip: %s", _ip_addr_str);
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
         MINER_set_wifi_status(WIFI_CONNECTED, 0, 0);
     }
 }
 
-void generate_ssid(char * ssid)
+char * generate_ssid(char * ssid)
 {
     uint8_t mac[6];
+    char ret[20];
     esp_wifi_get_mac(ESP_IF_WIFI_AP, mac);
+    snprintf(ret,20,"%02X:%02X:%02X:%02X:%02X:%02X",mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
     // Format the last 4 bytes of the MAC address as a hexadecimal string
-    snprintf(ssid, 32, "Bitaxe_%02X%02X", mac[4], mac[5]);
+    snprintf(ssid, 32, "Zyber_%02X%02X", mac[4], mac[5]);
+
+    return ret;
 }
 
 esp_netif_t * wifi_init_softap(void)
@@ -221,7 +225,7 @@ void wifi_init(const char * wifi_ssid, const char * wifi_pass, const char * host
 
     /* Initialize AP */
     ESP_LOGI(TAG, "ESP_WIFI Access Point On");
-    esp_netif_t * esp_netif_ap wifi_init_softap();
+    esp_netif_t * esp_netif_ap = wifi_init_softap();
 
     /* Initialize STA */
     ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
