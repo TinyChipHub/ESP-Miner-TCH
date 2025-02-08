@@ -112,6 +112,8 @@ esp_err_t display_init(void * pvParameters){
 
     ESP_RETURN_ON_ERROR(esp_lcd_new_panel_st7789(io_handle,&panel_config, &panel_handle),TAG,"Fail to install LCD driver of st7789");
     
+    gpio_set_level(DISPLAY_PIN_PWR, true);
+    gpio_set_level(DISPLAY_PIN_BK_PWR, DISPLAY_LCD_BK_LIGHT_ON);
     
     ESP_RETURN_ON_ERROR(esp_lcd_panel_reset(panel_handle), TAG, "Panel reset failed");
     esp_err_t esp_lcd_panel_init_err = esp_lcd_panel_init(panel_handle);
@@ -126,8 +128,8 @@ esp_err_t display_init(void * pvParameters){
     }
 
     ESP_LOGI(TAG, "Turn on LCD backlight");
-    gpio_set_level(DISPLAY_PIN_PWR, true);
-    gpio_set_level(DISPLAY_PIN_BK_PWR, DISPLAY_LCD_BK_LIGHT_ON);
+    // gpio_set_level(DISPLAY_PIN_PWR, true);
+    // gpio_set_level(DISPLAY_PIN_BK_PWR, DISPLAY_LCD_BK_LIGHT_ON);
 
     ESP_LOGI(TAG, "Initial LCD display with Intel i80 Done! ");
     ESP_LOGI(TAG, ".............................................");
@@ -165,20 +167,20 @@ esp_err_t display_init(void * pvParameters){
     lv_disp_t * disp = lvgl_port_add_disp(&disp_cfg);
     if (esp_lcd_panel_init_err == ESP_OK) {
 
-        if (lvgl_port_lock(0)) {
-            lv_style_init(&scr_style);
-            lv_style_set_text_font(&scr_style, &font_XinYin_reg14);
-            lv_style_set_bg_opa(&scr_style, LV_OPA_COVER);
+        // if (lvgl_port_lock(0)) {
+        //     lv_style_init(&scr_style);
+        //     lv_style_set_text_font(&scr_style, &font_XinYin_reg14);
+        //     lv_style_set_bg_opa(&scr_style, LV_OPA_COVER);
 
-            lv_theme_set_apply_cb(&theme, theme_apply);
+        //     lv_theme_set_apply_cb(&theme, theme_apply);
 
-            lv_display_set_theme(disp, &theme);
-            lvgl_port_unlock();
-        }
+        //     lv_display_set_theme(disp, &theme);
+        //     lvgl_port_unlock();
+        // }
 
         // Only turn on the screen when it has been cleared
         ESP_RETURN_ON_ERROR(esp_lcd_panel_disp_on_off(panel_handle, true), TAG, "Panel display on failed");   
-
+        //ESP_RETURN_ON_ERROR(esp_lcd_panel_reset(panel_handle), TAG, "Panel reset failed");
         GLOBAL_STATE->SYSTEM_MODULE.is_screen_active = true;
     } else {
         ESP_LOGW(TAG, "No display found.");

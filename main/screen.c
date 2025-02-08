@@ -85,6 +85,7 @@ extern const lv_font_t font_XinYin_reg13;
 extern const lv_font_t font_XinYin_reg14;
 extern const lv_font_t font_XinYin_reg18;
 extern const lv_font_t font_XinYin_reg24;
+extern const lv_font_t lv_font_montserrat_24;
 
 static char* hashSuffixes[] = {" H/s", " KH/s", " MH/s", " GH/s", " TH/s", " PH/s", " EH/s"};
 static char* countSuffixes[] = {"", " K", " M", " G", " T", " P", " E"};
@@ -230,7 +231,10 @@ static lv_obj_t * create_scr_mining_stat(SystemModule * module) {
     lv_obj_t * scr = lv_obj_create(NULL);
     createDefalutImage(scr, &bg_mining_stat);
     
-    ui_lbMiningHashrate = createDefalutLabel(scr,0xffffff,LV_TEXT_ALIGN_CENTER,&font_XinYin_reg24,6,106);
+    ui_lbMiningHashrate = createDefalutLabel(scr,0xff0000,LV_TEXT_ALIGN_CENTER,&lv_font_montserrat_24,6,106);
+
+    //ui_lbMiningHashrate = lv_label_create(scr);
+
     lv_obj_set_width(ui_lbMiningHashrate,184);
     lv_obj_set_height(ui_lbMiningHashrate,64);
     lv_label_set_text(ui_lbMiningHashrate,hashToStr(module->current_hashrate));
@@ -416,7 +420,8 @@ static void screen_update_cb(lv_timer_t * timer)
     PowerManagementModule * power_management = &GLOBAL_STATE->POWER_MANAGEMENT_MODULE;
 
     /*Mining stat. update*/
-    lv_label_set_text(ui_lbMiningHashrate,hashToStr(module->current_hashrate));
+    //ESP_LOGW(TAG,"Hashrate: %.02f",module->current_hashrate);
+    lv_label_set_text_fmt(ui_lbMiningHashrate,"%.02f GH/s",module->current_hashrate);
     
     // char *temp = countToStr(module->network_diff);
     // if(strcmp(lv_label_get_text(ui_lbMiningTarget), temp) != 0){
