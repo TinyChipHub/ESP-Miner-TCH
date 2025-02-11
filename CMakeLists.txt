@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 3.5)
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
-set(PROJECT_VER "2.5.1-TCH-All-In-One")
+set(PROJECT_VER "2.5.3-TCH-All-In-One")
 
 project(esp-miner)
 

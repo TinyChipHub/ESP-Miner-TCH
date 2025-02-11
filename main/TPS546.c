@@ -340,6 +340,8 @@ int TPS546_init(TPS546_CONFIG config)
         return -1;
     }
 
+    //smb_write_word(0xEC,0x0000);
+
     /* Establish communication with regulator */
     smb_read_block(PMBUS_IC_DEVICE_ID, data, 6); //the DEVICE_ID block first byte is the length.
     ESP_LOGI(TAG, "Device ID: %02x %02x %02x %02x %02x %02x", data[0], data[1], data[2], data[3], data[4], data[5]);
@@ -673,7 +675,7 @@ void TPS546_print_status(void) {
     } else {
         ESP_LOGI(TAG, "TPS546 Status: %04X", u16_value);
     }
-
+    //PMBUS_STATUS_VOUT
     if (smb_read_byte(PMBUS_STATUS_VOUT, &u8_value) != ESP_OK) {
         ESP_LOGE(TAG, "Could not read STATUS_VOUT");
     } else {

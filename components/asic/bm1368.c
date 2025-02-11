@@ -215,6 +215,13 @@ bool BM1368_set_frequency(float target_freq) {
 }
 
 static int count_asic_chips(void) {
+
+    while (true) {  //For empty/cleanup the rx buffer. This is NEED for PV ending chips
+        if (SERIAL_rx(asic_response_buffer, 11, 5000) <= 0) {
+            break;
+        }
+    }
+
     _send_BM1368(TYPE_CMD | GROUP_ALL | CMD_READ, (uint8_t[]){0x00, 0x00}, 2, false);
 
     int chip_counter = 0;
