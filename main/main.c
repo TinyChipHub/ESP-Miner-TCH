@@ -78,11 +78,11 @@ void app_main(void)
     // init and connect to wifi
     wifi_init(wifi_ssid, wifi_pass, hostname, GLOBAL_STATE.SYSTEM_MODULE.ip_addr_str);
 
-    char *mac_str = generate_ssid(GLOBAL_STATE.SYSTEM_MODULE.ap_ssid);
+    generate_ssid(GLOBAL_STATE.SYSTEM_MODULE.mac,GLOBAL_STATE.SYSTEM_MODULE.ap_ssid);
 
     SYSTEM_init_peripherals(&GLOBAL_STATE);
 
-    GLOBAL_STATE.SYSTEM_MODULE.mac=mac_str;
+    //GLOBAL_STATE.SYSTEM_MODULE.mac=mac_str;
 
     xTaskCreate(POWER_MANAGEMENT_task, "power management", 8192, (void *) &GLOBAL_STATE, 10, NULL);
 

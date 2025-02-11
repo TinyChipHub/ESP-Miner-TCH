@@ -88,16 +88,16 @@ static void event_handler(void * arg, esp_event_base_t event_base, int32_t event
     }
 }
 
-char * generate_ssid(char * ssid)
+char * generate_ssid(char* macc, char * ssid)
 {
     uint8_t mac[6];
-    char ret[20];
-    esp_wifi_get_mac(ESP_IF_WIFI_AP, mac);
-    snprintf(ret,20,"%02X:%02X:%02X:%02X:%02X:%02X",mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
-    // Format the last 4 bytes of the MAC address as a hexadecimal string
-    snprintf(ssid, 32, "Zyber_%02X%02X", mac[4], mac[5]);
 
-    return ret;
+    esp_wifi_get_mac(ESP_IF_WIFI_AP, mac);
+    snprintf(macc,20,"%02X:%02X:%02X:%02X:%02X:%02X",mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
+    // Format the last 4 bytes of the MAC address as a hexadecimal string
+    snprintf(ssid, 32, "Zyber(%02X%02X)", mac[4], mac[5]);
+
+    return macc;
 }
 
 esp_netif_t * wifi_init_softap(void)
@@ -106,9 +106,9 @@ esp_netif_t * wifi_init_softap(void)
 
     // Define a buffer for the SSID
     char ssid_with_mac[13]; // "Bitaxe" + 4 bytes from MAC address
-
+    char mac[20];
     // Generate the SSID
-    generate_ssid(ssid_with_mac);
+    generate_ssid(mac,ssid_with_mac);
 
     wifi_config_t wifi_ap_config;
     memset(&wifi_ap_config, 0, sizeof(wifi_ap_config)); // Clear the structure

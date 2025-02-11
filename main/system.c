@@ -216,7 +216,9 @@ static double _calculate_network_difficulty(uint32_t nBits)
 static void _check_for_best_diff(GlobalState * GLOBAL_STATE, double diff, uint8_t job_id)
 {
     SystemModule * module = &GLOBAL_STATE->SYSTEM_MODULE;
-
+    double network_diff = _calculate_network_difficulty(GLOBAL_STATE->ASIC_TASK_MODULE.active_jobs[job_id]->target);
+    module->network_diff=network_diff;
+    
     if ((uint64_t) diff > module->best_session_nonce_diff) {
         module->best_session_nonce_diff = (uint64_t) diff;
         _suffix_string((uint64_t) diff, module->best_session_diff_string, DIFF_STRING_SIZE, 0);
@@ -232,8 +234,7 @@ static void _check_for_best_diff(GlobalState * GLOBAL_STATE, double diff, uint8_
     // make the best_nonce_diff into a string
     _suffix_string((uint64_t) diff, module->best_diff_string, DIFF_STRING_SIZE, 0);
 
-    double network_diff = _calculate_network_difficulty(GLOBAL_STATE->ASIC_TASK_MODULE.active_jobs[job_id]->target);
-    module->network_diff=network_diff;
+    
     if (diff > network_diff) {
         module->FOUND_BLOCK = true;
         module->block_found+=1;

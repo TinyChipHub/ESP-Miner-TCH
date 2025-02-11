@@ -64,7 +64,7 @@ typedef struct
     char best_session_diff_string[DIFF_STRING_SIZE];
     bool FOUND_BLOCK;
     char ssid[32];
-    char *mac;
+    char mac[20];
     char wifi_status[20];
     char ip_addr_str[16]; // IP4ADDR_STRLEN_MAX
     char ap_ssid[32];
@@ -78,6 +78,7 @@ typedef struct
     uint16_t overheat_mode;
     uint32_t lastClockSync;
     bool is_screen_active;
+    char mining_addr[64];
 } SystemModule;
 
 typedef struct

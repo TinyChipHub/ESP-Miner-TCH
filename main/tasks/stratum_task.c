@@ -252,6 +252,8 @@ void stratum_task(void * pvParameters)
 
         //mining.authorize - ID: 3
         STRATUM_V1_authenticate(GLOBAL_STATE->sock, username, password);
+        snprintf(GLOBAL_STATE->SYSTEM_MODULE.mining_addr,64,"%s",username);
+
         free(password);
         free(username);
 

@@ -80,23 +80,23 @@ static bool found_block;
 #define TEXT_YELLOW 0xf5cf39
 
 /* Fonts */
-extern const lv_font_t font_XinYin_reg8;
+extern const lv_font_t font_XinYin_reg10;
+extern const lv_font_t font_XinYin_reg12;
 extern const lv_font_t font_XinYin_reg13;
 extern const lv_font_t font_XinYin_reg14;
 extern const lv_font_t font_XinYin_reg18;
-extern const lv_font_t font_XinYin_reg24;
-extern const lv_font_t lv_font_montserrat_24;
+extern const lv_font_t font_XinYin_reg22;
 
 static char* hashSuffixes[] = {" H/s", " KH/s", " MH/s", " GH/s", " TH/s", " PH/s", " EH/s"};
 static char* countSuffixes[] = {"", " K", " M", " G", " T", " P", " E"};
 
 static const char * TAG = "SCREEN-DEBUG";
 
-static char* hashToStr(double hashrate){
-    char ret[32];
+static char* hashToStr(char *ret, size_t len, double hashrate){
 
     if (hashrate <= 0) {
-      return "0";
+        snprintf(ret,len,"0 H/s");
+        return ret;
     }
     int power = floor(log10(hashrate*1000000000)/3);
     if(power<0){
@@ -104,22 +104,22 @@ static char* hashToStr(double hashrate){
     }
 
     char * suffix = hashSuffixes[power];
-    float scaled_value = hashrate/pow(1000,power);
+    float scaled_value = hashrate*1000000000/pow(1000,power);
     if(scaled_value<10){
-        snprintf(ret,32,"%.2f %s",scaled_value,suffix);
+        snprintf(ret,len,"%.2f%s",scaled_value,suffix);
     }else if(scaled_value<100){
-        snprintf(ret,32,"%.1f %s",scaled_value,suffix);
+        snprintf(ret,len,"%.1f%s",scaled_value,suffix);
     }else{
-        snprintf(ret,32,"%.0f %s",scaled_value,suffix);
+        snprintf(ret,len,"%.0f%s",scaled_value,suffix);
     }
     return ret;
 }
 
-static char* countToStr(uint64_t value){
-    char ret[32];
+static char* countToStr(char *ret, size_t len, uint64_t value, bool roundup){
 
     if (value <= 0) {
-      return "0";
+      snprintf(ret,len,"0");
+      return ret;
     }
     int power = floor(log10((double)value)/3);
     if(power<0){
@@ -128,12 +128,16 @@ static char* countToStr(uint64_t value){
     
     char * suffix = countSuffixes[power];
     float scaled_value = value/pow(1000,power);
-    if(scaled_value<10){
-        snprintf(ret,32,"%.2f %s",scaled_value,suffix);
-    }else if(scaled_value<100){
-        snprintf(ret,32,"%.1f %s",scaled_value,suffix);
+    if(roundup){
+        snprintf(ret,len,"%.0f%s",scaled_value,suffix);
     }else{
-        snprintf(ret,32,"%.0f %s",scaled_value,suffix);
+        if(scaled_value<10){
+            snprintf(ret,len,"%.2f%s",scaled_value,suffix);
+        }else if(scaled_value<100){
+            snprintf(ret,len,"%.1f%s",scaled_value,suffix);
+        }else{
+            snprintf(ret,len,"%.0f%s",scaled_value,suffix);
+        }
     }
     return ret;
 }
@@ -212,10 +216,10 @@ static lv_obj_t * create_scr_setup(SystemModule * module) {
 
     createDefalutImage(scr, &bg_setup);
 
-    ui_lbSetupSSID = createDefalutLabel(scr,0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg14,142,67);
+    ui_lbSetupSSID = createDefalutLabel(scr,0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg14,142,69);
     lv_label_set_text_fmt(ui_lbSetupSSID,"%s",module->ap_ssid);
 
-    ui_lbSetupIP = createDefalutLabel(scr,0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg14,142,108);
+    ui_lbSetupIP = createDefalutLabel(scr,0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg14,142,112);
     lv_label_set_text_fmt(ui_lbSetupIP,"%s",module->ap_gw);
     
     return scr;
@@ -231,24 +235,28 @@ static lv_obj_t * create_scr_mining_stat(SystemModule * module) {
     lv_obj_t * scr = lv_obj_create(NULL);
     createDefalutImage(scr, &bg_mining_stat);
     
-    ui_lbMiningHashrate = createDefalutLabel(scr,0xff0000,LV_TEXT_ALIGN_CENTER,&lv_font_montserrat_24,6,106);
+    ui_lbMiningHashrate = createDefalutLabel(scr,0xffffff,LV_TEXT_ALIGN_CENTER,&font_XinYin_reg22,6,106);
+    lv_obj_set_size(ui_lbMiningHashrate,184,64);
+    int fontHeight = lv_font_get_line_height(&font_XinYin_reg22);
+    int verPad = (64 - fontHeight)/2;
+    lv_obj_set_style_pad_top(ui_lbMiningHashrate, verPad, 0);
 
     //ui_lbMiningHashrate = lv_label_create(scr);
 
-    lv_obj_set_width(ui_lbMiningHashrate,184);
-    lv_obj_set_height(ui_lbMiningHashrate,64);
-    lv_label_set_text(ui_lbMiningHashrate,hashToStr(module->current_hashrate));
+    
+    
+    lv_label_set_text(ui_lbMiningHashrate,"0 H/s"); 
 
-    ui_lbMiningTarget = createDefalutLabel(scr,0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg8,265,58);
+    ui_lbMiningTarget = createDefalutLabel(scr,0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg12,265,58);
     lv_label_set_text(ui_lbMiningTarget,"102T");//countToStr(module->network_diff));
 
-    ui_lbMiningBD = createDefalutLabel(scr,0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg8,265,85);
+    ui_lbMiningBD = createDefalutLabel(scr,0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg12,265,85);
     lv_label_set_text(ui_lbMiningBD,module->best_session_diff_string);
 
-    ui_lbMiningAR = createDefalutLabel(scr,0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg8,265,110);
-    lv_label_set_text_fmt(ui_lbMiningAR,"%s/%s",countToStr(module->shares_accepted),countToStr(module->shares_rejected));
+    ui_lbMiningAR = createDefalutLabel(scr,0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg12,265,110);
+    lv_label_set_text_fmt(ui_lbMiningAR,"%s/%s","0","0");
 
-    ui_lbBlockFound = createDefalutLabel(scr,0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg8,265,135);
+    ui_lbBlockFound = createDefalutLabel(scr,0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg12,265,135);
     lv_label_set_text_fmt(ui_lbBlockFound,"%d", (int)module->block_found);
 
     return scr;
@@ -262,39 +270,44 @@ static lv_obj_t * create_scr_device_info() {
     chips_status = lv_obj_create(scr);
     lv_obj_set_flex_flow(chips_status,LV_FLEX_FLOW_ROW);
     lv_obj_set_flex_align(chips_status, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
-    lv_obj_set_width(chips_status,140);
-    lv_obj_set_x(chips_status,67);
+    lv_obj_set_width(chips_status,155);
+    lv_obj_set_height(chips_status,LV_SIZE_CONTENT);
+    lv_obj_clear_flag(chips_status, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_bg_opa(chips_status,0,0);
+    lv_obj_set_style_pad_top(chips_status,0,0);
+    lv_obj_set_style_border_width(chips_status,0,0);
+    lv_obj_set_x(chips_status,60);
     lv_obj_set_y(chips_status,48);
 
-    ui_lbDIChip1 = createDefalutLabelWithoutXY(chips_status, TEXT_RED, LV_TEXT_ALIGN_AUTO, &font_XinYin_reg8);
+    ui_lbDIChip1 = createDefalutLabelWithoutXY(chips_status, TEXT_RED, LV_TEXT_ALIGN_AUTO, &font_XinYin_reg10);
     chips_label[0] = ui_lbDIChip1;
     lv_label_set_text(ui_lbDIChip1,"Dw");
     
-    ui_lbDIChip2 = createDefalutLabelWithoutXY(chips_status, TEXT_RED, LV_TEXT_ALIGN_AUTO, &font_XinYin_reg8);
+    ui_lbDIChip2 = createDefalutLabelWithoutXY(chips_status, TEXT_RED, LV_TEXT_ALIGN_AUTO, &font_XinYin_reg10);
     chips_label[1] = ui_lbDIChip2;
     lv_label_set_text(ui_lbDIChip2,"Dw");
     
-    ui_lbDIChip3 = createDefalutLabelWithoutXY(chips_status, TEXT_RED, LV_TEXT_ALIGN_AUTO, &font_XinYin_reg8);
+    ui_lbDIChip3 = createDefalutLabelWithoutXY(chips_status, TEXT_RED, LV_TEXT_ALIGN_AUTO, &font_XinYin_reg10);
     chips_label[2] = ui_lbDIChip3;
     lv_label_set_text(ui_lbDIChip3,"Dw");
     
-    ui_lbDIChip4 = createDefalutLabelWithoutXY(chips_status, TEXT_RED, LV_TEXT_ALIGN_AUTO, &font_XinYin_reg8);
+    ui_lbDIChip4 = createDefalutLabelWithoutXY(chips_status, TEXT_RED, LV_TEXT_ALIGN_AUTO, &font_XinYin_reg10);
     chips_label[3] = ui_lbDIChip4;
     lv_label_set_text(ui_lbDIChip4,"Dw");
     
-    ui_lbDIChip5 = createDefalutLabelWithoutXY(chips_status, TEXT_RED, LV_TEXT_ALIGN_AUTO, &font_XinYin_reg8);
+    ui_lbDIChip5 = createDefalutLabelWithoutXY(chips_status, TEXT_RED, LV_TEXT_ALIGN_AUTO, &font_XinYin_reg10);
     chips_label[4] = ui_lbDIChip5;
     lv_label_set_text(ui_lbDIChip5,"Dw");
     
-    ui_lbDIChip6 = createDefalutLabelWithoutXY(chips_status, TEXT_RED, LV_TEXT_ALIGN_AUTO, &font_XinYin_reg8);
+    ui_lbDIChip6 = createDefalutLabelWithoutXY(chips_status, TEXT_RED, LV_TEXT_ALIGN_AUTO, &font_XinYin_reg10);
     lv_label_set_text(ui_lbDIChip6,"Dw");
     chips_label[5] = ui_lbDIChip6;
 
-    ui_lbDIChip7 = createDefalutLabelWithoutXY(chips_status, TEXT_RED, LV_TEXT_ALIGN_AUTO, &font_XinYin_reg8);
+    ui_lbDIChip7 = createDefalutLabelWithoutXY(chips_status, TEXT_RED, LV_TEXT_ALIGN_AUTO, &font_XinYin_reg10);
     lv_label_set_text(ui_lbDIChip7,"Dw");
     chips_label[6] = ui_lbDIChip7;
 
-    ui_lbDIChip8 = createDefalutLabelWithoutXY(chips_status, TEXT_RED, LV_TEXT_ALIGN_AUTO, &font_XinYin_reg8);
+    ui_lbDIChip8 = createDefalutLabelWithoutXY(chips_status, TEXT_RED, LV_TEXT_ALIGN_AUTO, &font_XinYin_reg10);
     lv_label_set_text(ui_lbDIChip8,"Dw");
     chips_label[7] = ui_lbDIChip8;
 
@@ -306,9 +319,9 @@ static lv_obj_t * create_scr_device_info() {
     lv_label_set_text(ui_lbDIIout,"A");
     ui_lbDIPwr = createDefalutLabel(scr, 0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg13,173,132);
     lv_label_set_text(ui_lbDIPwr,"W");
-    ui_lbDIFanPerc = createDefalutLabel(scr, 0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg18,258,51);
+    ui_lbDIFanPerc = createDefalutLabel(scr, 0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg18,246,52);
     lv_label_set_text(ui_lbDIFanPerc,"59%");
-    ui_lbDITemp = createDefalutLabel(scr, 0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg18,258,102);
+    ui_lbDITemp = createDefalutLabel(scr, 0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg18,246,102);
     lv_label_set_text(ui_lbDITemp,"60C");
 
     return scr;
@@ -318,15 +331,15 @@ static lv_obj_t * create_scr_network_info(SystemModule * module) {
     lv_obj_t * scr = lv_obj_create(NULL);
     createDefalutImage(scr,&bg_network);
 
-    ui_lbNWIP = createDefalutLabel(scr, 0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg8,74,52);
+    ui_lbNWIP = createDefalutLabel(scr, 0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg12,72,52);
     lv_label_set_text(ui_lbNWIP,"xxx.xxx.xxx.xxx");
-    ui_lbNWSSID = createDefalutLabel(scr, 0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg8,74,80);
+    ui_lbNWSSID = createDefalutLabel(scr, 0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg12,72,80);
     lv_label_set_text(ui_lbNWSSID,"bitaxe");
-    ui_lbNWPool = createDefalutLabel(scr, 0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg8,74,107);
+    ui_lbNWPool = createDefalutLabel(scr, 0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg12,72,107);
     lv_label_set_text(ui_lbNWPool,"cksolo.xaiten.com:14400");
-    ui_lbNWMAC = createDefalutLabel(scr, 0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg8,214,52);
+    ui_lbNWMAC = createDefalutLabel(scr, 0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg10,212,52);
     lv_label_set_text(ui_lbNWMAC,module->mac);
-    ui_lbNWAddr = createDefalutLabel(scr, 0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg8,214,52);
+    ui_lbNWAddr = createDefalutLabel(scr, 0xffffff,LV_TEXT_ALIGN_LEFT,&font_XinYin_reg10,72,135);
     lv_label_set_text(ui_lbNWAddr,"afB223jjs");
 
     return scr;
@@ -335,19 +348,15 @@ static lv_obj_t * create_scr_network_info(SystemModule * module) {
 static void screen_show(screen_t screen)
 {
     if (current_screen != screen) {
-        ESP_LOGW(TAG,"NEED to change screen");
         lv_obj_t * scr = screens[screen];
 
         if (scr && lvgl_port_lock(0)) {
             lv_screen_load_anim(scr, LV_SCR_LOAD_ANIM_FADE_ON, 350, 0, false);
-            ESP_LOGW(TAG,"INSIDE the lock");
             lvgl_port_unlock();
         }
 
         current_screen = screen;
         current_screen_counter = 0;
-    }else{
-        ESP_LOGW(TAG,"NOOOO NEED to change screen ");
     }
 }
 
@@ -369,7 +378,6 @@ static void screen_update_cb(lv_timer_t * timer)
 
             lv_obj_remove_flag(self_test_finished_label, LV_OBJ_FLAG_HIDDEN);
         }
-        ESP_LOGW(TAG,"SELF_TEST_MODULE.active");
         return;
     }
 
@@ -380,7 +388,6 @@ static void screen_update_cb(lv_timer_t * timer)
             lv_label_set_text(ui_lbOHIP, module->ip_addr_str);
         }
         screen_show(SCR_OVERHEAT);
-        ESP_LOGW(TAG,"module->overheat_mode == 1");
         return;
     }
 
@@ -392,7 +399,6 @@ static void screen_update_cb(lv_timer_t * timer)
             lv_label_set_text(ui_lbSetupIP, module->ap_gw);
         }
         screen_show(SCR_SETUP);
-        ESP_LOGW(TAG,"module->ap_enabled");
         return;
     }
 
@@ -402,7 +408,6 @@ static void screen_update_cb(lv_timer_t * timer)
 
     if (current_screen < SCR_LOGO) {
         screen_show(SCR_LOGO);
-        ESP_LOGW(TAG,"current_screen < SCR_LOGO");
         return;
     }
 
@@ -411,7 +416,6 @@ static void screen_update_cb(lv_timer_t * timer)
             return;
         }
         screen_show(SCR_CAROUSEL_START);
-        ESP_LOGW(TAG,"current_screen == SCR_LOGO");
         return;
     }
 
@@ -421,23 +425,28 @@ static void screen_update_cb(lv_timer_t * timer)
 
     /*Mining stat. update*/
     //ESP_LOGW(TAG,"Hashrate: %.02f",module->current_hashrate);
-    lv_label_set_text_fmt(ui_lbMiningHashrate,"%.02f GH/s",module->current_hashrate);
+    char hr[16];
+    //snprintf(hr,16,"%.02f GH/s",module->current_hashrate);
+    lv_label_set_text(ui_lbMiningHashrate,hashToStr(hr,16,module->current_hashrate));
     
     // char *temp = countToStr(module->network_diff);
-    // if(strcmp(lv_label_get_text(ui_lbMiningTarget), temp) != 0){
-    //     lv_label_set_text(ui_lbMiningTarget,temp);
-    // }
+    char nwTra[8];
+    countToStr(nwTra,8,module->network_diff,false);
+    if(strcmp(lv_label_get_text(ui_lbMiningTarget), nwTra) != 0){
+        lv_label_set_text(ui_lbMiningTarget,nwTra);
+    }
 
     if(strcmp(lv_label_get_text(ui_lbMiningBD), module->best_session_diff_string) != 0){
         lv_label_set_text(ui_lbMiningBD,module->best_session_diff_string);
     }
 
-    //lv_label_set_text_fmt(ui_lbMiningAR,"%s-%s",countToStr(module->shares_accepted),countToStr(module->shares_rejected));
+    char an[6];
+    char rn[6];
+    lv_label_set_text_fmt(ui_lbMiningAR,"%s/%s",countToStr(an,6,module->shares_accepted,true),countToStr(rn,6,module->shares_rejected,true));
     lv_label_set_text_fmt(ui_lbBlockFound,"%d",(int)module->block_found);
 
     /*Devie info. update*/
     if (CAROUSEL_DELAY_COUNT <= current_screen_counter){
-        ESP_LOGW(TAG,"CAROUSEL_DELAY_COUNT <= current_screen_counter");
         for(int a=0;a<8;a++){
             if(temp_chips_count[a]<GLOBAL_STATE->chip_submit[a]){
                 if(temp_chips_count[a]==0){
@@ -461,10 +470,11 @@ static void screen_update_cb(lv_timer_t * timer)
         }
     }
     lv_label_set_text_fmt(ui_lbDIVin,"%.1fV",power_management->voltage/1000);
-    lv_label_set_text_fmt(ui_lbDIVout,"%.1fV",power_management->outVoltage_mv/1000/GLOBAL_STATE->voltage_domain);
+    lv_label_set_text_fmt(ui_lbDIVout,"%.02fV",power_management->outVoltage_mv/GLOBAL_STATE->voltage_domain);///1000/GLOBAL_STATE->voltage_domain);
     lv_label_set_text_fmt(ui_lbDIPwr,"%.1fW",power_management->power);
     lv_label_set_text_fmt(ui_lbDIIout,"%.1fA",power_management->current/1000);
     lv_label_set_text_fmt(ui_lbDITemp,"%.1fC",power_management->chip_temp_avg);
+    lv_label_set_text_fmt(ui_lbDIFanPerc,"%.1f%%",(double)power_management->fan_perc);
 
     /*Network*/
     char *pool_url = module->is_using_fallback ? module->fallback_pool_url : module->pool_url;
@@ -480,22 +490,25 @@ static void screen_update_cb(lv_timer_t * timer)
         lv_label_set_text(ui_lbNWIP, module->ip_addr_str);
     }
 
-    // char *user = nvs_config_get_string(module->is_using_fallback?NVS_CONFIG_FALLBACK_STRATUM_USER:NVS_CONFIG_STRATUM_USER,"");
-    // if (strcmp(lv_label_get_text(ui_lbNWAddr), user) != 0) {
-    //     lv_label_set_text(ui_lbNWAddr, user);
-    // }
+    //char *user = nvs_config_get_string(module->is_using_fallback?NVS_CONFIG_FALLBACK_STRATUM_USER:NVS_CONFIG_STRATUM_USER,"");
+    if (strcmp(lv_label_get_text(ui_lbNWAddr), module->mining_addr) != 0) {
+        lv_label_set_text(ui_lbNWAddr, module->mining_addr);
+    }
+
+    if (strcmp(lv_label_get_text(ui_lbNWMAC), module->mac) != 0) {
+        lv_label_set_text(ui_lbNWMAC,module->mac);
+    }
+    
 
     if (CAROUSEL_DELAY_COUNT > current_screen_counter || found_block) {
         return;
     }
-    ESP_LOGW(TAG,"Last");
     screen_next();
 }
 
 void screen_next()
 {
     if (current_screen >= SCR_CAROUSEL_START) {
-        ESP_LOGW(TAG,"screen_next");
         screen_show(current_screen == SCR_CAROUSEL_END ? SCR_CAROUSEL_START : current_screen + 1);
     }
 }
