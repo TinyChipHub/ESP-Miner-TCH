@@ -269,7 +269,7 @@ void POWER_MANAGEMENT_task(void * pvParameters)
                 break;
             case DEVICE_HEX:
             case DEVICE_SUPRAHEX:
-                power_management->chip_temp_avg = (TMP1075_read_temperature(0)+TMP1075_read_temperature(1))/2+5;
+                power_management->chip_temp_avg = TMP1075_read_temperature_weighted()+5;
 				power_management->vr_temp = (float)TPS546_get_temperature();
                 // EMC2302 will give bad readings if the ASIC is turned off
                 if(power_management->voltage < HEX_CONFIG.TPS546_INIT_VOUT_MIN){
