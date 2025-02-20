@@ -439,12 +439,14 @@ task_result * BM1368_proccess_work(void * pvParameters)
     uint8_t core_id = (uint8_t)((reverse_uint32(asic_result->nonce) >> 25) & 0x7f);
     uint8_t small_core_id = asic_result->job_id & 0x0f;
     uint32_t version_bits = (reverse_uint16(asic_result->version) << 13);
-    ESP_LOGI(TAG, "Job ID: %02X, Core: %d/%d, Ver: %08" PRIX32, job_id, core_id, small_core_id, version_bits);
+    if(!multiChip)
+        ESP_LOGI(TAG, "Job ID: %02X, Core: %d/%d, Ver: %08" PRIX32, job_id, core_id, small_core_id, version_bits);
 
     GlobalState * GLOBAL_STATE = (GlobalState *) pvParameters;
 
     if(multiChip){
         uint8_t asic_nr = (asic_result->nonce & 0x0000fc00)>>10;
+        ESP_LOGI(TAG, "Chip: %d, Job ID: %02X, Core: %d/%d, Ver: %08" PRIX32, asic_nr+1, job_id, core_id, small_core_id, version_bits);
         GLOBAL_STATE->chip_submit[asic_nr]= GLOBAL_STATE->chip_submit[asic_nr]+1;
         if(norceCount%10==0){
             sprintf(GLOBAL_STATE->chip_submit_srt,"[%d, %d, %d, %d, %d, %d]",
