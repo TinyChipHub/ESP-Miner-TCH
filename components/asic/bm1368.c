@@ -257,18 +257,30 @@ uint8_t BM1368_init(uint64_t frequency, uint16_t asic_count)
     esp_rom_gpio_pad_select_gpio(GPIO_ASIC_RESET);
     gpio_set_direction(GPIO_ASIC_RESET, GPIO_MODE_OUTPUT);
 
-    _reset();
+   
+    int tryFail=0;
+    int chip_counter=0;
+    while(tryFail<4){
 
-    // set version mask
-    for (int i = 0; i < 4; i++) {
-        BM1368_set_version_mask(STRATUM_DEFAULT_VERSION_MASK);
+        _reset();
+
+        // set version mask
+        for (int i = 0; i < 4; i++) {
+            BM1368_set_version_mask(STRATUM_DEFAULT_VERSION_MASK);
+        }
+
+        chip_counter = count_asic_chips();
+
+        if (chip_counter != asic_count) {
+            tryFail++;
+            ESP_LOGE(TAG, "Retry: %d: Chip count mismatch. Expected: %d, Actual: %d", tryFail, asic_count, chip_counter);
+        }else{
+            break;
+        }
     }
-
-    int chip_counter = count_asic_chips();
-
-    if (chip_counter != asic_count) {
-        ESP_LOGE(TAG, "Chip count mismatch. Expected: %d, Actual: %d", asic_count, chip_counter);
-        return 0;
+    if(tryFail==4){
+        ESP_LOGE(TAG, "Chip count mismatch retry fail. Restarting!");
+        esp_restart();
     }
 
     uint8_t init_cmds[][6] = {
