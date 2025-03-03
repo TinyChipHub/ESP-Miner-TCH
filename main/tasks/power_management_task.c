@@ -68,7 +68,7 @@ static const char * TAG = "power_management";
     switch (GLOBAL_STATE->device_model) {
         case DEVICE_ZYBER8S:
         case DEVICE_ZYBER8G:
-            EMC2302_set_fan_speed(0,perc);
+            EMC2302_set_fan_speed(0,1); //Always set under fan to 100%
             EMC2302_set_fan_speed(1,perc);
             break;
         default:
@@ -159,7 +159,7 @@ void POWER_MANAGEMENT_task(void * pvParameters)
                     float fs = (float) nvs_config_get_u16(NVS_CONFIG_FAN_SPEED, 100);
                     //ESP_LOGI(TAG, "Manual Fan = %.02f", fs);
                     power_management->fan_perc = fs;
-                    EMC2302_set_fan_speed(0,(float) fs / 100);
+                    EMC2302_set_fan_speed(0,1); //Always set the under fan to 100%
                     EMC2302_set_fan_speed(1,(float) fs / 100);
                     break;
                 default:
