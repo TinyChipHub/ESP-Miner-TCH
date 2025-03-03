@@ -9,8 +9,8 @@
 #define TMP1075_HIGH_LIMIT 0x03       ///< High limit register
 #define TMP1075_DEVICE_ID 0x0F        ///< Device ID register
 
-#define WEIGHTED_U7 0.35
-#define WEIGHTED_U8 0.65
+#define WEIGHTED_U7 0.5
+#define WEIGHTED_U8 0.5
 
 bool TMP1075_installed(int);
 uint8_t TMP1075_read_temperature(int);

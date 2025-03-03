@@ -122,7 +122,7 @@ void POWER_MANAGEMENT_task(void * pvParameters)
         switch (GLOBAL_STATE->device_model) {
             case DEVICE_ZYBER8S:
             case DEVICE_ZYBER8G:
-                power_management->chip_temp_avg = (TMP1075_read_temperature(0)+TMP1075_read_temperature(1))/2+5;
+                power_management->chip_temp_avg = TMP1075_read_temperature_weighted()+8;
 				power_management->vr_temp = (float)TPS546_get_temperature();
                 // EMC2302 will give bad readings if the ASIC is turned off
                 if(power_management->voltage < ZYBER_CONFIG.TPS546_INIT_VOUT_MIN){
