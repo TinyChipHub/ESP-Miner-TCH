@@ -17,5 +17,7 @@ typedef enum {
 
 esp_err_t screen_start(void * pvParameters);
 void screen_next(void);
+void display_short_press(void);
+void display_long_press(void);
 
 #endif /* SCREEN_H_ */

@@ -151,8 +151,8 @@ esp_err_t display_init(void * pvParameters){
         .color_format = LV_COLOR_FORMAT_RGB565,
         .rotation = {
             .swap_xy = true,
-            .mirror_x = false, // The screen is not flipped, this is for backwards compatibility
-            .mirror_y = true,
+            .mirror_x = flip_screen, // The screen is not flipped, this is for backwards compatibility
+            .mirror_y = !flip_screen,
             // .mirror_y = flip_screen,
         },
         .flags = {

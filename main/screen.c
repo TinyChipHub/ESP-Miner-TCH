@@ -91,6 +91,7 @@ static char* hashSuffixes[] = {" H/s", " KH/s", " MH/s", " GH/s", " TH/s", " PH/
 static char* countSuffixes[] = {"", " K", " M", " G", " T", " P", " E"};
 
 static const char * TAG = "SCREEN-DEBUG";
+static bool display_off = false;
 
 static char* hashToStr(char *ret, size_t len, double hashrate){
 
@@ -369,6 +370,10 @@ static uint32_t temp_chips_fail_count[8];
 
 static void screen_update_cb(lv_timer_t * timer)
 {
+    if (display_off){
+        return ;
+    }
+
     if (GLOBAL_STATE->SELF_TEST_MODULE.active) {
 
         screen_show(SCR_SELF_TEST);
@@ -515,6 +520,14 @@ void screen_next()
     if (current_screen >= SCR_CAROUSEL_START) {
         screen_show(current_screen == SCR_CAROUSEL_END ? SCR_CAROUSEL_START : current_screen + 1);
     }
+}
+
+void display_short_press(void){
+    ESP_LOGW(TAG,"display_short_press_cb");
+}
+
+void display_long_press(void){
+    ESP_LOGW(TAG,"display_long_press_cb");
 }
 
 esp_err_t screen_start(void * pvParameters)
