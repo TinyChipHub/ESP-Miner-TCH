@@ -130,6 +130,21 @@ esp_err_t i2c_bitaxe_register_write_byte(i2c_master_dev_handle_t dev_handle, uin
 }
 
 /**
+ * @brief Write an empty buffer to a command to a I2C register
+ * @param dev_handle The I2C device handle
+ * @param reg_addr The register address to write to
+ * @param data The data to write
+ */
+esp_err_t i2c_bitaxe_register_write_empty(i2c_master_dev_handle_t dev_handle, uint8_t reg_addr)
+{
+    uint8_t write_buf[1] = {reg_addr};
+
+    //return i2c_master_write_to_device(I2C_MASTER_NUM, device_address, write_buf, sizeof(write_buf), I2C_MASTER_TIMEOUT_MS / portTICK_PERIOD_MS);
+
+    return log_on_error(i2c_master_transmit(dev_handle, write_buf, 1, I2C_DEFAULT_TIMEOUT), dev_handle);
+}
+
+/**
  * @brief Write a bytes to a I2C register
  * @param dev_handle The I2C device handle
  * @param data The data to write
