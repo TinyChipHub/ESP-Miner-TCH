@@ -58,6 +58,16 @@ static esp_err_t smb_write_byte(uint8_t command, uint8_t data)
 }
 
 /**
+ * @brief SMBus write byte
+ * @param command The command to write
+ * @param data The data to write
+ */
+static esp_err_t smb_write_empty(uint8_t command)
+{
+    return i2c_bitaxe_register_write_empty(tps546_dev_handle, command);
+}
+
+/**
  * @brief SMBus read word
  * @param command The command to read
  * @param result Pointer to store the read data
@@ -673,20 +683,39 @@ void TPS546_print_status(void) {
     if (smb_read_word(PMBUS_STATUS_WORD, &u16_value) != ESP_OK) {
         ESP_LOGE(TAG, "Could not read STATUS_WORD");
     } else {
-        ESP_LOGI(TAG, "TPS546 Status: %04X", u16_value);
-    }
-    //PMBUS_STATUS_VOUT
-    if (smb_read_byte(PMBUS_STATUS_VOUT, &u8_value) != ESP_OK) {
-        ESP_LOGE(TAG, "Could not read STATUS_VOUT");
-    } else {
-        ESP_LOGI(TAG, "TPS546 VOUT Status: %02X", u8_value);
-    }
+        if(u16_value!=0){
+            ESP_LOGI(TAG, "TPS546 Status: %04X", u16_value);
+            //PMBUS_STATUS_VOUT
+            if (smb_read_byte(PMBUS_STATUS_VOUT, &u8_value) != ESP_OK) {
+                ESP_LOGE(TAG, "Could not read STATUS_VOUT");
+            } else {
+                ESP_LOGI(TAG, "TPS546 VOUT Status: %02X", u8_value);
+            }
 
-    if (smb_read_byte(PMBUS_STATUS_INPUT, &u8_value) != ESP_OK) {
-        ESP_LOGE(TAG, "Could not read STATUS_INPUT");
-    } else {
-        ESP_LOGI(TAG, "TPS546 INPUT Status: %02X", u8_value);
+            if (smb_read_byte(PMBUS_STATUS_IOUT, &u8_value) != ESP_OK) {
+                ESP_LOGE(TAG, "Could not read STATUS_IOUT");
+            } else {
+                ESP_LOGI(TAG, "TPS546 IOUT Status: %02X", u8_value);
+            }
+
+            if (smb_read_byte(PMBUS_STATUS_INPUT, &u8_value) != ESP_OK) {
+                ESP_LOGE(TAG, "Could not read STATUS_INPUT");
+            } else {
+                ESP_LOGI(TAG, "TPS546 INPUT Status: %02X", u8_value);
+            }
+
+            if (smb_read_byte(PMBUS_STATUS_OTHER, &u8_value) != ESP_OK) {
+                ESP_LOGE(TAG, "Could not read STATUS_OTHER");
+            } else {
+                ESP_LOGI(TAG, "TPS546 OTHER Status: %02X", u8_value);
+            }
+
+
+            smb_write_empty(PMBUS_CLEAR_FAULTS); //Clear falut after read
+        }
+        
     }
+    
 }
 
 /**
