@@ -54,8 +54,8 @@ static const char * TAG = "power_management";
     static double automatic_fan_speed(float chip_temp, GlobalState * GLOBAL_STATE)
 {
     double result = 0.0;
-    double min_temp = 45.0;
-    double min_fan_speed = 35.0;
+    double min_temp = 40.0;
+    double min_fan_speed = 38.0;
 
     if (chip_temp < min_temp) {
         result = min_fan_speed;
@@ -178,6 +178,8 @@ void POWER_MANAGEMENT_task(void * pvParameters)
                 TPS546_print_status();
                 power_management->voltage = TPS546_get_vin() * 1000;
                 power_management->current = TPS546_get_iout() * 1000;
+                ESP_LOGI(TAG,"Current: %0.2f",power_management->current);
+                //ESP_LOGI(TAG,"VOUT: %0.2f",TPS546_get_vout());
                 power_management->power = (TPS546_get_vout() * power_management->current) / 1000 + HEX_POWER_OFFSET;
                 break;
             default:
