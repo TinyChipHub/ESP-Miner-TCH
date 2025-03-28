@@ -243,7 +243,7 @@ void POWER_MANAGEMENT_task(void * pvParameters)
 
                 break;
             case DEVICE_GAMMA:
-                power_management->chip_temp_avg = GLOBAL_STATE->ASIC_initalized ? EMC2101_get_external_temp() : -1;
+            power_management->chip_temp_avg = GLOBAL_STATE->ASIC_initalized ? (EMC2101_get_external_temp()+EMC2101_get_internal_temp())/2:-1;//EMC2101_get_external_temp() : -1;
                 power_management->vr_temp = (float)TPS546_get_temperature();
 
                 // EMC2101 will give bad readings if the ASIC is turned off
