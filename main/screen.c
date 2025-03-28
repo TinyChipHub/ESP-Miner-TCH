@@ -9,6 +9,7 @@
 #include "vcore.h"
 #include "screen.h"
 #include "nvs_config.h"
+#include "display.h"
 
 // static const char * TAG = "screen";
 
@@ -78,6 +79,8 @@ static bool found_block;
 #define TEXT_RED 0x761330
 #define TEXT_GREEN 0x058a37
 #define TEXT_YELLOW 0xf5cf39
+
+#define MAX_SCREEN_IDEL_TIME 300000 //5 mins
 
 /* Fonts */
 extern const lv_font_t font_XinYin_reg10;
@@ -372,6 +375,17 @@ static void screen_update_cb(lv_timer_t * timer)
 {
     if (display_off){
         return ;
+    }else{
+        if(lv_disp_get_inactive_time(NULL)>MAX_SCREEN_IDEL_TIME){
+            if(lvgl_port_lock(0)){
+                ESP_LOGI(TAG,"Maxx screen idel excess, turn off the screen now");
+                //lvgl_port_stop();
+                gpio_set_level(DISPLAY_PIN_PWR, false);
+                gpio_set_level(DISPLAY_PIN_BK_PWR, DISPLAY_LCD_BK_LIGHT_OFF);
+                display_off=true;
+                lvgl_port_unlock();
+            }
+        }
     }
 
     if (GLOBAL_STATE->SELF_TEST_MODULE.active) {
@@ -523,11 +537,27 @@ void screen_next()
 }
 
 void display_short_press(void){
-    ESP_LOGW(TAG,"display_short_press_cb");
+    //lvgl_port_resume();
+    if(lvgl_port_lock(0)){
+        ESP_LOGW(TAG,"display switch on");
+        gpio_set_level(DISPLAY_PIN_PWR, true);
+        gpio_set_level(DISPLAY_PIN_BK_PWR, DISPLAY_LCD_BK_LIGHT_ON);
+        //lvgl_port_resume();
+        display_off=false;
+        screen_next();
+        lvgl_port_unlock();
+    }
 }
 
 void display_long_press(void){
-    ESP_LOGW(TAG,"display_long_press_cb");
+    if(lvgl_port_lock(0)){
+        ESP_LOGW(TAG,"display_long_press_cb");
+        //lvgl_port_stop();
+        gpio_set_level(DISPLAY_PIN_PWR, false);
+        gpio_set_level(DISPLAY_PIN_BK_PWR, DISPLAY_LCD_BK_LIGHT_OFF);
+        display_off=true;
+        lvgl_port_unlock();
+    }
 }
 
 esp_err_t screen_start(void * pvParameters)
