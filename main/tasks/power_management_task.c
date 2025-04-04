@@ -16,7 +16,7 @@
 
 #define POLL_RATE 2000
 #define MAX_TEMP 90.0
-#define THROTTLE_TEMP 75.0
+#define THROTTLE_TEMP 79.0
 #define THROTTLE_TEMP_RANGE (MAX_TEMP - THROTTLE_TEMP)
 
 #define VOLTAGE_START_THROTTLE 4900
@@ -43,8 +43,8 @@ static const char * TAG = "power_management";
 static double automatic_fan_speed(float chip_temp, GlobalState * GLOBAL_STATE)
 {
     double result = 0.0;
-    double min_temp = 45.0;
-    double min_fan_speed = 35.0;
+    double min_temp = 40.0;
+    double min_fan_speed = 38.0;
 
     if (chip_temp < min_temp) {
         result = min_fan_speed;

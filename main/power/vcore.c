@@ -44,6 +44,22 @@ static TPS546_CONFIG TPS546_CONFIG_GAMMA = {
     .TPS546_INIT_IOUT_OC_FAULT_LIMIT = 30.00 /* A */
 };
 
+static TPS546_CONFIG TPS546_CONFIG_HEX = {
+    /* vin voltage */
+    .TPS546_INIT_VIN_ON = 11.5,
+    .TPS546_INIT_VIN_OFF = 11.0,
+    .TPS546_INIT_VIN_UV_WARN_LIMIT = 0, //Set to 0 to ignore. TI Bug in this register
+    .TPS546_INIT_VIN_OV_FAULT_LIMIT = 14.0,
+    /* vout voltage */
+    .TPS546_INIT_SCALE_LOOP = 0.125,
+    .TPS546_INIT_VOUT_MIN = 2.5,
+    .TPS546_INIT_VOUT_MAX = 4.5,
+    .TPS546_INIT_VOUT_COMMAND = 3.6,
+    /* iout current */
+    .TPS546_INIT_IOUT_OC_WARN_LIMIT = 40.00, /* A */
+    .TPS546_INIT_IOUT_OC_FAULT_LIMIT = 42.00 /* A */
+};
+
 static const char *TAG = "vcore.c";
 
 esp_err_t VCORE_init(GlobalState * GLOBAL_STATE) {
@@ -64,7 +80,10 @@ esp_err_t VCORE_init(GlobalState * GLOBAL_STATE) {
         case DEVICE_GAMMATURBO:
             ESP_RETURN_ON_ERROR(TPS546_init(TPS546_CONFIG_GAMMATURBO), TAG, "TPS546 init failed!");
             break;
-        // case DEVICE_HEX:
+        case DEVICE_HEX:
+        case DEVICE_SUPRAHEX:
+            ESP_RETURN_ON_ERROR(TPS546_init(TPS546_CONFIG_HEX), TAG, "TPS546 init failed!");
+            break;
         default:
     }
 
@@ -94,6 +113,8 @@ esp_err_t VCORE_init(GlobalState * GLOBAL_STATE) {
             break;
         case DEVICE_GAMMA:
         case DEVICE_GAMMATURBO:
+        case DEVICE_HEX:
+        case DEVICE_SUPRAHEX:
             break;
         default:
     }
@@ -120,7 +141,10 @@ esp_err_t VCORE_set_voltage(float core_voltage, GlobalState * global_state)
                 ESP_LOGI(TAG, "Set ASIC voltage = %.3fV", core_voltage);
                 ESP_RETURN_ON_ERROR(TPS546_set_vout(core_voltage), TAG, "TPS546 set voltage failed!");
             break;
-        // case DEVICE_HEX:
+        case DEVICE_HEX:
+        case DEVICE_SUPRAHEX:
+            ESP_LOGI(TAG, "Set ASIC voltage = %.3fV", core_voltage);
+            ESP_RETURN_ON_ERROR(TPS546_set_vout(core_voltage * 3), TAG, "TPS546 set voltage failed!");
         default:
     }
 

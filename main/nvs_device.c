@@ -46,6 +46,11 @@ esp_err_t NVSDevice_parse_config(GlobalState * GLOBAL_STATE) {
     free(board_version);
     ESP_LOGI(TAG, "Found Device Model: %s", GLOBAL_STATE->device_model_str);
     ESP_LOGI(TAG, "Found Board Version: %d", GLOBAL_STATE->board_version);
+    
+    if (strcmp(GLOBAL_STATE->device_model_str, "hex") == 0||
+            strcmp(GLOBAL_STATE->device_model_str, "suprahex") == 0) {
+        GLOBAL_STATE->is_multichip=true;
+    }
 
     return ESP_OK;
 }

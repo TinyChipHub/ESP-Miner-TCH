@@ -17,6 +17,8 @@
 #define SUPRA_MAX_POWER 40 //watts
 #define GAMMA_MAX_POWER 40 //Watts
 #define GAMMATURBO_MAX_POWER 60 //Watts
+#define HEX_MAX_POWER  125//Watts
+#define SUPRAHEX_MAX_POWER 145 //Watts
 
 // nominal voltage settings
 #define NOMINAL_VOLTAGE_5 5 //volts
@@ -37,6 +39,8 @@ esp_err_t Power_disable(GlobalState * GLOBAL_STATE) {
             break;
         case DEVICE_GAMMA:
         case DEVICE_GAMMATURBO:
+        case DEVICE_HEX:
+        case DEVICE_SUPRAHEX:
             // Turn off core voltage
             VCORE_set_voltage(0.0, GLOBAL_STATE);
             break;
@@ -59,8 +63,12 @@ float Power_get_max_settings(GlobalState * GLOBAL_STATE) {
             return GAMMA_MAX_POWER;
         case DEVICE_GAMMATURBO:
             return GAMMATURBO_MAX_POWER;
+        case DEVICE_HEX:
+            return HEX_MAX_POWER;
+        case DEVICE_SUPRAHEX:
+            return SUPRAHEX_MAX_POWER;
         default:
-        return GAMMA_MAX_POWER;
+            return GAMMA_MAX_POWER;
     }
 }
 
@@ -81,6 +89,8 @@ float Power_get_current(GlobalState * GLOBAL_STATE) {
             break;
         case DEVICE_GAMMA:
         case DEVICE_GAMMATURBO:
+        case DEVICE_HEX:
+        case DEVICE_SUPRAHEX:
             current = TPS546_get_iout() * 1000.0;
             break;
         default:
@@ -112,6 +122,8 @@ float Power_get_power(GlobalState * GLOBAL_STATE) {
             break;
         case DEVICE_GAMMA:
         case DEVICE_GAMMATURBO:
+        case DEVICE_HEX:
+        case DEVICE_SUPRAHEX:
                 current = TPS546_get_iout() * 1000.0;
                 // calculate regulator power (in milliwatts)
                 power = (TPS546_get_vout() * current) / 1000.0;
@@ -142,6 +154,8 @@ float Power_get_input_voltage(GlobalState * GLOBAL_STATE) {
             break;
         case DEVICE_GAMMA:
         case DEVICE_GAMMATURBO:
+        case DEVICE_HEX:
+        case DEVICE_SUPRAHEX:
                 return TPS546_get_vin() * 1000.0;
             break;
         default:
@@ -159,6 +173,8 @@ int Power_get_nominal_voltage(GlobalState * GLOBAL_STATE) {
         case DEVICE_GAMMA:
             return NOMINAL_VOLTAGE_5;
         case DEVICE_GAMMATURBO:
+        case DEVICE_HEX:
+        case DEVICE_SUPRAHEX:
             return NOMINAL_VOLTAGE_12;
         default:
         return NOMINAL_VOLTAGE_5;
@@ -182,6 +198,8 @@ float Power_get_vreg_temp(GlobalState * GLOBAL_STATE) {
             break;
         case DEVICE_GAMMA:
         case DEVICE_GAMMATURBO:
+        case DEVICE_HEX:
+        case DEVICE_SUPRAHEX:
                 return TPS546_get_temperature();
             break;
         default:

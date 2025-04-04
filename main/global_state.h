@@ -28,6 +28,8 @@ typedef enum
     DEVICE_SUPRA,
     DEVICE_GAMMA,
     DEVICE_GAMMATURBO,
+    DEVICE_HEX,
+    DEVICE_SUPRAHEX
 } DeviceModel;
 
 typedef enum
@@ -142,6 +144,8 @@ typedef struct
 
     bool ASIC_initalized;
     bool psram_is_available;
+
+    bool is_multichip;
 } GlobalState;
 
 #endif /* GLOBAL_STATE_H_ */
