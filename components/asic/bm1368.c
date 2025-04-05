@@ -202,6 +202,13 @@ uint8_t BM1368_init(uint64_t frequency, uint16_t asic_count)
 
     _reset();
 
+    uint8_t temp_buff[11];
+    while (true) {  //For empty/cleanup the rx buffer. This is NEED for PV ending chips
+        if (SERIAL_rx(temp_buff, 11, 1500) <= 0) {
+            break;
+        }
+    }
+
     // set version mask
     for (int i = 0; i < 4; i++) {
         BM1368_set_version_mask(STRATUM_DEFAULT_VERSION_MASK);

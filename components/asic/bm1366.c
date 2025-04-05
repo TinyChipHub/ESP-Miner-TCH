@@ -220,6 +220,13 @@ static uint8_t _send_init(uint64_t frequency, uint16_t asic_count)
         BM1366_set_version_mask(STRATUM_DEFAULT_VERSION_MASK);
     }
 
+    uint8_t temp_buff[11];
+    while (true) {  //For empty/cleanup the rx buffer. This is NEED for PV ending chips
+        if (SERIAL_rx(temp_buff, 11, 1500) <= 0) {
+            break;
+        }
+    }
+
     // read register 00 on all chips
     unsigned char init3[7] = {0x55, 0xAA, 0x52, 0x05, 0x00, 0x00, 0x0A};
     _send_simple(init3, 7);
@@ -443,9 +450,6 @@ task_result * BM1366_process_work(void * pvParameters)
     result.job_id = job_id;
     result.nonce = asic_result.nonce;
     result.rolled_version = rolled_version;
-
-    uint8_t asic_nr = (asic_result.nonce & 0x0000fc00)>>10;
-    ESP_LOGW(TAG, "ASIC NUM = %d",(int)asic_nr);
 
     return &result;
 }

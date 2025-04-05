@@ -119,6 +119,8 @@ esp_err_t SYSTEM_init_peripherals(GlobalState * GLOBAL_STATE) {
         case DEVICE_SUPRA:
         case DEVICE_GAMMA:
         case DEVICE_GAMMATURBO:
+        case DEVICE_HEX:
+        case DEVICE_SUPRAHEX:
             // display
             if (display_init(GLOBAL_STATE) != ESP_OK || !GLOBAL_STATE->SYSTEM_MODULE.is_screen_active) {
                 ESP_LOGW(TAG, "OLED init failed!");

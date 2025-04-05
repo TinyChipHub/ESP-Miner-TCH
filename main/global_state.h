@@ -146,6 +146,8 @@ typedef struct
     bool psram_is_available;
 
     bool is_multichip;
+    uint32_t chip_submit[6];
+    char chip_submit_srt[128];
 } GlobalState;
 
 #endif /* GLOBAL_STATE_H_ */
