@@ -444,5 +444,8 @@ task_result * BM1366_process_work(void * pvParameters)
     result.nonce = asic_result.nonce;
     result.rolled_version = rolled_version;
 
+    uint8_t asic_nr = (asic_result.nonce & 0x0000fc00)>>10;
+    ESP_LOGW(TAG, "ASIC NUM = %d",(int)asic_nr);
+
     return &result;
 }
