@@ -160,6 +160,9 @@ int16_t VCORE_get_voltage_mv(GlobalState * global_state) {
         case DEVICE_GAMMA:
         case DEVICE_GAMMATURBO:
             return ADC_get_vcore();
+        case DEVICE_HEX:
+        case DEVICE_SUPRAHEX:
+            return (TPS546_get_vout() * 1000) / 3;
         // case DEVICE_HEX:
         default:
     }
@@ -178,6 +181,8 @@ esp_err_t VCORE_check_fault(GlobalState * global_state) {
             break;
         case DEVICE_GAMMA:
         case DEVICE_GAMMATURBO:
+        case DEVICE_HEX:
+        case DEVICE_SUPRAHEX:
         ESP_RETURN_ON_ERROR(TPS546_check_status(global_state), TAG, "TPS546 check status failed!");
             break;
         // case DEVICE_HEX:
@@ -197,6 +202,8 @@ const char* VCORE_get_fault_string(GlobalState * global_state) {
             break;
         case DEVICE_GAMMA:
         case DEVICE_GAMMATURBO:
+        case DEVICE_HEX:
+        case DEVICE_SUPRAHEX:
             return TPS546_get_error_message();
             break;
         // case DEVICE_HEX:
