@@ -48,7 +48,7 @@ static TPS546_CONFIG TPS546_CONFIG_HEX = {
     /* vin voltage */
     .TPS546_INIT_VIN_ON = 11.5,
     .TPS546_INIT_VIN_OFF = 11.0,
-    .TPS546_INIT_VIN_UV_WARN_LIMIT = 0, //Set to 0 to ignore. TI Bug in this register
+    .TPS546_INIT_VIN_UV_WARN_LIMIT = 11.2, //Set to 0 to ignore. TI Bug in this register
     .TPS546_INIT_VIN_OV_FAULT_LIMIT = 14.0,
     /* vout voltage */
     .TPS546_INIT_SCALE_LOOP = 0.125,
@@ -68,21 +68,21 @@ esp_err_t VCORE_init(GlobalState * GLOBAL_STATE) {
         case DEVICE_ULTRA:
         case DEVICE_SUPRA:
             if (GLOBAL_STATE->board_version >= 402 && GLOBAL_STATE->board_version <= 499) {
-                ESP_RETURN_ON_ERROR(TPS546_init(TPS546_CONFIG_GAMMA), TAG, "TPS546 init failed!"); //yes, it's a gamma as far as the TPS546 is concerned
+                ESP_RETURN_ON_ERROR(TPS546_init(TPS546_CONFIG_GAMMA,GLOBAL_STATE->board_version), TAG, "TPS546 init failed!"); //yes, it's a gamma as far as the TPS546 is concerned
             } else {
                 ESP_RETURN_ON_ERROR(DS4432U_init(), TAG, "DS4432 init failed!");
                 ESP_RETURN_ON_ERROR(INA260_init(), TAG, "INA260 init failed!");
             }
             break;
         case DEVICE_GAMMA:
-            ESP_RETURN_ON_ERROR(TPS546_init(TPS546_CONFIG_GAMMA), TAG, "TPS546 init failed!");
+            ESP_RETURN_ON_ERROR(TPS546_init(TPS546_CONFIG_GAMMA,GLOBAL_STATE->board_version), TAG, "TPS546 init failed!");
             break;
         case DEVICE_GAMMATURBO:
-            ESP_RETURN_ON_ERROR(TPS546_init(TPS546_CONFIG_GAMMATURBO), TAG, "TPS546 init failed!");
+            ESP_RETURN_ON_ERROR(TPS546_init(TPS546_CONFIG_GAMMATURBO,GLOBAL_STATE->board_version), TAG, "TPS546 init failed!");
             break;
         case DEVICE_HEX:
         case DEVICE_SUPRAHEX:
-            ESP_RETURN_ON_ERROR(TPS546_init(TPS546_CONFIG_HEX), TAG, "TPS546 init failed!");
+            ESP_RETURN_ON_ERROR(TPS546_init(TPS546_CONFIG_HEX,GLOBAL_STATE->board_version), TAG, "TPS546 init failed!");
             break;
         default:
     }
@@ -183,7 +183,7 @@ esp_err_t VCORE_check_fault(GlobalState * global_state) {
         case DEVICE_GAMMATURBO:
         case DEVICE_HEX:
         case DEVICE_SUPRAHEX:
-        ESP_RETURN_ON_ERROR(TPS546_check_status(global_state), TAG, "TPS546 check status failed!");
+            ESP_RETURN_ON_ERROR(TPS546_check_status(global_state), TAG, "TPS546 check status failed!");
             break;
         // case DEVICE_HEX:
         default:
