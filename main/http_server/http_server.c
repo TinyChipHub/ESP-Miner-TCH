@@ -614,6 +614,7 @@ static esp_err_t GET_system_info(httpd_req_t * req)
     if (GLOBAL_STATE->SYSTEM_MODULE.power_fault > 0) {
         cJSON_AddStringToObject(root, "power_fault", VCORE_get_fault_string(GLOBAL_STATE));
     }
+    cJSON_AddStringToObject(root,"chipSubmitStr",GLOBAL_STATE->chip_submit_srt);
 
     free(ssid);
     free(hostname);

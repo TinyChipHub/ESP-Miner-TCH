@@ -68,6 +68,8 @@ static float current_frequency = 56.25;
 
 static const char * TAG = "bm1366Module";
 
+static int norceCount=0;
+
 static task_result result;
 
 /// @brief
@@ -247,7 +249,7 @@ static uint8_t _send_init(uint64_t frequency, uint16_t asic_count)
     _send_chain_inactive();
 
     // split the chip address space evenly
-    uint8_t address_interval = (uint8_t) (256 / chip_counter);
+    uint8_t address_interval = 16;
     for (uint8_t i = 0; i < chip_counter; i++) {
         //{ 0x55, 0xAA, 0x40, 0x05, 0x00, 0x00, 0x1C };
         _set_chip_address(i * address_interval);
@@ -436,7 +438,6 @@ task_result * BM1366_process_work(void * pvParameters)
     uint8_t core_id = (uint8_t)((ntohl(asic_result.nonce) >> 25) & 0x7f); // BM1366 has 112 cores, so it should be coded on 7 bits
     uint8_t small_core_id = asic_result.job_id & 0x07; // BM1366 has 8 small cores, so it should be coded on 3 bits
     uint32_t version_bits = (ntohs(asic_result.version) << 13); // shift the 16 bit value left 13
-    ESP_LOGI(TAG, "Job ID: %02X, Core: %d/%d, Ver: %08" PRIX32, job_id, core_id, small_core_id, version_bits);
 
     GlobalState * GLOBAL_STATE = (GlobalState *) pvParameters;
 
@@ -450,6 +451,22 @@ task_result * BM1366_process_work(void * pvParameters)
     result.job_id = job_id;
     result.nonce = asic_result.nonce;
     result.rolled_version = rolled_version;
+
+    uint8_t asic_nr = ((asic_result.nonce & 0x0000fc00)>>9)/16;
+
+    ESP_LOGI(TAG, "Chip: %d, Job ID: %02X, Core: %d/%d, Ver: %08" PRIX32, asic_nr+1, job_id, core_id, small_core_id, version_bits);
+    GLOBAL_STATE->chip_submit[asic_nr]= GLOBAL_STATE->chip_submit[asic_nr]+1;
+    if(norceCount%20==0){
+        sprintf(GLOBAL_STATE->chip_submit_srt,"[%lu, %lu, %lu, %lu, %lu, %lu]",
+            GLOBAL_STATE->chip_submit[0], GLOBAL_STATE->chip_submit[1], GLOBAL_STATE->chip_submit[2],
+            GLOBAL_STATE->chip_submit[3], GLOBAL_STATE->chip_submit[4], GLOBAL_STATE->chip_submit[5]);
+        ESP_LOGI(TAG, "Asic Submit Count: %s", (char*)(GLOBAL_STATE->chip_submit_srt));
+    }
+    norceCount++;
+    if(norceCount==1000000){
+        for(int a=0;a<8;a++)
+                GLOBAL_STATE->chip_submit[a]=0;
+    }
 
     return &result;
 }

@@ -70,6 +70,8 @@ static task_result result;
 
 static float current_frequency = 56.25;
 
+static int norceCount=0;
+
 static void _send_BM1368(uint8_t header, uint8_t * data, uint8_t data_len, bool debug)
 {
     packet_type_t packet_type = (header & TYPE_JOB) ? JOB_PACKET : CMD_PACKET;
@@ -238,7 +240,7 @@ uint8_t BM1368_init(uint64_t frequency, uint16_t asic_count)
         _send_BM1368(TYPE_CMD | GROUP_ALL | CMD_WRITE, init_cmds[i], 6, false);
     }
 
-    uint8_t address_interval = (uint8_t) (256 / chip_counter);
+    uint8_t address_interval = 16;
     for (int i = 0; i < chip_counter; i++) {
         _set_chip_address(i * address_interval);
     }
@@ -360,6 +362,21 @@ task_result * BM1368_process_work(void * pvParameters)
     result.job_id = job_id;
     result.nonce = asic_result.nonce;
     result.rolled_version = rolled_version;
+
+    uint8_t asic_nr = ((asic_result.nonce & 0x0000fc00)>>9)/16;
+    ESP_LOGI(TAG, "Chip: %d, Job ID: %02X, Core: %d/%d, Ver: %08" PRIX32, asic_nr+1, job_id, core_id, small_core_id, version_bits);
+    GLOBAL_STATE->chip_submit[asic_nr]= GLOBAL_STATE->chip_submit[asic_nr]+1;
+    if(norceCount%20==0){
+        sprintf(GLOBAL_STATE->chip_submit_srt,"[%lu, %lu, %lu, %lu, %lu, %lu]",
+            GLOBAL_STATE->chip_submit[0], GLOBAL_STATE->chip_submit[1], GLOBAL_STATE->chip_submit[2],
+            GLOBAL_STATE->chip_submit[3], GLOBAL_STATE->chip_submit[4], GLOBAL_STATE->chip_submit[5]);
+        ESP_LOGI(TAG, "Asic Submit Count: %s", (char*)(GLOBAL_STATE->chip_submit_srt));
+    }
+    norceCount++;
+    if(norceCount==1000000){
+        for(int a=0;a<8;a++)
+                GLOBAL_STATE->chip_submit[a]=0;
+    }
 
     return &result;
 }
