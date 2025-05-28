@@ -144,6 +144,7 @@ typedef struct
 
     bool ASIC_initalized;
     bool psram_is_available;
+    bool job_queue_initalized;
 
     bool is_multichip;
     uint32_t chip_submit[6];
