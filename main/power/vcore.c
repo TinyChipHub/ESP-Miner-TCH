@@ -30,9 +30,9 @@ static TPS546_CONFIG TPS546_CONFIG_GAMMATURBO = {
 
 static TPS546_CONFIG TPS546_CONFIG_GAMMA = {
     /* vin voltage */
-    .TPS546_INIT_VIN_ON = 4.8,
-    .TPS546_INIT_VIN_OFF = 4.5,
-    .TPS546_INIT_VIN_UV_WARN_LIMIT = 0, //Set to 0 to ignore. TI Bug in this register
+    .TPS546_INIT_VIN_ON = 4.7,
+    .TPS546_INIT_VIN_OFF = 4.0,
+    .TPS546_INIT_VIN_UV_WARN_LIMIT = 4.3, //Set to 0 to ignore. TI Bug in this register
     .TPS546_INIT_VIN_OV_FAULT_LIMIT = 6.5,
     /* vout voltage */
     .TPS546_INIT_SCALE_LOOP = 0.25,
@@ -40,8 +40,8 @@ static TPS546_CONFIG TPS546_CONFIG_GAMMA = {
     .TPS546_INIT_VOUT_MAX = 2,
     .TPS546_INIT_VOUT_COMMAND = 1.2,
     /* iout current */
-    .TPS546_INIT_IOUT_OC_WARN_LIMIT = 25.00, /* A */
-    .TPS546_INIT_IOUT_OC_FAULT_LIMIT = 30.00 /* A */
+    .TPS546_INIT_IOUT_OC_WARN_LIMIT = 40.00, /* A */
+    .TPS546_INIT_IOUT_OC_FAULT_LIMIT = 40.00 /* A */
 };
 
 static TPS546_CONFIG TPS546_CONFIG_HEX = {
