@@ -55,9 +55,11 @@
         "cmath": "c",
         "utils.h": "c",
         "task.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "thread": "cpp",
+        "xlocale": "cpp"
     },
-    "editor.formatOnSave": false,
+    "editor.formatOnSave": true,
     "cSpell.words": [
         "ssid"
     ],

@@ -35,6 +35,7 @@ typedef enum
     ULTRA,
     HEX,
     SUPRA,
+    SUPRAHEX,
     GAMMA,
     GAMMA_TURBO,
 } Family;
@@ -57,6 +58,7 @@ typedef struct {
     bool asic_enable;
     bool EMC2101 : 1;
     bool EMC2103 : 1;
+    bool EMC2302 : 1;
     bool emc_internal_temp : 1;
     uint8_t emc_ideality_factor;
     uint8_t emc_beta_compensation;
@@ -64,6 +66,7 @@ typedef struct {
     bool DS4432U : 1;
     bool INA260  : 1;
     bool TPS546  : 1;
+    bool multichip : 1;
     // test values
     uint16_t power_consumption_target;
 } DeviceConfig;
@@ -92,8 +95,9 @@ static const AsicConfig default_asic_configs[] = {
 
 static const FamilyConfig FAMILY_MAX         = { .id = MAX,         .name = "Max",        .asic = ASIC_BM1397, .asic_count = 1, .max_power = 25, .power_offset = 5,  .nominal_voltage = 5,  .swarm_color = "red",    };
 static const FamilyConfig FAMILY_ULTRA       = { .id = ULTRA,       .name = "Ultra",      .asic = ASIC_BM1366, .asic_count = 1, .max_power = 25, .power_offset = 5,  .nominal_voltage = 5,  .swarm_color = "purple", };
-static const FamilyConfig FAMILY_HEX         = { .id = HEX,         .name = "Hex",        .asic = ASIC_BM1366, .asic_count = 6, .max_power = 0,  .power_offset = 5,  .nominal_voltage = 5,  .swarm_color = "orange", };
+static const FamilyConfig FAMILY_HEX         = { .id = HEX,         .name = "Hex",        .asic = ASIC_BM1366, .asic_count = 6, .max_power = 120,  .power_offset = 5,.nominal_voltage = 12, .swarm_color = "orange", };
 static const FamilyConfig FAMILY_SUPRA       = { .id = SUPRA,       .name = "Supra",      .asic = ASIC_BM1368, .asic_count = 1, .max_power = 40, .power_offset = 5,  .nominal_voltage = 5,  .swarm_color = "blue",   };
+static const FamilyConfig FAMILY_SUPRAHEX    = { .id = SUPRAHEX,    .name = "SupraHex",   .asic = ASIC_BM1368, .asic_count = 6, .max_power = 120, .power_offset = 5, .nominal_voltage = 12, .swarm_color = "darkblue",};
 static const FamilyConfig FAMILY_GAMMA       = { .id = GAMMA,       .name = "Gamma",      .asic = ASIC_BM1370, .asic_count = 1, .max_power = 40, .power_offset = 5,  .nominal_voltage = 5,  .swarm_color = "green",  };
 static const FamilyConfig FAMILY_GAMMA_TURBO = { .id = GAMMA_TURBO, .name = "GammaTurbo", .asic = ASIC_BM1370, .asic_count = 2, .max_power = 60, .power_offset = 10, .nominal_voltage = 12, .swarm_color = "cyan",   };
 
@@ -102,6 +106,7 @@ static const FamilyConfig default_families[] = {
     FAMILY_ULTRA,
     FAMILY_HEX,
     FAMILY_SUPRA,
+    FAMILY_SUPRAHEX,
     FAMILY_GAMMA,
     FAMILY_GAMMA_TURBO,
 };
@@ -116,6 +121,8 @@ static const DeviceConfig default_configs[] = {
     { .board_version = "204",  .family = FAMILY_ULTRA,       .EMC2101 = true, .emc_internal_temp = true,                                  .emc_temp_offset = 5,   .DS4432U = true, .INA260 = true, .plug_sense = true,                      .power_consumption_target = 12, },
     { .board_version = "205",  .family = FAMILY_ULTRA,       .EMC2101 = true, .emc_internal_temp = true,                                  .emc_temp_offset = 5,   .DS4432U = true, .INA260 = true, .plug_sense = true, .asic_enable = true, .power_consumption_target = 12, },
     { .board_version = "207",  .family = FAMILY_ULTRA,       .EMC2101 = true,                                                                                     .TPS546 = true,                                                           .power_consumption_target = 12, },
+    { .board_version = "302",  .family = FAMILY_HEX,         .EMC2101 = false, .EMC2302 = true, .emc_internal_temp = false, .emc_temp_offset = 5, .DS4432U = false, .TPS546 = true, .INA260 = false, .plug_sense = false, .multichip = true, .power_consumption_target = 90},
+    { .board_version = "303",  .family = FAMILY_HEX,         .EMC2101 = false, .EMC2302 = true, .emc_internal_temp = false, .emc_temp_offset = 5, .DS4432U = false, .TPS546 = true, .INA260 = false, .plug_sense = false, .multichip = true, .power_consumption_target = 90},
     { .board_version = "400",  .family = FAMILY_SUPRA,       .EMC2101 = true, .emc_internal_temp = true,                                  .emc_temp_offset = 5,   .DS4432U = true, .INA260 = true, .plug_sense = true, .asic_enable = true, .power_consumption_target = 12, },
     { .board_version = "401",  .family = FAMILY_SUPRA,       .EMC2101 = true, .emc_internal_temp = true,                                  .emc_temp_offset = 5,   .DS4432U = true, .INA260 = true, .plug_sense = true, .asic_enable = true, .power_consumption_target = 12, },
     { .board_version = "402",  .family = FAMILY_SUPRA,       .EMC2101 = true,                                                                                     .TPS546 = true,                                                           .power_consumption_target = 8,  },

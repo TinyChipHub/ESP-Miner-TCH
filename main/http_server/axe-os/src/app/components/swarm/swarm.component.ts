@@ -338,7 +338,7 @@ export class SwarmComponent implements OnInit, OnDestroy {
       if (data.boardVersion[0] == "3") return "UltraHex";
       if (data.boardVersion[0] == "4") return "Supra";
       if (data.boardVersion[0] == "6") return "Gamma";
-      if (data.boardVersion[0] == "7") return "GammaHex";
+      if (data.boardVersion[0] == "7") return "SupraHex";
       if (data.boardVersion[0] == "8") return "GammaTurbo";
     }
     return 'Other';
@@ -349,6 +349,7 @@ export class SwarmComponent implements OnInit, OnDestroy {
       case 'Max':        return 'red';
       case 'Ultra':      return 'purple';
       case 'Supra':      return 'blue';
+      case 'SupraHex':   return 'darkblue';
       case 'UltraHex':   return 'orange';
       case 'Gamma':      return 'green';
       case 'GammaHex':   return 'lime'; // New color?

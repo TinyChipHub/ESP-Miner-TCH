@@ -115,6 +115,11 @@ typedef struct
 
     bool ASIC_initalized;
     bool psram_is_available;
+
+    bool job_queue_initalized;
+    uint32_t chip_submit[6];
+    char chip_submit_srt[128];
+
 } GlobalState;
 
 #endif /* GLOBAL_STATE_H_ */
