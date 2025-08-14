@@ -19,12 +19,6 @@
 #define BM1397_CHIP_ID 0x1397
 #define BM1397_CHIP_ID_RESPONSE_LENGTH 9
 
-#ifdef CONFIG_GPIO_ASIC_RESET
-#define GPIO_ASIC_RESET CONFIG_GPIO_ASIC_RESET
-#else
-#define GPIO_ASIC_RESET 1
-#endif
-
 #define TYPE_JOB 0x20
 #define TYPE_CMD 0x40
 
@@ -62,7 +56,7 @@ typedef struct __attribute__((__packed__))
     uint8_t crc;
 } bm1397_asic_result_t;
 
-static const char *TAG = "bm1397Module";
+static const char * TAG = "bm1397";
 
 static uint32_t prev_nonce = 0;
 static task_result result;
@@ -115,7 +109,7 @@ static void _send_read_address(void)
 {
     unsigned char read_address[2] = {0x00, 0x00};
     // send serial data
-    _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_READ), read_address, 2, BM1937_SERIALTX_DEBUG);
+    _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_READ), read_address, 2, BM1397_SERIALTX_DEBUG);
 }
 
 static void _send_chain_inactive(void)
@@ -123,7 +117,7 @@ static void _send_chain_inactive(void)
 
     unsigned char read_address[2] = {0x00, 0x00};
     // send serial data
-    _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_INACTIVE), read_address, 2, BM1937_SERIALTX_DEBUG);
+    _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_INACTIVE), read_address, 2, BM1397_SERIALTX_DEBUG);
 }
 
 static void _set_chip_address(uint8_t chipAddr)
@@ -131,7 +125,7 @@ static void _set_chip_address(uint8_t chipAddr)
 
     unsigned char read_address[2] = {chipAddr, 0x00};
     // send serial data
-    _send_BM1397((TYPE_CMD | GROUP_SINGLE | CMD_SETADDRESS), read_address, 2, BM1937_SERIALTX_DEBUG);
+    _send_BM1397((TYPE_CMD | GROUP_SINGLE | CMD_SETADDRESS), read_address, 2, BM1397_SERIALTX_DEBUG);
 }
 
 void BM1397_set_version_mask(uint32_t version_mask) {
@@ -214,12 +208,12 @@ void BM1397_send_hash_frequency(float frequency)
     for (i = 0; i < 2; i++)
     {
         vTaskDelay(10 / portTICK_PERIOD_MS);
-        _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_WRITE), prefreq1, 6, BM1937_SERIALTX_DEBUG);
+        _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_WRITE), prefreq1, 6, BM1397_SERIALTX_DEBUG);
     }
     for (i = 0; i < 2; i++)
     {
         vTaskDelay(10 / portTICK_PERIOD_MS);
-        _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_WRITE), freqbuf, 6, BM1937_SERIALTX_DEBUG);
+        _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_WRITE), freqbuf, 6, BM1397_SERIALTX_DEBUG);
     }
 
     vTaskDelay(10 / portTICK_PERIOD_MS);
@@ -227,7 +221,7 @@ void BM1397_send_hash_frequency(float frequency)
     ESP_LOGI(TAG, "Setting Frequency to %.2fMHz (%.2f)", frequency, newf);
 }
 
-static uint8_t _send_init(uint64_t frequency, uint16_t asic_count)
+uint8_t BM1397_init(uint64_t frequency, uint16_t asic_count, uint16_t difficulty)
 {
     // send the init command
     _send_read_address();
@@ -248,24 +242,24 @@ static uint8_t _send_init(uint64_t frequency, uint16_t asic_count)
     }
 
     unsigned char init[6] = {0x00, CLOCK_ORDER_CONTROL_0, 0x00, 0x00, 0x00, 0x00}; // init1 - clock_order_control0
-    _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_WRITE), init, 6, BM1937_SERIALTX_DEBUG);
+    _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_WRITE), init, 6, BM1397_SERIALTX_DEBUG);
 
     unsigned char init2[6] = {0x00, CLOCK_ORDER_CONTROL_1, 0x00, 0x00, 0x00, 0x00}; // init2 - clock_order_control1
-    _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_WRITE), init2, 6, BM1937_SERIALTX_DEBUG);
+    _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_WRITE), init2, 6, BM1397_SERIALTX_DEBUG);
 
     unsigned char init3[9] = {0x00, ORDERED_CLOCK_ENABLE, 0x00, 0x00, 0x00, 0x01}; // init3 - ordered_clock_enable
-    _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_WRITE), init3, 6, BM1937_SERIALTX_DEBUG);
+    _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_WRITE), init3, 6, BM1397_SERIALTX_DEBUG);
 
     unsigned char init4[9] = {0x00, CORE_REGISTER_CONTROL, 0x80, 0x00, 0x80, 0x74}; // init4 - init_4_?
-    _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_WRITE), init4, 6, BM1937_SERIALTX_DEBUG);
+    _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_WRITE), init4, 6, BM1397_SERIALTX_DEBUG);
 
-    BM1397_set_job_difficulty_mask(BM1397_ASIC_DIFFICULTY);
+    BM1397_set_job_difficulty_mask(difficulty);
 
     unsigned char init5[9] = {0x00, PLL3_PARAMETER, 0xC0, 0x70, 0x01, 0x11}; // init5 - pll3_parameter
-    _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_WRITE), init5, 6, BM1937_SERIALTX_DEBUG);
+    _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_WRITE), init5, 6, BM1397_SERIALTX_DEBUG);
 
     unsigned char init6[9] = {0x00, FAST_UART_CONFIGURATION, 0x06, 0x00, 0x00, 0x0F}; // init6 - fast_uart_configuration
-    _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_WRITE), init6, 6, BM1937_SERIALTX_DEBUG);
+    _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_WRITE), init6, 6, BM1397_SERIALTX_DEBUG);
 
     BM1397_set_default_baud();
 
@@ -274,41 +268,13 @@ static uint8_t _send_init(uint64_t frequency, uint16_t asic_count)
     return chip_counter;
 }
 
-// reset the BM1397 via the RTS line
-static void _reset(void)
-{
-    gpio_set_level(GPIO_ASIC_RESET, 0);
-
-    // delay for 100ms
-    vTaskDelay(100 / portTICK_PERIOD_MS);
-
-    // set the gpio pin high
-    gpio_set_level(GPIO_ASIC_RESET, 1);
-
-    // delay for 100ms
-    vTaskDelay(100 / portTICK_PERIOD_MS);
-}
-
-uint8_t BM1397_init(uint64_t frequency, uint16_t asic_count)
-{
-    ESP_LOGI(TAG, "Initializing BM1397");
-
-    esp_rom_gpio_pad_select_gpio(GPIO_ASIC_RESET);
-    gpio_set_direction(GPIO_ASIC_RESET, GPIO_MODE_OUTPUT);
-
-    // reset the bm1397
-    _reset();
-
-    return _send_init(frequency, asic_count);
-}
-
 // Baud formula = 25M/((denominator+1)*8)
 // The denominator is 5 bits found in the misc_control (bits 9-13)
 int BM1397_set_default_baud(void)
 {
     // default divider of 26 (11010) for 115,749
     unsigned char baudrate[9] = {0x00, MISC_CONTROL, 0x00, 0x00, 0b01111010, 0b00110001}; // baudrate - misc_control
-    _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_WRITE), baudrate, 6, BM1937_SERIALTX_DEBUG);
+    _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_WRITE), baudrate, 6, BM1397_SERIALTX_DEBUG);
     return 115749;
 }
 
@@ -318,7 +284,7 @@ int BM1397_set_max_baud(void)
     ESP_LOGI(TAG, "Setting max baud of 3125000");
     unsigned char baudrate[9] = {0x00, MISC_CONTROL, 0x00, 0x00, 0b01100000, 0b00110001};
     ; // baudrate - misc_control
-    _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_WRITE), baudrate, 6, BM1937_SERIALTX_DEBUG);
+    _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_WRITE), baudrate, 6, BM1397_SERIALTX_DEBUG);
     return 3125000;
 }
 
@@ -348,7 +314,7 @@ void BM1397_set_job_difficulty_mask(int difficulty)
 
     ESP_LOGI(TAG, "Setting job ASIC mask to %d", difficulty);
 
-    _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_WRITE), job_difficulty_mask, 6, BM1937_SERIALTX_DEBUG);
+    _send_BM1397((TYPE_CMD | GROUP_ALL | CMD_WRITE), job_difficulty_mask, 6, BM1397_SERIALTX_DEBUG);
 }
 
 static uint8_t id = 0;

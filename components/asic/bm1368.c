@@ -20,12 +20,6 @@
 #define BM1368_CHIP_ID 0x1368
 #define BM1368_CHIP_ID_RESPONSE_LENGTH 11
 
-#ifdef CONFIG_GPIO_ASIC_RESET
-#define GPIO_ASIC_RESET CONFIG_GPIO_ASIC_RESET
-#else
-#define GPIO_ASIC_RESET 1
-#endif
-
 #define TYPE_JOB 0x20
 #define TYPE_CMD 0x40
 
@@ -64,20 +58,20 @@ typedef struct __attribute__((__packed__))
     uint8_t crc;
 } bm1368_asic_result_t;
 
-static const char * TAG = "bm1368Module";
+static const char* TAG = "bm1368";
 
 static task_result result;
 
 static float current_frequency = 56.25;
 
-static int norceCount=0;
+static int norceCount = 0;
 
-static void _send_BM1368(uint8_t header, uint8_t * data, uint8_t data_len, bool debug)
+static void _send_BM1368(uint8_t header, uint8_t* data, uint8_t data_len, bool debug)
 {
     packet_type_t packet_type = (header & TYPE_JOB) ? JOB_PACKET : CMD_PACKET;
     uint8_t total_length = (packet_type == JOB_PACKET) ? (data_len + 6) : (data_len + 5);
 
-    unsigned char * buf = malloc(total_length);
+    unsigned char* buf = malloc(total_length);
 
     buf[0] = 0x55;
     buf[1] = 0xAA;
@@ -89,7 +83,8 @@ static void _send_BM1368(uint8_t header, uint8_t * data, uint8_t data_len, bool 
         uint16_t crc16_total = crc16_false(buf + 2, data_len + 2);
         buf[4 + data_len] = (crc16_total >> 8) & 0xFF;
         buf[5 + data_len] = crc16_total & 0xFF;
-    } else {
+    }
+    else {
         buf[4 + data_len] = crc5(buf + 2, data_len + 2);
     }
 
@@ -98,9 +93,9 @@ static void _send_BM1368(uint8_t header, uint8_t * data, uint8_t data_len, bool 
     free(buf);
 }
 
-static void _send_simple(uint8_t * data, uint8_t total_length)
+static void _send_simple(uint8_t* data, uint8_t total_length)
 {
-    unsigned char * buf = malloc(total_length);
+    unsigned char* buf = malloc(total_length);
     memcpy(buf, data, total_length);
     SERIAL_send(buf, total_length, BM1368_SERIALTX_DEBUG);
 
@@ -109,36 +104,28 @@ static void _send_simple(uint8_t * data, uint8_t total_length)
 
 static void _send_chain_inactive(void)
 {
-    unsigned char read_address[2] = {0x00, 0x00};
+    unsigned char read_address[2] = { 0x00, 0x00 };
     _send_BM1368((TYPE_CMD | GROUP_ALL | CMD_INACTIVE), read_address, 2, BM1368_SERIALTX_DEBUG);
 }
 
 static void _set_chip_address(uint8_t chipAddr)
 {
-    unsigned char read_address[2] = {chipAddr, 0x00};
+    unsigned char read_address[2] = { chipAddr, 0x00 };
     _send_BM1368((TYPE_CMD | GROUP_SINGLE | CMD_SETADDRESS), read_address, 2, BM1368_SERIALTX_DEBUG);
 }
 
-void BM1368_set_version_mask(uint32_t version_mask) 
+void BM1368_set_version_mask(uint32_t version_mask)
 {
     int versions_to_roll = version_mask >> 13;
     uint8_t version_byte0 = (versions_to_roll >> 8);
-    uint8_t version_byte1 = (versions_to_roll & 0xFF); 
-    uint8_t version_cmd[] = {0x00, 0xA4, 0x90, 0x00, version_byte0, version_byte1};
+    uint8_t version_byte1 = (versions_to_roll & 0xFF);
+    uint8_t version_cmd[] = { 0x00, 0xA4, 0x90, 0x00, version_byte0, version_byte1 };
     _send_BM1368(TYPE_CMD | GROUP_ALL | CMD_WRITE, version_cmd, 6, BM1368_SERIALTX_DEBUG);
-}
-
-static void _reset(void)
-{
-    gpio_set_level(GPIO_ASIC_RESET, 0);
-    vTaskDelay(100 / portTICK_PERIOD_MS);
-    gpio_set_level(GPIO_ASIC_RESET, 1);
-    vTaskDelay(100 / portTICK_PERIOD_MS);
 }
 
 void BM1368_send_hash_frequency(float target_freq) {
     float max_diff = 0.001;
-    uint8_t freqbuf[6] = {0x00, 0x08, 0x40, 0xA0, 0x02, 0x41};
+    uint8_t freqbuf[6] = { 0x00, 0x08, 0x40, 0xA0, 0x02, 0x41 };
     uint8_t postdiv_min = 255;
     uint8_t postdiv2_min = 255;
     float best_freq = 0;
@@ -195,28 +182,14 @@ static void do_frequency_ramp_up(float target_frequency) {
     do_frequency_transition(target_frequency, BM1368_send_hash_frequency, 1368);
 }
 
-uint8_t BM1368_init(uint64_t frequency, uint16_t asic_count)
+uint8_t BM1368_init(uint64_t frequency, uint16_t asic_count, uint16_t difficulty)
 {
-    ESP_LOGI(TAG, "Initializing BM1368");
-
-    esp_rom_gpio_pad_select_gpio(GPIO_ASIC_RESET);
-    gpio_set_direction(GPIO_ASIC_RESET, GPIO_MODE_OUTPUT);
-
-    _reset();
-
-    uint8_t temp_buff[11];
-    while (true) {  //For empty/cleanup the rx buffer. This is NEED for PV ending chips
-        if (SERIAL_rx(temp_buff, 11, 1500) <= 0) {
-            break;
-        }
-    }
-
     // set version mask
     for (int i = 0; i < 4; i++) {
         BM1368_set_version_mask(STRATUM_DEFAULT_VERSION_MASK);
     }
 
-    _send_BM1368(TYPE_CMD | GROUP_ALL | CMD_READ, (uint8_t[]){0x00, 0x00}, 2, false);
+    _send_BM1368(TYPE_CMD | GROUP_ALL | CMD_READ, (uint8_t[]) { 0x00, 0x00 }, 2, false);
 
     int chip_counter = count_asic_chips(asic_count, BM1368_CHIP_ID, BM1368_CHIP_ID_RESPONSE_LENGTH);
 
@@ -225,7 +198,7 @@ uint8_t BM1368_init(uint64_t frequency, uint16_t asic_count)
     }
 
     _send_chain_inactive();
-    
+
     uint8_t init_cmds[][6] = {
         {0x00, 0xA8, 0x00, 0x07, 0x00, 0x00},
         {0x00, 0x18, 0xFF, 0x0F, 0xC1, 0x00},
@@ -260,11 +233,11 @@ uint8_t BM1368_init(uint64_t frequency, uint16_t asic_count)
         vTaskDelay(pdMS_TO_TICKS(500));
     }
 
-    BM1368_set_job_difficulty_mask(BM1368_ASIC_DIFFICULTY);
+    BM1368_set_job_difficulty_mask(difficulty);
 
     do_frequency_ramp_up((float)frequency);
 
-    _send_BM1368(TYPE_CMD | GROUP_ALL | CMD_WRITE, (uint8_t[]){0x00, 0x10, 0x00, 0x00, 0x15, 0xa4}, 6, false);
+    _send_BM1368(TYPE_CMD | GROUP_ALL | CMD_WRITE, (uint8_t[]) { 0x00, 0x10, 0x00, 0x00, 0x15, 0xa4 }, 6, false);
     BM1368_set_version_mask(STRATUM_DEFAULT_VERSION_MASK);
 
     return chip_counter;
@@ -272,7 +245,7 @@ uint8_t BM1368_init(uint64_t frequency, uint16_t asic_count)
 
 int BM1368_set_default_baud(void)
 {
-    unsigned char baudrate[9] = {0x00, MISC_CONTROL, 0x00, 0x00, 0b01111010, 0b00110001};
+    unsigned char baudrate[9] = { 0x00, MISC_CONTROL, 0x00, 0x00, 0b01111010, 0b00110001 };
     _send_BM1368((TYPE_CMD | GROUP_ALL | CMD_WRITE), baudrate, 6, BM1368_SERIALTX_DEBUG);
     return 115749;
 }
@@ -281,14 +254,14 @@ int BM1368_set_max_baud(void)
 {
     ESP_LOGI(TAG, "Setting max baud of 1000000");
 
-    unsigned char init8[11] = {0x55, 0xAA, 0x51, 0x09, 0x00, 0x28, 0x11, 0x30, 0x02, 0x00, 0x03};
+    unsigned char init8[11] = { 0x55, 0xAA, 0x51, 0x09, 0x00, 0x28, 0x11, 0x30, 0x02, 0x00, 0x03 };
     _send_simple(init8, 11);
     return 1000000;
 }
 
 void BM1368_set_job_difficulty_mask(int difficulty)
 {
-    unsigned char job_difficulty_mask[9] = {0x00, TICKET_MASK, 0b00000000, 0b00000000, 0b00000000, 0b11111111};
+    unsigned char job_difficulty_mask[9] = { 0x00, TICKET_MASK, 0b00000000, 0b00000000, 0b00000000, 0b11111111 };
 
     difficulty = _largest_power_of_two(difficulty) - 1;
 
@@ -304,9 +277,9 @@ void BM1368_set_job_difficulty_mask(int difficulty)
 
 static uint8_t id = 0;
 
-void BM1368_send_work(void * pvParameters, bm_job * next_bm_job)
+void BM1368_send_work(void* pvParameters, bm_job* next_bm_job)
 {
-    GlobalState * GLOBAL_STATE = (GlobalState *) pvParameters;
+    GlobalState* GLOBAL_STATE = (GlobalState*)pvParameters;
 
     BM1368_job job;
     id = (id + 24) % 128;
@@ -329,18 +302,18 @@ void BM1368_send_work(void * pvParameters, bm_job * next_bm_job)
     GLOBAL_STATE->valid_jobs[job.job_id] = 1;
     pthread_mutex_unlock(&GLOBAL_STATE->valid_jobs_lock);
 
-    #if BM1368_DEBUG_JOBS
+#if BM1368_DEBUG_JOBS
     ESP_LOGI(TAG, "Send Job: %02X", job.job_id);
-    #endif
+#endif
 
-    _send_BM1368((TYPE_JOB | GROUP_SINGLE | CMD_WRITE), (uint8_t *)&job, sizeof(BM1368_job), BM1368_DEBUG_WORK);
+    _send_BM1368((TYPE_JOB | GROUP_SINGLE | CMD_WRITE), (uint8_t*)&job, sizeof(BM1368_job), BM1368_DEBUG_WORK);
 }
 
-task_result * BM1368_process_work(void * pvParameters)
+task_result* BM1368_process_work(void* pvParameters)
 {
-    bm1368_asic_result_t asic_result = {0};
+    bm1368_asic_result_t asic_result = { 0 };
 
-    if (receive_work((uint8_t *)&asic_result, sizeof(asic_result)) == ESP_FAIL) {
+    if (receive_work((uint8_t*)&asic_result, sizeof(asic_result)) == ESP_FAIL) {
         return NULL;
     }
 
@@ -348,9 +321,8 @@ task_result * BM1368_process_work(void * pvParameters)
     uint8_t core_id = (uint8_t)((ntohl(asic_result.nonce) >> 25) & 0x7f);
     uint8_t small_core_id = asic_result.job_id & 0x0f;
     uint32_t version_bits = (ntohs(asic_result.version) << 13);
-    ESP_LOGI(TAG, "Job ID: %02X, Core: %d/%d, Ver: %08" PRIX32, job_id, core_id, small_core_id, version_bits);
 
-    GlobalState * GLOBAL_STATE = (GlobalState *) pvParameters;
+    GlobalState* GLOBAL_STATE = (GlobalState*)pvParameters;
 
     if (GLOBAL_STATE->valid_jobs[job_id] == 0) {
         ESP_LOGW(TAG, "Invalid job found, 0x%02X", job_id);
@@ -363,19 +335,25 @@ task_result * BM1368_process_work(void * pvParameters)
     result.nonce = asic_result.nonce;
     result.rolled_version = rolled_version;
 
-    uint8_t asic_nr = ((asic_result.nonce & 0x0000fc00)>>9)/16;
-    ESP_LOGI(TAG, "Chip: %d, Job ID: %02X, Core: %d/%d, Ver: %08" PRIX32, asic_nr+1, job_id, core_id, small_core_id, version_bits);
-    GLOBAL_STATE->chip_submit[asic_nr]= GLOBAL_STATE->chip_submit[asic_nr]+1;
-    if(norceCount%20==0){
-        sprintf(GLOBAL_STATE->chip_submit_srt,"[%lu, %lu, %lu, %lu, %lu, %lu]",
-            GLOBAL_STATE->chip_submit[0], GLOBAL_STATE->chip_submit[1], GLOBAL_STATE->chip_submit[2],
-            GLOBAL_STATE->chip_submit[3], GLOBAL_STATE->chip_submit[4], GLOBAL_STATE->chip_submit[5]);
-        ESP_LOGI(TAG, "Asic Submit Count: %s", (char*)(GLOBAL_STATE->chip_submit_srt));
+    if (GLOBAL_STATE->DEVICE_CONFIG.multichip) {
+        uint8_t asic_nr = ((asic_result.nonce & 0x0000fc00) >> 9) / 16;
+        ESP_LOGI(TAG, "Chip: %d, Job ID: %02X, Core: %d/%d, Ver: %08" PRIX32, asic_nr + 1, job_id, core_id, small_core_id, version_bits);
+
+        GLOBAL_STATE->chip_submit[asic_nr] = GLOBAL_STATE->chip_submit[asic_nr] + 1;
+        if (norceCount % 20 == 0) {
+            sprintf(GLOBAL_STATE->chip_submit_srt, "[%lu, %lu, %lu, %lu, %lu, %lu]",
+                GLOBAL_STATE->chip_submit[0], GLOBAL_STATE->chip_submit[1], GLOBAL_STATE->chip_submit[2],
+                GLOBAL_STATE->chip_submit[3], GLOBAL_STATE->chip_submit[4], GLOBAL_STATE->chip_submit[5]);
+            ESP_LOGI(TAG, "Asic Submit Count: %s", (char*)(GLOBAL_STATE->chip_submit_srt));
+        }
+        norceCount++;
+        if (norceCount == 1000000) {
+            for (int a = 0;a < 8;a++)
+                GLOBAL_STATE->chip_submit[a] = 0;
+        }
     }
-    norceCount++;
-    if(norceCount==1000000){
-        for(int a=0;a<8;a++)
-                GLOBAL_STATE->chip_submit[a]=0;
+    else {
+        ESP_LOGI(TAG, "Job ID: %02X, Core: %d/%d, Ver: %08" PRIX32, job_id, core_id, small_core_id, version_bits);
     }
 
     return &result;

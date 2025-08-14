@@ -1,6 +1,6 @@
 {
     "idf.flashType": "UART",
-    "idf.portWin": "COM179",
+    "idf.portWin": "COM72",
     "idf.adapterTargetName": "esp32s3",
     "idf.openOcdConfigs": [
         "board/esp32s3-builtin.cfg"
@@ -56,10 +56,10 @@
         "utils.h": "c",
         "task.h": "c",
         "stdlib.h": "c",
-        "thermal.h": "c",
-        "xlocale": "c"
+        "thread": "cpp",
+        "xlocale": "cpp"
     },
-    "editor.formatOnSave": false,
+    "editor.formatOnSave": true,
     "cSpell.words": [
         "ssid"
     ],
