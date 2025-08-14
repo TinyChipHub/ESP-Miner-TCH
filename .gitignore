@@ -18,6 +18,7 @@ build/
 build/config/*
 !build/config/kconfig_menus.json
 !build/config/sdkconfig.json
+bin/
 
 # Test folder
 test/build/*
