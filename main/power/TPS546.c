@@ -339,7 +339,7 @@ static uint16_t float_2_ulinear16(float value)
 /**
  * @brief Set up the TPS546 regulator and turn it on
 */
-esp_err_t TPS546_init(TPS546_CONFIG config, int board_version)
+esp_err_t TPS546_init(TPS546_CONFIG config)
 {
     uint8_t data[7];
     uint8_t u8_value = 0;
@@ -348,6 +348,7 @@ esp_err_t TPS546_init(TPS546_CONFIG config, int board_version)
     int temp;
     uint8_t comp_config[5];
     uint8_t voutmode;
+
 
     tps546_config = config;
 
@@ -371,8 +372,7 @@ esp_err_t TPS546_init(TPS546_CONFIG config, int board_version)
     smb_write_byte(PMBUS_OPERATION, u8_value);
 
     /* Make sure power is turned off until commanded */
-    u8_value = (board_version==302)?(ON_OFF_CONFIG_DELAY | ON_OFF_CONFIG_POLARITY | ON_OFF_CONFIG_CMD | ON_OFF_CONFIG_PU)
-                                    : (ON_OFF_CONFIG_DELAY | ON_OFF_CONFIG_POLARITY | ON_OFF_CONFIG_CP | ON_OFF_CONFIG_CMD | ON_OFF_CONFIG_PU);
+    u8_value = (ON_OFF_CONFIG_DELAY | ON_OFF_CONFIG_POLARITY | ON_OFF_CONFIG_CP | ON_OFF_CONFIG_CMD | ON_OFF_CONFIG_PU);
     ESP_LOGI(TAG, "Power config-ON_OFF_CONFIG: %02X", u8_value);
     smb_write_byte(PMBUS_ON_OFF_CONFIG, u8_value);
 
@@ -514,19 +514,19 @@ void TPS546_write_entire_config(void)
 {
     ESP_LOGI(TAG, "---Writing new config values to TPS546---");
     /* set up the ON_OFF_CONFIG */
-    //ESP_LOGI(TAG, "Setting ON_OFF_CONFIG: %02X", TPS546_INIT_ON_OFF_CONFIG);
-    // if (smb_write_byte(PMBUS_ON_OFF_CONFIG, 0x18) != ESP_OK) {
+    // ESP_LOGI(TAG, "Setting ON_OFF_CONFIG: %02X", TPS546_INIT_ON_OFF_CONFIG);
+    // if (smb_write_byte(PMBUS_ON_OFF_CONFIG, TPS546_INIT_ON_OFF_CONFIG) != ESP_OK) {
     //     ESP_LOGE(TAG, "Failed to write ON_OFF_CONFIG");
     //     return;
     // }
 
     /* Phase */
     ESP_LOGI(TAG, "Setting PHASE: %02X", TPS546_INIT_PHASE);
-    //smb_write_byte(PMBUS_PHASE, TPS546_INIT_PHASE);
+    smb_write_byte(PMBUS_PHASE, TPS546_INIT_PHASE);
 
     /* Switch frequency */
     ESP_LOGI(TAG, "Setting FREQUENCY: %dMHz", TPS546_INIT_FREQUENCY);
-        smb_write_word(PMBUS_FREQUENCY_SWITCH, int_2_slinear11(TPS546_INIT_FREQUENCY));
+    smb_write_word(PMBUS_FREQUENCY_SWITCH, int_2_slinear11(TPS546_INIT_FREQUENCY));
 
     /* vin voltage */
 
