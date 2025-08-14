@@ -1,8 +1,9 @@
 #include "thermal.h"
 
 #include "esp_log.h"
+#include "TMP1075.h"
 
-static const char * TAG = "thermal";
+static const char* TAG = "thermal";
 
 esp_err_t Thermal_init(DeviceConfig device_config)
 {
@@ -21,6 +22,11 @@ esp_err_t Thermal_init(DeviceConfig device_config)
         ESP_LOGI(TAG, "Initializing EMC2103 (Temperature offset: %dC)", device_config.emc_temp_offset);
         return EMC2103_init();
     }
+    if (device_config.EMC2302) {
+        ESP_LOGI(TAG, "Initializing EMC2302 (Temperature offset: %dC)", device_config.emc_temp_offset);
+        TMP1075_init();
+        return EMC2302_init(true);
+    }
 
     return ESP_FAIL;
 }
@@ -34,10 +40,14 @@ esp_err_t Thermal_set_fan_percent(DeviceConfig device_config, float percent)
     if (device_config.EMC2103) {
         EMC2103_set_fan_speed(percent);
     }
+    if (device_config.EMC2302) {
+        EMC2302_set_fan_speed(0, percent);
+        EMC2302_set_fan_speed(1, percent);
+    }
     return ESP_OK;
 }
 
-uint16_t Thermal_get_fan_speed(DeviceConfig device_config) 
+uint16_t Thermal_get_fan_speed(DeviceConfig device_config)
 {
     if (device_config.EMC2101) {
         return EMC2101_get_fan_speed();
@@ -45,10 +55,13 @@ uint16_t Thermal_get_fan_speed(DeviceConfig device_config)
     if (device_config.EMC2103) {
         return EMC2103_get_fan_speed();
     }
+    if (device_config.EMC2302) {
+        return EMC2302_get_fan_speed(0);
+    }
     return 0;
 }
 
-float Thermal_get_chip_temp(GlobalState * GLOBAL_STATE)
+float Thermal_get_chip_temp(GlobalState* GLOBAL_STATE)
 {
     if (!GLOBAL_STATE->ASIC_initalized) {
         return -1;
@@ -58,12 +71,16 @@ float Thermal_get_chip_temp(GlobalState * GLOBAL_STATE)
     if (GLOBAL_STATE->DEVICE_CONFIG.EMC2101) {
         if (GLOBAL_STATE->DEVICE_CONFIG.emc_internal_temp) {
             return EMC2101_get_internal_temp() + temp_offset;
-        } else {
+        }
+        else {
             return EMC2101_get_external_temp() + temp_offset;
         }
     }
     if (GLOBAL_STATE->DEVICE_CONFIG.EMC2103) {
         return EMC2103_get_external_temp() + temp_offset;
+    }
+    if (GLOBAL_STATE->DEVICE_CONFIG.EMC2302) {
+        return (TMP1075_read_temperature(0) + TMP1075_read_temperature(1)) / 2 + temp_offset;
     }
     return -1;
 }

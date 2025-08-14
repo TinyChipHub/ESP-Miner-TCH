@@ -24,11 +24,11 @@
 #define NACK_VALUE     0x1
 #define MAX_BLOCK_LEN  32
 
-static const char *TAG = "TPS546";
+static const char* TAG = "TPS546";
 
-static uint8_t DEVICE_ID1[] = {0x54, 0x49, 0x54, 0x6B, 0x24, 0x41}; // TPS546D24A
-static uint8_t DEVICE_ID2[] = {0x54, 0x49, 0x54, 0x6D, 0x24, 0x41}; // TPS546D24A
-static uint8_t DEVICE_ID3[] = {0x54, 0x49, 0x54, 0x6D, 0x24, 0x62}; // TPS546D24S
+static uint8_t DEVICE_ID1[] = { 0x54, 0x49, 0x54, 0x6B, 0x24, 0x41 }; // TPS546D24A
+static uint8_t DEVICE_ID2[] = { 0x54, 0x49, 0x54, 0x6D, 0x24, 0x41 }; // TPS546D24A
+static uint8_t DEVICE_ID3[] = { 0x54, 0x49, 0x54, 0x6D, 0x24, 0x62 }; // TPS546D24S
 
 //static uint8_t COMPENSATION_CONFIG[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
@@ -43,7 +43,7 @@ static esp_err_t TPS546_parse_status(uint16_t);
  * @param command The command to read
  * @param data Pointer to store the read data
  */
-static esp_err_t smb_read_byte(uint8_t command, uint8_t *data)
+static esp_err_t smb_read_byte(uint8_t command, uint8_t* data)
 {
     return i2c_bitaxe_register_read(tps546_i2c_handle, command, data, 1);
 }
@@ -72,12 +72,13 @@ static esp_err_t smb_write_addr(uint8_t command)
  * @param command The command to read
  * @param result Pointer to store the read data
  */
-static esp_err_t smb_read_word(uint8_t command, uint16_t *result)
+static esp_err_t smb_read_word(uint8_t command, uint16_t* result)
 {
     uint8_t data[2];
     if (i2c_bitaxe_register_read(tps546_i2c_handle, command, data, 2) != ESP_OK) {
         return ESP_FAIL;
-    } else {
+    }
+    else {
         *result = (data[1] << 8) + data[0];
         return ESP_OK;
     }
@@ -99,16 +100,16 @@ static esp_err_t smb_write_word(uint8_t command, uint16_t data)
  * @param data Pointer to store the read data
  * @param len The number of bytes to read
  */
-static esp_err_t smb_read_block(uint8_t command, uint8_t *data, uint8_t len)
+static esp_err_t smb_read_block(uint8_t command, uint8_t* data, uint8_t len)
 {
     //malloc a buffer len+1 to store the length byte
-    uint8_t *buf = (uint8_t *)malloc(len+1);
-    if (i2c_bitaxe_register_read(tps546_i2c_handle, command, buf, len+1) != ESP_OK) {
+    uint8_t* buf = (uint8_t*)malloc(len + 1);
+    if (i2c_bitaxe_register_read(tps546_i2c_handle, command, buf, len + 1) != ESP_OK) {
         free(buf);
         return ESP_FAIL;
     }
     //copy the data into the buffer
-    memcpy(data, buf+1, len);
+    memcpy(data, buf + 1, len);
     free(buf);
 
     return ESP_OK;
@@ -153,7 +154,8 @@ static int slinear11_2_int(uint16_t value)
     if (value & 0x8000) {
         // exponent is negative
         exponent = -1 * (((~value >> 11) & 0x001F) + 1);
-    } else {
+    }
+    else {
         exponent = (value >> 11);
     }
     // last 11 bits is the mantissa in twos-complement
@@ -161,7 +163,8 @@ static int slinear11_2_int(uint16_t value)
     if (value & 0x400) {
         // mantissa is negative
         mantissa = -1 * ((~value & 0x03FF) + 1);
-    } else {
+    }
+    else {
         mantissa = (value & 0x03FF);
     }
 
@@ -184,7 +187,8 @@ static float slinear11_2_float(uint16_t value)
     if (value & 0x8000) {
         // exponent is negative
         exponent = -1 * (((~value >> 11) & 0x001F) + 1);
-    } else {
+    }
+    else {
         exponent = (value >> 11);
     }
     // last 11 bits is the mantissa in twos-complement
@@ -192,7 +196,8 @@ static float slinear11_2_float(uint16_t value)
     if (value & 0x400) {
         // mantissa is negative
         mantissa = -1 * ((~value & 0x03FF) + 1);
-    } else {
+    }
+    else {
         mantissa = (value & 0x03FF);
     }
 
@@ -215,7 +220,7 @@ static uint16_t int_2_slinear11(int value)
     // First see if the exponent is positive or negative
     if (value >= 0) {
         // exponent is positive
-        for (i=0; i<=15; i++) {
+        for (i = 0; i <= 15; i++) {
             mantissa = value / powf(2.0, i);
             if (mantissa < 1024) {
                 exponent = i;
@@ -226,7 +231,8 @@ static uint16_t int_2_slinear11(int value)
             ESP_LOGI(TAG, "Could not find a solution");
             return 0;
         }
-    } else {
+    }
+    else {
         // value is negative
         ESP_LOGI(TAG, "No negative numbers at this time");
         return 0;
@@ -251,10 +257,10 @@ static uint16_t float_2_slinear11(float value)
     // First see if the exponent is positive or negative
     if (value > 0) {
         // exponent is negative
-        for (i=0; i<=15; i++) {
+        for (i = 0; i <= 15; i++) {
             mantissa = value * powf(2.0, i);
             if (mantissa >= 1024) {
-                exponent = i-1;
+                exponent = i - 1;
                 mantissa = value * powf(2.0, exponent);
                 break;
             }
@@ -263,13 +269,14 @@ static uint16_t float_2_slinear11(float value)
             ESP_LOGI(TAG, "Could not find a solution");
             return 0;
         }
-    } else {
+    }
+    else {
         // value is negative
         ESP_LOGI(TAG, "No negative numbers at this time");
         return 0;
     }
 
-    result = (( (~exponent + 1) << 11) & 0xF800) + mantissa;
+    result = (((~exponent + 1) << 11) & 0xF800) + mantissa;
 
     return result;
 }
@@ -292,7 +299,8 @@ static float ulinear16_2_float(uint16_t value)
     if (voutmode & 0x10) {
         // exponent is negative
         exponent = -1 * ((~voutmode & 0x1F) + 1);
-    } else {
+    }
+    else {
         exponent = (voutmode & 0x1F);
     }
     result = (value * powf(2.0, exponent));
@@ -316,7 +324,8 @@ static uint16_t float_2_ulinear16(float value)
     if (voutmode & 0x10) {
         // exponent is negative
         exponent = -1 * ((~voutmode & 0x1F) + 1);
-    } else {
+    }
+    else {
         exponent = (voutmode & 0x1F);
     }
 
@@ -332,7 +341,7 @@ static uint16_t float_2_ulinear16(float value)
 */
 esp_err_t TPS546_init(TPS546_CONFIG config)
 {
-	uint8_t data[7];
+    uint8_t data[7];
     uint8_t u8_value = 0;
     uint16_t u16_value = 0;
     uint8_t read_mfr_revision[4];
@@ -350,7 +359,7 @@ esp_err_t TPS546_init(TPS546_CONFIG config)
     smb_read_block(PMBUS_IC_DEVICE_ID, data, 6); //the DEVICE_ID block first byte is the length.
     ESP_LOGI(TAG, "Device ID: %02x %02x %02x %02x %02x %02x", data[0], data[1], data[2], data[3], data[4], data[5]);
     /* There's 3 different known device IDs observed so far */
-    if ( (memcmp(data, DEVICE_ID1, 6) != 0) && (memcmp(data, DEVICE_ID2, 6) != 0) && (memcmp(data, DEVICE_ID3, 6) != 0))
+    if ((memcmp(data, DEVICE_ID1, 6) != 0) && (memcmp(data, DEVICE_ID2, 6) != 0) && (memcmp(data, DEVICE_ID3, 6) != 0))
     {
         ESP_LOGE(TAG, "Cannot find TPS546 regulator - Device ID mismatch");
         return ESP_FAIL;
@@ -369,7 +378,7 @@ esp_err_t TPS546_init(TPS546_CONFIG config)
     /* Read version number and see if it matches */
     TPS546_read_mfr_info(read_mfr_revision);
     // if (memcmp(read_mfr_revision, MFR_REVISION, 3) != 0) {
-    
+
     // If it doesn't match, then write all the registers and set new version number
     // ESP_LOGI(TAG, "--------------------------------");
     // ESP_LOGI(TAG, "Config version mismatch, writing new config values");
@@ -468,10 +477,10 @@ esp_err_t TPS546_clear_faults(void) {
 }
 
 /**
- * @brief Read the manufacturer model and revision 
+ * @brief Read the manufacturer model and revision
  * @param read_mfr_revision Pointer to store the read revision
 */
-void TPS546_read_mfr_info(uint8_t *read_mfr_revision)
+void TPS546_read_mfr_info(uint8_t* read_mfr_revision)
 {
     uint8_t read_mfr_id[4];
     uint8_t read_mfr_model[4];
@@ -498,7 +507,7 @@ void TPS546_read_mfr_info(uint8_t *read_mfr_revision)
 }
 
 /**
- * @brief Set all the relevant config registers for normal operation 
+ * @brief Set all the relevant config registers for normal operation
 */
 void TPS546_write_entire_config(void)
 {
@@ -676,13 +685,14 @@ float TPS546_get_vin(void)
     if (smb_read_word(PMBUS_READ_VIN, &u16_value) != ESP_OK) {
         ESP_LOGE(TAG, "Could not read VIN");
         return 0;
-    } else {
+    }
+    else {
         vin = slinear11_2_float(u16_value);
-        #ifdef DEBUG_TPS546_MEAS
+#ifdef DEBUG_TPS546_MEAS
         ESP_LOGI(TAG, "Got Vin: %2.3f V", vin);
-        #endif
+#endif
         return vin;
-    }    
+    }
 }
 
 float TPS546_get_iout(void)
@@ -697,15 +707,16 @@ float TPS546_get_iout(void)
     if (smb_read_word(PMBUS_READ_IOUT, &u16_value) != ESP_OK) {
         ESP_LOGE(TAG, "Could not read Iout");
         return 0;
-    } else {
+    }
+    else {
         iout = slinear11_2_float(u16_value);
 
-    #ifdef DEBUG_TPS546_MEAS
+#ifdef DEBUG_TPS546_MEAS
         ESP_LOGI(TAG, "Got Iout: %2.3f A", iout);
-    #endif
+#endif
 
-    //set the phase register back to the default
-    smb_write_byte(PMBUS_PHASE, TPS546_INIT_PHASE);
+        //set the phase register back to the default
+        smb_write_byte(PMBUS_PHASE, TPS546_INIT_PHASE);
 
         return iout;
     }
@@ -720,19 +731,20 @@ float TPS546_get_vout(void)
     if (smb_read_word(PMBUS_READ_VOUT, &u16_value) != ESP_OK) {
         ESP_LOGE(TAG, "Could not read Vout");
         return 0;
-    } else {
+    }
+    else {
         vout = ulinear16_2_float(u16_value);
-    #ifdef DEBUG_TPS546_MEAS
+#ifdef DEBUG_TPS546_MEAS
         ESP_LOGI(TAG, "Got Vout: %2.3f V", vout);
-    #endif
+#endif
         return vout;
     }
 }
 
-esp_err_t TPS546_check_status(GlobalState * global_state) {
+esp_err_t TPS546_check_status(GlobalState* global_state) {
 
     uint16_t status;
-    SystemModule * sys_module = &global_state->SYSTEM_MODULE;
+    SystemModule* sys_module = &global_state->SYSTEM_MODULE;
 
     ESP_RETURN_ON_ERROR(smb_read_word(PMBUS_STATUS_WORD, &status), TAG, "Failed to read STATUS_WORD");
     //determine if this is a fault we care about
@@ -741,7 +753,8 @@ esp_err_t TPS546_check_status(GlobalState * global_state) {
             ESP_RETURN_ON_ERROR(TPS546_parse_status(status), TAG, "Failed to parse STATUS_WORD");
             sys_module->power_fault = 1;
         }
-    } else {
+    }
+    else {
         sys_module->power_fault = 0;
     }
     return ESP_OK;
@@ -765,23 +778,23 @@ static esp_err_t TPS546_parse_status(uint16_t status) {
         ESP_LOGE(TAG, "Voltage regulator was busy and unable to respond");
         return ESP_OK;
     }
-    
+
     if (status & TPS546_STATUS_OFF) {
         ESP_LOGE(TAG, "The voltage regulator is turned off");
     }
-    
+
     if (status & TPS546_STATUS_VOUT_OV) {
         ESP_LOGE(TAG, "An output overvoltage fault has occurred");
     }
-    
+
     if (status & TPS546_STATUS_IOUT_OC) {
         ESP_LOGE(TAG, "An output overcurrent fault has occurred");
     }
-    
+
     if (status & TPS546_STATUS_VIN_UV) {
         ESP_LOGE(TAG, "An input undervoltage fault has occurred");
     }
-    
+
     if (status & TPS546_STATUS_TEMP) {
         ESP_LOGE(TAG, "A temperature fault/warning has occurred");
 
@@ -789,7 +802,8 @@ static esp_err_t TPS546_parse_status(uint16_t status) {
         if (smb_read_byte(PMBUS_STATUS_TEMPERATURE, &u8_value) != ESP_OK) {
             ESP_LOGE(TAG, "Could not read STATUS_TEMPERATURE");
             return ESP_FAIL;
-        } else {
+        }
+        else {
             ESP_LOGE(TAG, "TPS546 Temperature Status: %02X", u8_value);
             if (u8_value & TPS546_STATUS_TEMP_OTF) {
                 ESP_LOGE(TAG, "Overtemperature fault");
@@ -799,7 +813,7 @@ static esp_err_t TPS546_parse_status(uint16_t status) {
             }
         }
     }
-    
+
     if (status & TPS546_STATUS_CML) {
         ESP_LOGE(TAG, "A communication, memory, logic fault has occurred");
 
@@ -807,7 +821,8 @@ static esp_err_t TPS546_parse_status(uint16_t status) {
         if (smb_read_byte(PMBUS_STATUS_CML, &u8_value) != ESP_OK) {
             ESP_LOGE(TAG, "Could not read STATUS_CML");
             return ESP_FAIL;
-        } else {
+        }
+        else {
             ESP_LOGE(TAG, "TPS546 CML Status: %02X", u8_value);
             if (u8_value & TPS546_STATUS_CML_IVC) {
                 ESP_LOGE(TAG, "invalid or unsupported command was received");
@@ -829,11 +844,12 @@ static esp_err_t TPS546_parse_status(uint16_t status) {
             }
         }
     }
-    
+
     if (status & TPS546_STATUS_NONE) {
         //ESP_LOGI(TAG, "TPS546 Status Word Error");
         //The host should check the STATUS_WORD for more information.
-    } else {
+    }
+    else {
         return ESP_OK;
     }
 
@@ -845,7 +861,8 @@ static esp_err_t TPS546_parse_status(uint16_t status) {
         if (smb_read_byte(PMBUS_STATUS_VOUT, &u8_value) != ESP_OK) {
             ESP_LOGE(TAG, "Could not read STATUS_VOUT");
             return ESP_FAIL;
-        } else {
+        }
+        else {
             ESP_LOGE(TAG, "VOUT Status: %02X", u8_value);
 
             if (u8_value & TPS546_STATUS_VOUT_OVF) {
@@ -875,7 +892,8 @@ static esp_err_t TPS546_parse_status(uint16_t status) {
         if (smb_read_byte(PMBUS_STATUS_IOUT, &u8_value) != ESP_OK) {
             ESP_LOGE(TAG, "Could not read STATUS_IOUT");
             return ESP_FAIL;
-        } else {
+        }
+        else {
             ESP_LOGI(TAG, "TPS546 IOUT Status: %02X", u8_value);
             if (u8_value & TPS546_STATUS_IOUT_OCF) {
                 ESP_LOGE(TAG, "IOUT Overcurrent Fault");
@@ -892,7 +910,8 @@ static esp_err_t TPS546_parse_status(uint16_t status) {
         if (smb_read_byte(PMBUS_STATUS_INPUT, &u8_value) != ESP_OK) {
             ESP_LOGE(TAG, "Could not read STATUS_INPUT");
             return ESP_FAIL;
-        } else {
+        }
+        else {
             ESP_LOGE(TAG, "TPS546 INPUT Status: %02X", u8_value);
             if (u8_value & TPS546_STATUS_VIN_OVF) {
                 ESP_LOGE(TAG, "VIN Overvoltage Fault");
@@ -912,7 +931,8 @@ static esp_err_t TPS546_parse_status(uint16_t status) {
         if (smb_read_byte(PMBUS_STATUS_MFR_SPECIFIC, &u8_value) != ESP_OK) {
             ESP_LOGE(TAG, "Could not read STATUS_MFR_SPECIFIC");
             return ESP_FAIL;
-        } else {
+        }
+        else {
             ESP_LOGE(TAG, "TPS546 MFR_SPECIFIC Status: %02X", u8_value);
             if (u8_value & TPS546_STATUS_MFR_POR) {
                 ESP_LOGE(TAG, "A Power-On Reset Fault has been detected.");
@@ -942,7 +962,8 @@ static esp_err_t TPS546_parse_status(uint16_t status) {
         if (smb_read_byte(PMBUS_STATUS_OTHER, &u8_value) != ESP_OK) {
             ESP_LOGE(TAG, "Could not read STATUS_OTHER");
             return ESP_FAIL;
-        } else {
+        }
+        else {
             ESP_LOGE(TAG, "TPS546 OTHER Status: %02X", u8_value);
             if (u8_value & TPS546_STATUS_OTHER_FIRST) {
                 ESP_LOGE(TAG, "this device was the first to assert SMBALERT");
@@ -971,12 +992,14 @@ esp_err_t TPS546_set_vout(float volts) {
             ESP_LOGE(TAG, "Could not turn off Vout");
             return ESP_FAIL;
         }
-    } else {
+    }
+    else {
         /* make sure we're in range */
         if ((volts < tps546_config.TPS546_INIT_VOUT_MIN) || (volts > tps546_config.TPS546_INIT_VOUT_MAX)) {
             ESP_LOGE(TAG, "Voltage requested (%f V) is out of range", volts);
             return ESP_FAIL;
-        } else {
+        }
+        else {
             /* set the output voltage */
             value = float_2_ulinear16(volts);
             if (smb_write_word(PMBUS_VOUT_COMMAND, value) != ESP_OK) {
@@ -987,7 +1010,7 @@ esp_err_t TPS546_set_vout(float volts) {
             ESP_LOGI(TAG, "Vout changed to %1.2f V", volts);
 
             /* turn on output */
-           if (smb_write_byte(PMBUS_OPERATION, OPERATION_ON) != ESP_OK) {
+            if (smb_write_byte(PMBUS_OPERATION, OPERATION_ON) != ESP_OK) {
                 ESP_LOGE(TAG, "Could not turn on Vout");
                 return ESP_FAIL;
             }

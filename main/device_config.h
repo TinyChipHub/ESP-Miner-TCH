@@ -97,7 +97,7 @@ static const FamilyConfig FAMILY_MAX         = { .id = MAX,         .name = "Max
 static const FamilyConfig FAMILY_ULTRA       = { .id = ULTRA,       .name = "Ultra",      .asic = ASIC_BM1366, .asic_count = 1, .max_power = 25, .power_offset = 5,  .nominal_voltage = 5,  .swarm_color = "purple", };
 static const FamilyConfig FAMILY_HEX         = { .id = HEX,         .name = "Hex",        .asic = ASIC_BM1366, .asic_count = 6, .max_power = 120,  .power_offset = 5,.nominal_voltage = 12, .swarm_color = "orange", };
 static const FamilyConfig FAMILY_SUPRA       = { .id = SUPRA,       .name = "Supra",      .asic = ASIC_BM1368, .asic_count = 1, .max_power = 40, .power_offset = 5,  .nominal_voltage = 5,  .swarm_color = "blue",   };
-static const FamilyConfig FAMILY_SUPRAHEX    = { .id = SUPRAHEX,    .name = "SupraHex",   .asic = ASIC_BM1368, .asic_count = 6, .max_power = 120, .power_offset = 5, .nominal_voltage = 12, .swarm_color = "darkblue",};
+static const FamilyConfig FAMILY_SUPRAHEX    = { .id = SUPRAHEX,    .name = "SupraHex",   .asic = ASIC_BM1368, .asic_count = 6, .max_power = 120, .power_offset = 25, .nominal_voltage = 12, .swarm_color = "darkblue",};
 static const FamilyConfig FAMILY_GAMMA       = { .id = GAMMA,       .name = "Gamma",      .asic = ASIC_BM1370, .asic_count = 1, .max_power = 40, .power_offset = 5,  .nominal_voltage = 5,  .swarm_color = "green",  };
 static const FamilyConfig FAMILY_GAMMA_TURBO = { .id = GAMMA_TURBO, .name = "GammaTurbo", .asic = ASIC_BM1370, .asic_count = 2, .max_power = 60, .power_offset = 10, .nominal_voltage = 12, .swarm_color = "cyan",   };
 
@@ -121,8 +121,8 @@ static const DeviceConfig default_configs[] = {
     { .board_version = "204",  .family = FAMILY_ULTRA,       .EMC2101 = true, .emc_internal_temp = true,                                  .emc_temp_offset = 5,   .DS4432U = true, .INA260 = true, .plug_sense = true,                      .power_consumption_target = 12, },
     { .board_version = "205",  .family = FAMILY_ULTRA,       .EMC2101 = true, .emc_internal_temp = true,                                  .emc_temp_offset = 5,   .DS4432U = true, .INA260 = true, .plug_sense = true, .asic_enable = true, .power_consumption_target = 12, },
     { .board_version = "207",  .family = FAMILY_ULTRA,       .EMC2101 = true,                                                                                     .TPS546 = true,                                                           .power_consumption_target = 12, },
-    { .board_version = "302",  .family = FAMILY_HEX,         .EMC2101 = false, .EMC2302 = true, .emc_internal_temp = false, .emc_temp_offset = 5, .DS4432U = false, .TPS546 = true, .INA260 = false, .plug_sense = false, .multichip = true, .power_consumption_target = 90},
-    { .board_version = "303",  .family = FAMILY_HEX,         .EMC2101 = false, .EMC2302 = true, .emc_internal_temp = false, .emc_temp_offset = 5, .DS4432U = false, .TPS546 = true, .INA260 = false, .plug_sense = false, .multichip = true, .power_consumption_target = 90},
+    { .board_version = "302",  .family = FAMILY_HEX,         .EMC2302 = true, .emc_temp_offset = 5, .TPS546 = true, .multichip = true, .power_consumption_target = 90},
+    { .board_version = "303",  .family = FAMILY_HEX,         .EMC2302 = true, .emc_temp_offset = 5, .TPS546 = true, .multichip = true, .power_consumption_target = 90},
     { .board_version = "400",  .family = FAMILY_SUPRA,       .EMC2101 = true, .emc_internal_temp = true,                                  .emc_temp_offset = 5,   .DS4432U = true, .INA260 = true, .plug_sense = true, .asic_enable = true, .power_consumption_target = 12, },
     { .board_version = "401",  .family = FAMILY_SUPRA,       .EMC2101 = true, .emc_internal_temp = true,                                  .emc_temp_offset = 5,   .DS4432U = true, .INA260 = true, .plug_sense = true, .asic_enable = true, .power_consumption_target = 12, },
     { .board_version = "402",  .family = FAMILY_SUPRA,       .EMC2101 = true,                                                                                     .TPS546 = true,                                                           .power_consumption_target = 8,  },
@@ -130,6 +130,8 @@ static const DeviceConfig default_configs[] = {
     { .board_version = "600",  .family = FAMILY_GAMMA,       .EMC2101 = true, .emc_ideality_factor = 0x24, .emc_beta_compensation = 0x00,                         .TPS546 = true,                                                           .power_consumption_target = 19, },
     { .board_version = "601",  .family = FAMILY_GAMMA,       .EMC2101 = true, .emc_ideality_factor = 0x24, .emc_beta_compensation = 0x00,                         .TPS546 = true,                                                           .power_consumption_target = 19, },
     { .board_version = "602",  .family = FAMILY_GAMMA,       .EMC2101 = true, .emc_ideality_factor = 0x24, .emc_beta_compensation = 0x00,                         .TPS546 = true,                                                           .power_consumption_target = 22, },
+    { .board_version = "701",  .family = FAMILY_SUPRAHEX,    .EMC2302 = true, .emc_temp_offset = 5, .TPS546 = true, .multichip = true, .power_consumption_target = 120},
+    { .board_version = "702",  .family = FAMILY_SUPRAHEX,    .EMC2302 = true, .emc_temp_offset = 5, .TPS546 = true, .multichip = true, .power_consumption_target = 120},
     { .board_version = "800",  .family = FAMILY_GAMMA_TURBO, .EMC2103 = true,                                                             .emc_temp_offset = -10, .TPS546 = true,                                                           .power_consumption_target = 12, },
 };
 

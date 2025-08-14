@@ -5,7 +5,7 @@
 #include "i2c_bitaxe.h"
 #include "EMC2101.h"
 
-static const char * TAG = "EMC2101";
+static const char* TAG = "EMC2101";
 
 static i2c_master_dev_handle_t emc2101_dev_handle;
 
@@ -35,9 +35,9 @@ esp_err_t EMC2101_init() {
     // Bit 3:2(EDGES)=00: 2 Tach pulses per revolution (standard)
     // Bit 1:0(RANGE)=00: PWM Frequency ~22.5 kHz (common setting)
     // //if (invertPolarity) {
-        ESP_RETURN_ON_ERROR(i2c_bitaxe_register_write_byte(emc2101_dev_handle, EMC2101_FAN_CONFIG, 0b00100011), TAG, "Failed to configure fan settings");
+    ESP_RETURN_ON_ERROR(i2c_bitaxe_register_write_byte(emc2101_dev_handle, EMC2101_FAN_CONFIG, 0b00100011), TAG, "Failed to configure fan settings");
     // //}
-    
+
 
 
 
@@ -52,13 +52,13 @@ esp_err_t EMC2101_init() {
 
 }
 
-esp_err_t EMC2101_set_ideality_factor(uint8_t ideality){
+esp_err_t EMC2101_set_ideality_factor(uint8_t ideality) {
     //set Ideality Factor
     ESP_RETURN_ON_ERROR(i2c_bitaxe_register_write_byte(emc2101_dev_handle, EMC2101_IDEALITY_FACTOR, ideality), TAG, "Failed to set ideality factor");
     return ESP_OK;
 }
 
-esp_err_t EMC2101_set_beta_compensation(uint8_t beta){
+esp_err_t EMC2101_set_beta_compensation(uint8_t beta) {
     //set Beta Compensation
     ESP_RETURN_ON_ERROR(i2c_bitaxe_register_write_byte(emc2101_dev_handle, EMC2101_BETA_COMPENSATION, beta), TAG, "Failed to set beta compensation");
     return ESP_OK;
@@ -69,7 +69,7 @@ esp_err_t EMC2101_set_fan_speed(float percent)
 {
     uint8_t speed;
 
-    speed = (uint8_t) (63.0 * percent);
+    speed = (uint8_t)(63.0 * percent);
     ESP_RETURN_ON_ERROR(i2c_bitaxe_register_write_byte(emc2101_dev_handle, EMC2101_REG_FAN_SETTING, speed), TAG, "Failed to set fan speed");
     return ESP_OK;
 }
@@ -87,7 +87,7 @@ uint16_t EMC2101_get_fan_speed(void)
         ESP_LOGE(TAG, "Failed to read fan speed LSB: %s", esp_err_to_name(err));
         return 0;
     }
-    
+
     err = i2c_bitaxe_register_read(emc2101_dev_handle, EMC2101_TACH_MSB, &tach_msb, 1);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Failed to read fan speed MSB: %s", esp_err_to_name(err));
@@ -117,13 +117,13 @@ float EMC2101_get_external_temp(void)
         ESP_LOGE(TAG, "Failed to read external temperature MSB: %s", esp_err_to_name(err));
         return 0.0f;
     }
-    
+
     err = i2c_bitaxe_register_read(emc2101_dev_handle, EMC2101_EXTERNAL_TEMP_LSB, &temp_lsb, 1);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Failed to read external temperature LSB: %s", esp_err_to_name(err));
         return 0.0f;
     }
-    
+
     // Combine MSB and LSB, and then right shift to get 11 bits
     reading = (temp_msb << 8) | temp_lsb;
     reading >>= 5;  // Now, `reading` contains an 11-bit signed value
@@ -153,7 +153,7 @@ uint8_t EMC2101_get_internal_temp(void)
 {
     uint8_t temp = 0;
     esp_err_t err;
-    
+
     err = i2c_bitaxe_register_read(emc2101_dev_handle, EMC2101_INTERNAL_TEMP, &temp, 1);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Failed to read internal temperature: %s", esp_err_to_name(err));

@@ -80,7 +80,9 @@ export class SystemService {
 
         boardtemp1: 30,
         boardtemp2: 40,
-        overheat_mode: 0
+        overheat_mode: 0,
+        multichip: false,
+        chipCountStr: "[]"
       }
     ).pipe(delay(1000));
   }

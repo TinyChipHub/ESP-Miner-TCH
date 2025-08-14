@@ -4,8 +4,8 @@
         text="Bitaxe has overheated - See settings">
     </p-message>
 
-    <p-message *ngIf="!info.frequency || info.frequency < 400" severity="warn" styleClass="w-full mb-4 py-4 border-round-xl"
-        text="Bitaxe frequency is set low - See settings">
+    <p-message *ngIf="!info.frequency || info.frequency < 400" severity="warn"
+        styleClass="w-full mb-4 py-4 border-round-xl" text="Bitaxe frequency is set low - See settings">
     </p-message>
 
     <p-message *ngIf="info.power_fault" severity="error" styleClass="w-full mb-4 py-4 border-round-xl"
@@ -92,23 +92,21 @@
                 </div>
                 <div *ngIf="info.sharesRejected > 0">
                     <div *ngFor="let sharesRejectedReason of getSortedRejectionReasons(info); trackBy: trackByReason">
-                        <span
-                        class="inline-block"
-                        pTooltip="{{ getRejectionExplanation(sharesRejectedReason.message) }}"
-                        [tooltipDisabled]="!getRejectionExplanation(sharesRejectedReason.message)"
-                        tooltipPosition="bottom"
-                        >
-                        <span class="text-red-500 font-medium">
-                            {{ sharesRejectedReason.count | number: '1.0-0' }}
-                        </span>
-                        <span class="text-500">
-                            {{ sharesRejectedReason.message }}
-                        </span>
-                        ({{
+                        <span class="inline-block"
+                            pTooltip="{{ getRejectionExplanation(sharesRejectedReason.message) }}"
+                            [tooltipDisabled]="!getRejectionExplanation(sharesRejectedReason.message)"
+                            tooltipPosition="bottom">
+                            <span class="text-red-500 font-medium">
+                                {{ sharesRejectedReason.count | number: '1.0-0' }}
+                            </span>
+                            <span class="text-500">
+                                {{ sharesRejectedReason.message }}
+                            </span>
+                            ({{
                             (sharesRejectedReason.count /
                             (info.sharesAccepted + info.sharesRejected) * 100)
                             | number: '1.2-2'
-                        }}%)
+                            }}%)
                         </span>
                     </div>
                 </div>
@@ -282,7 +280,8 @@
 
                 <div class="flex flex-nowrap">
                     <div class="col-fixed-width text-500">
-                        <span class="white-space-nowrap">Time <i class="pi pi-info-circle text-xs px-1" pTooltip="Time it takes for the pool to respond to a share"></i></span>
+                        <span class="white-space-nowrap">Time <i class="pi pi-info-circle text-xs px-1"
+                                pTooltip="Time it takes for the pool to respond to a share"></i></span>
                     </div>
                     <div>
                         {{ info.responseTime }} ms
@@ -295,8 +294,11 @@
             <div class="card">
                 <h5>Uptime</h5>
                 {{info.uptimeSeconds | dateAgo}}
+                <ng-container *ngIf="info.multichip">
+                    <h5>Chip Sumbit Count:</h5>
+                    {{info.chipCountStr}}
+                </ng-container>
             </div>
         </div>
-
     </div>
 </ng-container>
