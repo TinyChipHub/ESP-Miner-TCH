@@ -339,7 +339,7 @@ static uint16_t float_2_ulinear16(float value)
 /**
  * @brief Set up the TPS546 regulator and turn it on
 */
-esp_err_t TPS546_init(TPS546_CONFIG config)
+esp_err_t TPS546_init(TPS546_CONFIG config, char* board_version)
 {
     uint8_t data[7];
     uint8_t u8_value = 0;
@@ -372,7 +372,7 @@ esp_err_t TPS546_init(TPS546_CONFIG config)
     smb_write_byte(PMBUS_OPERATION, u8_value);
 
     /* Make sure power is turned off until commanded */
-    u8_value = (board_version == 302) ? (ON_OFF_CONFIG_DELAY | ON_OFF_CONFIG_POLARITY | ON_OFF_CONFIG_CMD | ON_OFF_CONFIG_PU)
+    u8_value = (strcmp(board_version, "302") == 0) ? (ON_OFF_CONFIG_DELAY | ON_OFF_CONFIG_POLARITY | ON_OFF_CONFIG_CMD | ON_OFF_CONFIG_PU)
         : (ON_OFF_CONFIG_DELAY | ON_OFF_CONFIG_POLARITY | ON_OFF_CONFIG_CP | ON_OFF_CONFIG_CMD | ON_OFF_CONFIG_PU);
     ESP_LOGI(TAG, "Power config-ON_OFF_CONFIG: %02X", u8_value);
     smb_write_byte(PMBUS_ON_OFF_CONFIG, u8_value);
