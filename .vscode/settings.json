@@ -57,7 +57,8 @@
         "task.h": "c",
         "stdlib.h": "c",
         "thread": "cpp",
-        "xlocale": "cpp"
+        "xlocale": "cpp",
+        "cjson.h": "c"
     },
     "editor.formatOnSave": true,
     "cSpell.words": [
