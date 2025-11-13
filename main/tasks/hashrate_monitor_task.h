@@ -19,5 +19,6 @@ typedef struct {
 
 void hashrate_monitor_task(void *pvParameters);
 void hashrate_monitor_register_read(void *pvParameters, register_type_t register_type, uint8_t asic_nr, uint32_t value);
+void check_hashrate_anomaly(void *pvParameters, float current_hashrate);
 
 #endif /* HASHRATE_MONITOR_TASK_H_ */

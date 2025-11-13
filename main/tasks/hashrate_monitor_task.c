@@ -7,6 +7,8 @@
 #include "common.h"
 #include "asic.h"
 #include "utils.h"
+#include "asic_init.h"
+#include "driver/uart.h"
 
 #define EPSILON 0.0001f
 
@@ -15,6 +17,10 @@
 #define HASHRATE_UNIT 0x100000uLL // Hashrate register unit (2^24 hashes)
 
 static const char *TAG = "hashrate_monitor";
+static float highest_hashrate = 0.0f;
+static uint8_t lowHashrateCount = 0;
+static int reinitiateCount = 0;
+static float thresholdHashratePercent = 0.82f; // 60% of expected hashrate
 
 static float sum_hashrates(measurement_t * measurement, int asic_count)
 {
@@ -65,6 +71,50 @@ static void update_hash_counter(uint32_t time_ms, uint32_t value, measurement_t 
     measurement->time_ms = time_ms;
 }
 
+void check_hashrate_anomaly(void  *pvParameters, float current_hashrate)
+{
+    GlobalState * GLOBAL_STATE = (GlobalState *)pvParameters;
+    HashrateMonitorModule * HASHRATE_MONITOR_MODULE = &GLOBAL_STATE->HASHRATE_MONITOR_MODULE;
+
+    float expected_hashrate = GLOBAL_STATE->POWER_MANAGEMENT_MODULE.expected_hashrate;
+
+    if (current_hashrate<highest_hashrate && current_hashrate < expected_hashrate * thresholdHashratePercent) {
+        lowHashrateCount++;
+        ESP_LOGW(TAG, "Low hashrate detected: %.3f Gh/s (expected: %.3f Gh/s). Count: %d", current_hashrate, expected_hashrate, lowHashrateCount);
+    } else {
+        lowHashrateCount = 0; // Reset counter if hashrate is normal
+        return;
+    }
+
+    if (lowHashrateCount >= 3) { // If low hashrate detected 3 times consecutively
+        reinitiateCount++;
+        ESP_LOGW(TAG, "Reinitiating ASICs due to sustained low hashrate. Reinitiate count: %d", reinitiateCount);
+        
+        ESP_LOGI(TAG, "Stopping ASIC tasks...");
+        // Mark ASIC as uninitialized to stop any tasks from trying to use UART
+        GLOBAL_STATE->ASIC_initalized = false;
+        // Give tasks time to complete any current UART operation and notice the flag
+        vTaskDelay(500 / portTICK_PERIOD_MS);
+        ESP_LOGI(TAG, "Flushing UART buffers...");
+        // flush driver to clear any stale data
+        uart_flush(UART_NUM_1);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        //clear_measurements(GLOBAL_STATE);
+        
+        // Perform live recovery
+        // Stabilization delay of 2000ms prevents race conditions where tasks are just
+        // starting to use ASIC while power management loop tries to change frequency
+        uint8_t chip_count = asic_initialize(GLOBAL_STATE, ASIC_INIT_RECOVERY, 2000);
+        
+        if (chip_count > 0) {
+            ESP_LOGI(TAG, "Resuming normal operation.");
+        }
+        
+        lowHashrateCount = 0; // Reset counter after reinitialization
+    }
+
+}
+
 void hashrate_monitor_task(void *pvParameters)
 {
     GlobalState * GLOBAL_STATE = (GlobalState *)pvParameters;
@@ -95,11 +145,15 @@ void hashrate_monitor_task(void *pvParameters)
         vTaskDelay(100 / portTICK_PERIOD_MS);
 
         float current_hashrate = sum_hashrates(HASHRATE_MONITOR_MODULE->total_measurement, asic_count);
+        if(current_hashrate > highest_hashrate) {
+            highest_hashrate = current_hashrate;
+            ESP_LOGI(TAG, "New Highest Hashrate: %.3f Gh/s", highest_hashrate);
+        }
         float error_hashrate = sum_hashrates(HASHRATE_MONITOR_MODULE->error_measurement, asic_count);
 
         SYSTEM_MODULE->current_hashrate = current_hashrate;
         SYSTEM_MODULE->error_percentage = current_hashrate > 0 ? error_hashrate / current_hashrate * 100.f : 0;
-
+        check_hashrate_anomaly(pvParameters, current_hashrate);
         vTaskDelayUntil(&taskWakeTime, POLL_RATE / portTICK_PERIOD_MS);
     }
 }

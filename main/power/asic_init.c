@@ -5,6 +5,7 @@
 #include "asic.h"
 #include "serial.h"
 #include "asic_reset.h"
+#include "frequency_transition_bmXX.h"
 
 static const char *TAG = "asic_init";
 
@@ -21,6 +22,7 @@ uint8_t asic_initialize(GlobalState *GLOBAL_STATE, asic_init_mode_t mode, uint32
 
     // Check actual UART state for safety
     bool uart_initialized = SERIAL_is_initialized();
+    set_current_frequency(50); // Reset current frequency tracking
     
     // Verify mode matches actual state
     if (mode == ASIC_INIT_COLD_BOOT && uart_initialized) {
@@ -44,6 +46,7 @@ uint8_t asic_initialize(GlobalState *GLOBAL_STATE, asic_init_mode_t mode, uint32
 
     ESP_LOGI(TAG, "Detecting ASIC chips...");
     uint8_t chip_count = ASIC_init(GLOBAL_STATE);
+    ESP_LOGI(TAG, "Detected %d ASIC chip(s)", chip_count);
     
     if (chip_count == 0) {
         ESP_LOGE(TAG, "ASIC initialization failed - chip count 0");

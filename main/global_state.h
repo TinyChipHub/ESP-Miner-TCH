@@ -120,6 +120,7 @@ typedef struct
     char * scriptsig;
     uint64_t network_nonce_diff;
     char network_diff_string[DIFF_STRING_SIZE];
+    
 } GlobalState;
 
 #endif /* GLOBAL_STATE_H_ */

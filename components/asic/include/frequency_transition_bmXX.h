@@ -26,5 +26,6 @@ typedef void (*set_hash_frequency_fn)(float frequency);
  * @param asic_type The type of ASIC chip (for logging purposes only)
  */
 void do_frequency_transition(float target_frequency, set_hash_frequency_fn set_frequency_fn);
+void set_current_frequency(float frequency);
 
 #endif // FREQUENCY_TRANSITION_H
