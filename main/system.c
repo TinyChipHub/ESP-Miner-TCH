@@ -48,7 +48,7 @@ void SYSTEM_init_system(GlobalState * GLOBAL_STATE)
     module->start_time = esp_timer_get_time();
     module->lastClockSync = 0;
     module->block_found = false;
-    
+
     // Initialize network address strings
     strcpy(module->ip_addr_str, "");
     strcpy(module->ipv6_addr_str, "");
@@ -100,7 +100,7 @@ void SYSTEM_init_system(GlobalState * GLOBAL_STATE)
 }
 
 esp_err_t SYSTEM_init_peripherals(GlobalState * GLOBAL_STATE) {
-    
+
     ESP_RETURN_ON_ERROR(gpio_install_isr_service(0), TAG, "Error installing ISR service");
 
     // Initialize the core voltage regulator
