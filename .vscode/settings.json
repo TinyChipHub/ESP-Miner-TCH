@@ -57,7 +57,9 @@
     "task.h": "c",
     "stdlib.h": "c",
     "frequency_transition_bmxx.h": "c",
-    "asic_init.h": "c"
+    "asic_init.h": "c",
+    "thread": "c",
+    "xlocale": "c"
   },
   "editor.formatOnSave": false,
   "cSpell.words": [

@@ -58,8 +58,8 @@ static TPS546_CONFIG TPS546_CONFIG_HEX = {
     .TPS546_INIT_VOUT_MAX = 4.5,
     .TPS546_INIT_VOUT_COMMAND = 3.6,
     /* iout current */
-    .TPS546_INIT_IOUT_OC_WARN_LIMIT = 25.00, /* A */
-    .TPS546_INIT_IOUT_OC_FAULT_LIMIT = 30.00 /* A */
+    .TPS546_INIT_IOUT_OC_WARN_LIMIT = 35.00, /* A */
+    .TPS546_INIT_IOUT_OC_FAULT_LIMIT = 45.00 /* A */
 };
 
 esp_err_t VCORE_init(GlobalState * GLOBAL_STATE)
@@ -78,6 +78,7 @@ esp_err_t VCORE_init(GlobalState * GLOBAL_STATE)
                 ESP_RETURN_ON_ERROR(TPS546_init(TPS546_CONFIG_GAMMATURBO), TAG, "TPS546 init failed!");
                 break;
             case HEX:
+            case SUPRAHEX:
                 ESP_RETURN_ON_ERROR(TPS546_init(TPS546_CONFIG_HEX), TAG, "TPS546 init failed!");
                 break;
             default:
