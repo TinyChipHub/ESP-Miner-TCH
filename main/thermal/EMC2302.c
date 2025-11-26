@@ -65,7 +65,7 @@ esp_err_t EMC2302_init()
  */
 esp_err_t EMC2302_set_fan_speed(float percent)
 {
-    uint8_t setting = (uint8_t) (255.0 * percent);
+    uint8_t setting = (uint8_t) (255.0 * (1-percent));
     ESP_RETURN_ON_ERROR(i2c_bitaxe_register_write_byte(EMC2302_dev_handle, EMC2302_FAN1_SETTING, setting), TAG, "Failed to set fan speed");
     ESP_RETURN_ON_ERROR(i2c_bitaxe_register_write_byte(EMC2302_dev_handle, EMC2302_FAN2_SETTING, setting), TAG, "Failed to set fan speed");
     return ESP_OK;
