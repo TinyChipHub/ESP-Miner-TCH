@@ -17,7 +17,7 @@ static const char *TAG = "vcore";
 static TPS546_CONFIG TPS546_CONFIG_DEFAULT = {
     /* vin voltage */
     .TPS546_INIT_VIN_ON = 4.8,
-    .TPS546_INIT_VIN_OFF = 4.5,
+    .TPS546_INIT_VIN_OFF = 4.0,
     .TPS546_INIT_VIN_UV_WARN_LIMIT = 0, //Set to 0 to ignore. TI Bug in this register
     .TPS546_INIT_VIN_OV_FAULT_LIMIT = 6.5,
     /* vout voltage */
@@ -26,8 +26,8 @@ static TPS546_CONFIG TPS546_CONFIG_DEFAULT = {
     .TPS546_INIT_VOUT_MAX = 2,
     .TPS546_INIT_VOUT_COMMAND = 1.2,
     /* iout current */
-    .TPS546_INIT_IOUT_OC_WARN_LIMIT = 25.00, /* A */
-    .TPS546_INIT_IOUT_OC_FAULT_LIMIT = 30.00 /* A */
+    .TPS546_INIT_IOUT_OC_WARN_LIMIT = 35.00, /* A */
+    .TPS546_INIT_IOUT_OC_FAULT_LIMIT = 40.00 /* A */
 };
 
 static TPS546_CONFIG TPS546_CONFIG_GAMMATURBO = {
@@ -49,7 +49,7 @@ static TPS546_CONFIG TPS546_CONFIG_GAMMATURBO = {
 static TPS546_CONFIG TPS546_CONFIG_HEX = {
     /* vin voltage */
     .TPS546_INIT_VIN_ON = 11.5,
-    .TPS546_INIT_VIN_OFF = 11.0,
+    .TPS546_INIT_VIN_OFF = 10.5,
     .TPS546_INIT_VIN_UV_WARN_LIMIT = 11.0,
     .TPS546_INIT_VIN_OV_FAULT_LIMIT = 14.0,
     /* vout voltage */

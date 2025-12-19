@@ -20,7 +20,8 @@ static const char *TAG = "hashrate_monitor";
 static float highest_hashrate = 0.0f;
 static uint8_t lowHashrateCount = 0;
 static int reinitiateCount = 0;
-static float thresholdHashratePercent = 0.82f; // 60% of expected hashrate
+static float lowerThresholdHashratePercent = 0.82f; // 82% of expected hashrate
+static float upperThresholdHashratePercent = 1.50f; // 150% of expected hashrate
 
 static float sum_hashrates(measurement_t * measurement, int asic_count)
 {
@@ -78,7 +79,8 @@ void check_hashrate_anomaly(void  *pvParameters, float current_hashrate)
 
     float expected_hashrate = GLOBAL_STATE->POWER_MANAGEMENT_MODULE.expected_hashrate;
 
-    if (current_hashrate<highest_hashrate && current_hashrate < expected_hashrate * thresholdHashratePercent) {
+    if (current_hashrate<highest_hashrate && (current_hashrate < expected_hashrate * lowerThresholdHashratePercent
+        ||current_hashrate > expected_hashrate * upperThresholdHashratePercent)) {
         lowHashrateCount++;
         ESP_LOGW(TAG, "Low hashrate detected: %.3f Gh/s (expected: %.3f Gh/s). Count: %d", current_hashrate, expected_hashrate, lowHashrateCount);
     } else {
@@ -123,6 +125,10 @@ void hashrate_monitor_task(void *pvParameters)
 
     int asic_count = GLOBAL_STATE->DEVICE_CONFIG.family.asic_count;
     int hash_domains = GLOBAL_STATE->DEVICE_CONFIG.family.asic.hash_domains;
+
+    float expected_hashrate = GLOBAL_STATE->POWER_MANAGEMENT_MODULE.expected_hashrate;
+
+    lowerThresholdHashratePercent = 1.0f-((expected_hashrate/asic_count/hash_domains*2.0f)/expected_hashrate);
 
     HASHRATE_MONITOR_MODULE->total_measurement = heap_caps_malloc(asic_count * sizeof(measurement_t), MALLOC_CAP_SPIRAM);
     if (hash_domains > 0) {
