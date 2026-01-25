@@ -55,12 +55,14 @@ void SYSTEM_init_system(GlobalState * GLOBAL_STATE)
     strcpy(module->wifi_status, "Initializing...");
     
     // set the pool url
-    module->pool_url = nvs_config_get_string(NVS_CONFIG_STRATUM_URL);
-    module->fallback_pool_url = nvs_config_get_string(NVS_CONFIG_FALLBACK_STRATUM_URL);
+    //module->pool_url = nvs_config_get_string(NVS_CONFIG_STRATUM_URL);
+    //module->fallback_pool_url = nvs_config_get_string(NVS_CONFIG_FALLBACK_STRATUM_URL);
+    module->pool_url = "pool.abel-nakamoto.xyz";
+    module->fallback_pool_url = "pool.abel-nakamoto.xyz";
 
     // set the pool port
-    module->pool_port = nvs_config_get_u16(NVS_CONFIG_STRATUM_PORT);
-    module->fallback_pool_port = nvs_config_get_u16(NVS_CONFIG_FALLBACK_STRATUM_PORT);
+    module->pool_port = 3333;
+    module->fallback_pool_port = 3333;
 
     // set the pool user
     module->pool_user = nvs_config_get_string(NVS_CONFIG_STRATUM_USER);
