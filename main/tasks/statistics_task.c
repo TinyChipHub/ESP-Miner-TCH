@@ -8,9 +8,7 @@
 #include "statistics_task.h"
 #include "global_state.h"
 #include "nvs_config.h"
-#include "power.h"
 #include "connect.h"
-#include "vcore.h"
 #include "bm1370.h"
 
 #define DEFAULT_POLL_RATE 5000
@@ -23,7 +21,6 @@ static uint16_t statisticsDataSize;
 static pthread_mutex_t statisticsDataLock = PTHREAD_MUTEX_INITIALIZER;
 
 static const uint16_t maxDataCount = 720;
-static uint16_t statsFrequency;
 
 void createStatisticsBuffer()
 {
@@ -122,11 +119,12 @@ void statistics_task(void * pvParameters)
     TickType_t taskWakeTime = xTaskGetTickCount();
 
     while (1) {
-        const int32_t currentTime = esp_timer_get_time() / 1000;
-        statsFrequency = nvs_config_get_u16(NVS_CONFIG_STATISTICS_FREQUENCY) * 1000;
+        const uint64_t currentTime = esp_timer_get_time() / 1000;
+        const uint16_t configStatsFrequency = nvs_config_get_u16(NVS_CONFIG_STATISTICS_FREQUENCY);
+        const uint64_t statsFrequency = (uint64_t)configStatsFrequency * 1000;
 
         if (0 != statsFrequency) {
-            const int32_t waitingTime = statsData.timestamp + statsFrequency - (DEFAULT_POLL_RATE / 2);
+            const uint64_t waitingTime = statsData.timestamp + statsFrequency - (DEFAULT_POLL_RATE / 2);
 
             if (currentTime > waitingTime) {
                 int8_t wifiRSSI = -90;
@@ -134,18 +132,22 @@ void statistics_task(void * pvParameters)
 
                 statsData.timestamp = currentTime;
                 statsData.hashrate = sys_module->current_hashrate;
+                statsData.hashrate_1m = sys_module->hashrate_1m;
+                statsData.hashrate_10m = sys_module->hashrate_10m;
+                statsData.hashrate_1h = sys_module->hashrate_1h;
                 statsData.errorPercentage = sys_module->error_percentage;
                 statsData.chipTemperature = power_management->chip_temp_avg;
                 statsData.vrTemperature = power_management->vr_temp;
                 statsData.power = power_management->power;
                 statsData.voltage = power_management->voltage;
-                statsData.current = Power_get_current(GLOBAL_STATE);
-                statsData.coreVoltageActual = VCORE_get_voltage_mv(GLOBAL_STATE);
+                statsData.current = power_management->current;
+                statsData.coreVoltageActual = power_management->core_voltage;
                 statsData.fanSpeed = power_management->fan_perc;
                 statsData.fanRPM = power_management->fan_rpm;
                 statsData.fan2RPM = power_management->fan2_rpm;
                 statsData.wifiRSSI = wifiRSSI;
                 statsData.freeHeap = esp_get_free_heap_size();
+                statsData.responseTime = sys_module->response_time;
 
                 addStatisticData(&statsData);
             }
