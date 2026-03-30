@@ -62,5 +62,6 @@
         "ssid"
     ],
     "idf.port": "/dev/ttyACM0",
-    "C_Cpp.intelliSenseEngine": "Tag Parser"
+    "C_Cpp.intelliSenseEngine": "Tag Parser",
+    "idf.currentSetup": "G:\\espidf\\v5.5\\esp-idf"
 }

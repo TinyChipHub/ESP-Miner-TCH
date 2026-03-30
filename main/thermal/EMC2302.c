@@ -51,6 +51,8 @@ esp_err_t EMC2302_init()
 
     ESP_LOGI(TAG, "EMC2302 init");
 
+    ESP_ERROR_CHECK(i2c_bitaxe_register_write_byte(EMC2302_dev_handle, EMC2302_PWM_POLARITY, 0b00011111));
+
     // Set the minimum fan speed measured and reported to 500 RPM
     ESP_RETURN_ON_ERROR(set_fan_range(EMC2302_FAN1_CONFIG1, RNG_500_RPM, &fan1_multiplier), TAG, "Failed to set fan 1 config");
     ESP_RETURN_ON_ERROR(set_fan_range(EMC2302_FAN2_CONFIG1, RNG_500_RPM, &fan2_multiplier), TAG, "Failed to set fan 2 config");
@@ -65,7 +67,7 @@ esp_err_t EMC2302_init()
  */
 esp_err_t EMC2302_set_fan_speed(float percent)
 {
-    uint8_t setting = (uint8_t) (255.0 * percent);
+    uint8_t setting = (uint8_t) (255.0 * (1-percent));
     ESP_RETURN_ON_ERROR(i2c_bitaxe_register_write_byte(EMC2302_dev_handle, EMC2302_FAN1_SETTING, setting), TAG, "Failed to set fan speed");
     ESP_RETURN_ON_ERROR(i2c_bitaxe_register_write_byte(EMC2302_dev_handle, EMC2302_FAN2_SETTING, setting), TAG, "Failed to set fan speed");
     return ESP_OK;
