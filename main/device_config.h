@@ -116,6 +116,7 @@ static const FamilyConfig default_families[] = {
     FAMILY_HEX,
     FAMILY_SUPRA,
     FAMILY_GAMMA,
+    FAMILY_GAMMA_DUO,
     FAMILY_SUPRA_HEX,
     FAMILY_GAMMA_TURBO,
 };

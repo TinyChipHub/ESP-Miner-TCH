@@ -30,8 +30,8 @@ static TPS546_CONFIG get_tps546_config(const FamilyConfig * family)
         config.TPS546_INIT_VOUT_MIN = 1;
         config.TPS546_INIT_VOUT_MAX = 3;
         config.TPS546_INIT_VOUT_COMMAND = 1.2;
-        config.TPS546_INIT_IOUT_OC_WARN_LIMIT = 50.00;
-        config.TPS546_INIT_IOUT_OC_FAULT_LIMIT = 55.00;
+        config.TPS546_INIT_IOUT_OC_WARN_LIMIT = 70.00;
+        config.TPS546_INIT_IOUT_OC_FAULT_LIMIT = 80.00;
         // Multi-phase stacking configuration for 2 TPS modules
         config.TPS546_INIT_STACK_CONFIG = 0x0001; // 2 modules (One-Slave, 2-phase)
         config.TPS546_INIT_SYNC_CONFIG = 0xD0;    // Enable Auto Detect SYNC
@@ -53,8 +53,8 @@ static TPS546_CONFIG get_tps546_config(const FamilyConfig * family)
         config.TPS546_INIT_VOUT_MIN = 2.5;
         config.TPS546_INIT_VOUT_MAX = 4.5;
         config.TPS546_INIT_VOUT_COMMAND = 3.6;
-        config.TPS546_INIT_IOUT_OC_WARN_LIMIT = 25.00;
-        config.TPS546_INIT_IOUT_OC_FAULT_LIMIT = 30.00;
+        config.TPS546_INIT_IOUT_OC_WARN_LIMIT = 35.00;
+        config.TPS546_INIT_IOUT_OC_FAULT_LIMIT = 40.00;
         // Single-phase configuration
         config.TPS546_INIT_STACK_CONFIG = 0x0000; // 1 module
         config.TPS546_INIT_SYNC_CONFIG = 0x10;    // Disable SYNC
