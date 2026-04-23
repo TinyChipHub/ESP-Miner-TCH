@@ -45,7 +45,7 @@ bitaxetool --config ./config-401.cvs
 ```
 bitaxetool --config ./config-401.cvs --firmware ./esp-miner-factory-401-v2.4.2.bin
 ```
-If needed, you may refer to this guide for instructions on upgrading and flashing the [AxeOs firmware](https://tinychiphub.com/blogs/technical/firmwares-and-instructions-for-upgrading-and-flashing) developed by [tinychiphub](https://tinychiphub.com/).
+If needed, you may refer to this guide for instructions on upgrading and flashing the [AxeOS firmware](https://tinychiphub.com/blogs/technical/firmwares-and-instructions-for-upgrading-and-flashing) developed by [tinychiphub](https://tinychiphub.com/).
 
 ## AxeOS API
 The esp-miner UI is called AxeOS and provides an API to expose actions and information.
