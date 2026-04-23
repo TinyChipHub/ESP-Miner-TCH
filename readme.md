@@ -24,7 +24,7 @@ The bitaxetool includes all necessary library for flashing the binaries to the B
 
 **Notes**
  - The bitaxetool does not work properly with esptool v5.x.x, esptool v4.9.0 or earlier is required.
- - Bitaxetool v0.6.1 - locked to using esptool v4.9.0
+ - [Bitaxetool](https://tinychiphub.com/blogs/technical/a-step-by-step-guide-to-restore-your-miner) v0.6.1 - locked to using esptool v4.9.0
 
 ```
 pip install bitaxetool==0.6.1
@@ -45,6 +45,7 @@ bitaxetool --config ./config-401.cvs
 ```
 bitaxetool --config ./config-401.cvs --firmware ./esp-miner-factory-401-v2.4.2.bin
 ```
+If needed, you may refer to this guide for instructions on upgrading and flashing the [Axeos firmware](https://tinychiphub.com/blogs/technical/firmwares-and-instructions-for-upgrading-and-flashing) developed by [tinychiphub](https://tinychiphub.com/).
 
 ## AxeOS API
 The esp-miner UI is called AxeOS and provides an API to expose actions and information.
@@ -56,7 +57,7 @@ Available API endpoints:
 **GET**
 
 * `/api/system/info` Get system information
-* `/api/system/asic` Get ASIC settings information
+* `/api/system/asic` Get [ASIC](https://tinychiphub.com/blogs/news/is-the-bitaxe-gamma-miner-asic-a-real-solo-miner) settings information
 * `/api/system/statistics` Get system statistics (data logging should be activated)
 * `/api/system/statistics/dashboard` Get system statistics for dashboard
 * `/api/system/wifi/scan` Scan for available Wi-Fi networks
@@ -124,7 +125,7 @@ curl -X PATCH http://YOUR-BITAXE-IP/api/system \
 
 ## Administration
 
-The firmware hosts a small web server on port 80 for administrative purposes. Once the Bitaxe device is connected to the local network, the admin web front end may be accessed via a web browser connected to the same network at `http://<IP>`, replacing `IP` with the LAN IP address of the Bitaxe device, or `http://bitaxe`, provided your network supports mDNS configuration.
+The firmware hosts a small web server on port 80 for administrative purposes. Once the Bitaxe [miner](https://tinychiphub.com/collections/home-miner) is connected to the local network, the admin web front end may be accessed via a web browser connected to the same network at `http://<IP>`, replacing `IP` with the LAN IP address of the Bitaxe device, or `http://bitaxe`, provided your network supports mDNS configuration.
 
 ### Recovery
 
@@ -132,7 +133,7 @@ In the event that the admin web front end is inaccessible, for example because o
 
 ### Unlock Settings
 
-In order to unlock the Input fields for ASIC Frequency and ASIC Core Voltage you need to append `?oc` to the end of the settings tab URL in your browser. Be aware that without additional cooling overclocking can overheat and/or damage your Bitaxe.
+In order to unlock the Input fields for ASIC Frequency and ASIC Core Voltage you need to append `?oc` to the end of the settings tab URL in your browser. Be aware that without additional cooling [overclocking](https://tinychiphub.com/blogs/technical/master-your-asic-miner-tuning-overclocking-core-voltage-frequency-setting-guide) can overheat and/or damage your Bitaxe.
 
 ## Development using esp-miner/devcontainer
 
@@ -213,7 +214,7 @@ If you find that your not able to mine / have no hash rate you will need to chec
 If your Wi-Fi router has both of these options you might have to disable them both.
 
 If your still having problems here, check other settings within the Wi-Fi router and the bitaxe device, this includes the URL for
-the Stratum Host and Stratum Port.
+the Stratum Host and [Stratum Port](https://tinychiphub.com/blogs/technical/user-guide-for-zyber-series-home-miner).
 
 ## Attributions
 
