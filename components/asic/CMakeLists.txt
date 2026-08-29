@@ -1,5 +1,6 @@
 idf_component_register(
 SRCS 
+    "bm1373.c"
     "bm1370.c"
     "bm1368.c"
     "bm1366.c"
@@ -16,14 +17,13 @@ INCLUDE_DIRS
 
 REQUIRES 
     "freertos"
-    "driver"
+    "esp_driver_uart"
     "stratum"
+    "stratum_v2"
     "tcp_transport"
 )
 
-
-# Include the header files from "main" directory
-target_include_directories(${COMPONENT_LIB} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../main")
-
-# Include the header files from "main/tasks" directory
-target_include_directories(${COMPONENT_LIB} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../../main/tasks")
+target_include_directories(${COMPONENT_LIB} PRIVATE
+    "${CMAKE_CURRENT_LIST_DIR}/../../main"
+    "${CMAKE_CURRENT_LIST_DIR}/../../main/tasks"
+)
