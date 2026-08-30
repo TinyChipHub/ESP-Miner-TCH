@@ -27,7 +27,6 @@ uint8_t BM1373_init(GlobalState * GLOBAL_STATE);
 void BM1373_send_work(GlobalState * GLOBAL_STATE, bm_job * next_bm_job);
 void BM1373_set_version_mask(uint32_t version_mask);
 int BM1373_set_max_baud(void);
-int BM1373_set_default_baud(void);
 float BM1373_send_hash_frequency(float frequency);
 task_result * BM1373_process_work(GlobalState * GLOBAL_STATE);
 void BM1373_read_registers(void);

@@ -137,7 +137,13 @@ static bool _send_BM1373(uint8_t header, const uint8_t * data, uint8_t data_len,
 {
     packet_type_t packet_type = (header & TYPE_JOB) ? JOB_PACKET : CMD_PACKET;
     uint8_t total_length = (packet_type == JOB_PACKET) ? (data_len + 6) : (data_len + 5);
-    uint8_t buf[total_length];
+
+    if (total_length > 128) {
+        ESP_LOGE(TAG, "Packet length %d exceeds maximum buffer size", total_length);
+        return false;
+    }
+
+    uint8_t buf[128];
 
     // add the preamble
     buf[0] = 0x55;
@@ -364,8 +370,12 @@ uint8_t BM1373_init(GlobalState * GLOBAL_STATE)
     }
     vTaskDelay(pdMS_TO_TICKS(BM1372_INIT_STEP_DELAY_MS));
 
-    int asic_baud = BM1373_set_max_baud();
-    if (asic_baud == 0 || SERIAL_set_baud(asic_baud) != ESP_OK) {
+    ESP_LOGI(TAG, "Setting ASIC UART to %d baud", BM1372_ASIC_BAUD);
+    if (!_write_broadcast(BM1372_REGISTER_AUTO_WORK_CONFIGURATION,
+                          BM1372_AUTO_WORK_CONFIGURATION) ||
+        !_write_broadcast(BM1372_REGISTER_FAST_UART_CONFIGURATION,
+                          BM1372_FAST_UART_3M) ||
+        SERIAL_set_baud(BM1372_ASIC_BAUD) != ESP_OK) {
         ESP_LOGE(TAG, "Failed to switch BM1372/BM1373 UART to %d baud", BM1372_ASIC_BAUD);
         return 0;
     }
@@ -431,23 +441,10 @@ uint8_t BM1373_init(GlobalState * GLOBAL_STATE)
     return detected_chip_count;
 }
 
-int BM1373_set_default_baud(void)
-{
-    // BM1372/BM1373 returns to 115200 only through a hardware reset.
-    return UART_FREQ;
-}
-
 int BM1373_set_max_baud(void)
 {
-    ESP_LOGI(TAG, "Setting ASIC UART to %d baud", BM1372_ASIC_BAUD);
-
-    if (!_write_broadcast(BM1372_REGISTER_AUTO_WORK_CONFIGURATION,
-                          BM1372_AUTO_WORK_CONFIGURATION) ||
-        !_write_broadcast(BM1372_REGISTER_FAST_UART_CONFIGURATION,
-                          BM1372_FAST_UART_3M)) {
-        return 0;
-    }
-
+    // TODO: Investigate if BM1372/BM1373 baud switch timing can be unified with other ASICs
+    // BM1373 UART configuration is performed during BM1373_init.
     return BM1372_ASIC_BAUD;
 }
 
@@ -537,13 +534,14 @@ task_result * BM1373_process_work(GlobalState * GLOBAL_STATE)
     return &result;
 }
 
+// TODO: Verify if this works for all ASICs
 void BM1373_read_registers(void)
 {
     int size = sizeof(REGISTER_MAP) / sizeof(REGISTER_MAP[0]);
     for (int reg = 0; reg < size; reg++) {
         if (REGISTER_MAP[reg] != REGISTER_INVALID) {
             _send_BM1373((TYPE_CMD | GROUP_ALL | CMD_READ), (uint8_t[]){0x00, reg}, 2, BM1373_SERIALTX_DEBUG);
-            vTaskDelay(1 / portTICK_PERIOD_MS);
+            vTaskDelay(pdMS_TO_TICKS(1));
         }
     }
 }

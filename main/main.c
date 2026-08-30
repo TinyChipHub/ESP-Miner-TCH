@@ -35,6 +35,9 @@ static GlobalState GLOBAL_STATE;
 
 static const char * TAG = "bitaxe";
 
+#define DEFAULT_GPIO_I2C_SDA CONFIG_GPIO_I2C_SDA
+#define DEFAULT_GPIO_I2C_SCL CONFIG_GPIO_I2C_SCL
+
 static void heap_alloc_failed_hook(size_t requested_size, uint32_t caps, const char *function_name)
 {
     if (caps & MALLOC_CAP_SPIRAM) {
@@ -83,17 +86,12 @@ void app_main(void)
     }
 #endif
   
-    // Init I2C
-    ESP_ERROR_CHECK(i2c_bitaxe_init());
-    ESP_LOGI(TAG, "I2C initialized successfully");
-
     // Initialize RST pin to low early to minimize ASIC power consumption
     ESP_ERROR_CHECK(asic_hold_reset_low());
     ESP_LOGI(TAG, "RST pin initialized to low");
 
-    // wait for I2C to init
+    // Allow the ASIC reset line to settle before continuing startup.
     vTaskDelay(100 / portTICK_PERIOD_MS);
-
     // Init ADC
     ADC_init();
 
@@ -132,6 +130,17 @@ void app_main(void)
         return;
     }
 
+    // Init I2C
+    if (GLOBAL_STATE.DEVICE_CONFIG.pins.i2c != NULL) {
+        ESP_ERROR_CHECK(i2c_bitaxe_init(GLOBAL_STATE.DEVICE_CONFIG.pins.i2c->sda, GLOBAL_STATE.DEVICE_CONFIG.pins.i2c->scl));
+        ESP_LOGI(TAG, "I2C initialized successfully");
+    } else {
+        ESP_LOGI(TAG, "I2C pins not configured for board; skipping I2C initialization");
+    }
+
+    // wait for I2C to init
+    vTaskDelay(100 / portTICK_PERIOD_MS);
+
     if (self_test_init(&GLOBAL_STATE) != ESP_OK) {
         ESP_LOGE(TAG, "Failed to init self test");
         return;
@@ -158,7 +167,8 @@ void app_main(void)
             }
         }
     } else {
-        ESP_LOGE(TAG, "Critical peripheral initialization failure (%s). Entering degraded mode.", esp_err_to_name(GLOBAL_STATE.SELF_TEST_MODULE.system_init_ret));
+        ESP_LOGE(TAG, "Critical peripheral initialization failure (%s). Entering degraded mode.",
+                 esp_err_to_name(system_init_ret));
     }
     
     // Read version info (from SPIFFS if custom WWW is active)
@@ -233,7 +243,7 @@ void app_main(void)
 
     if (!GLOBAL_STATE.SELF_TEST_MODULE.is_active) {
         protocol_coordinator_init(&GLOBAL_STATE);
-        if (xTaskCreateWithCaps(protocol_coordinator_task, "protocol coord", 3072, (void *) &GLOBAL_STATE, 5, NULL, MALLOC_CAP_SPIRAM) != pdPASS) {
+        if (xTaskCreateWithCaps(protocol_coordinator_task, "protocol coord", 8192, (void *) &GLOBAL_STATE, 5, NULL, MALLOC_CAP_SPIRAM) != pdPASS) {
             ESP_LOGE(TAG, "Error creating protocol coordinator task");
         }
     }

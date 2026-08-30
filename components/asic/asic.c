@@ -193,16 +193,16 @@ void ASIC_read_registers(GlobalState * GLOBAL_STATE)
 {
     switch (GLOBAL_STATE->DEVICE_CONFIG.family.asic.id) {
         case BM1397:
-            BM1397_read_registers();
+            BM1397_read_registers(GLOBAL_STATE);
             break;
         case BM1366:
-            BM1366_read_registers();
+            BM1366_read_registers(GLOBAL_STATE);
             break;
         case BM1368:
-            BM1368_read_registers();
+            BM1368_read_registers(GLOBAL_STATE);
             break;
         case BM1370:
-            BM1370_read_registers();
+            BM1370_read_registers(GLOBAL_STATE);
             break;
         case BM1373:
             BM1373_read_registers();
@@ -211,4 +211,35 @@ void ASIC_read_registers(GlobalState * GLOBAL_STATE)
             ESP_LOGE(TAG, "Unknown ASIC id %d — cannot read registers", GLOBAL_STATE->DEVICE_CONFIG.family.asic.id);
             break;
     }
+}
+
+esp_err_t ASIC_get_domain_measurement(GlobalState * GLOBAL_STATE, uint8_t asic_nr,
+                                      uint8_t domain_nr, asic_domain_measurement_t * measurement)
+{
+    if (GLOBAL_STATE == NULL || measurement == NULL) {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    HashrateMonitorModule * monitor = &GLOBAL_STATE->HASHRATE_MONITOR_MODULE;
+    if (!monitor->is_initialized) {
+        return ESP_ERR_INVALID_STATE;
+    }
+
+    if (asic_nr >= GLOBAL_STATE->DEVICE_CONFIG.family.asic_count ||
+        domain_nr >= GLOBAL_STATE->DEVICE_CONFIG.family.asic.hash_domains) {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    pthread_mutex_lock(&monitor->lock);
+    measurement_t register_measurement = monitor->domain_measurements[asic_nr][domain_nr];
+    pthread_mutex_unlock(&monitor->lock);
+
+    float scale = GLOBAL_STATE->DEVICE_CONFIG.family.asic.domain_hashrate_scale;
+    if (scale <= 0.0f) {
+        scale = 1.0f;
+    }
+
+    measurement->time_us = register_measurement.time_us;
+    measurement->hashrate = register_measurement.hashrate * scale;
+    return ESP_OK;
 }
