@@ -653,7 +653,7 @@ int STRATUM_V1_subscribe(esp_transport_handle_t transport, int send_uid, const c
     const esp_app_desc_t *app_desc = esp_app_get_description();
     const char *version = app_desc->version;	
     snprintf(subscribe_msg, sizeof(subscribe_msg),
-        "{\"id\":%d,\"method\":\"mining.subscribe\",\"params\":[\"bitaxe/%s/%s\"]}\n",
+        "{\"id\":%d,\"method\":\"mining.subscribe\",\"params\":[\"bitaxe-X-TCH/%s/%s\"]}\n",
         send_uid, model, version);
     debug_stratum_tx(subscribe_msg);
 

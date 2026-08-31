@@ -40,3 +40,10 @@ debug.log
 
 # Device list file for tools/upload2device.py
 devices.txt
+
+# Office config
+*-office.cvs
+
+# Bin files folder
+/bin
+

@@ -1,17 +1,17 @@
 [![](https://dcbadge.vercel.app/api/server/3E8ca2dkcC)](https://discord.gg/osmu)
 
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/bitaxeorg/esp-miner/total)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/t/bitaxeorg/esp-miner)
-![GitHub contributors](https://img.shields.io/github/contributors/bitaxeorg/esp-miner)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/tinychiphub/esp-miner-tch/total)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/t/tinychiphub/esp-miner-tch)
+![GitHub contributors](https://img.shields.io/github/contributors/tinychiphub/esp-miner-tch)
 ![Alt](https://repobeats.axiom.co/api/embed/70889479b1e002c18a184b05bc5cbf2ed3718579.svg "Repobeats analytics image")
 
-# ESP-Miner
-esp-miner is open source ESP32 firmware for the [Bitaxe](https://github.com/bitaxeorg/bitaxe)
+# ESP-Miner-TCH
+esp-miner is open source ESP32 firmware for the [Bitaxe](https://github.com/tinychiphub/esp-miner-tch)
 
 ## Community
-The ESP-Miner firmware is maintained by OSMU which hosts it's own discussion forum at [Forum](https://osmu.xyz).
+The ESP-Miner-TCH firmware is maintained by TinyChipHub.
 
-If you are looking for premade images to load on your Bitaxe, check out the [latest release](https://github.com/bitaxeorg/ESP-Miner/releases/latest) page. Maybe you want [instructions](https://github.com/bitaxeorg/ESP-Miner/blob/master/flashing.md) for loading factory images.
+If you are looking for premade images to load on your Bitaxe, check out the [latest release](https://github.com/tinychiphub/ESP-Miner-TCH/releases/latest) page. 
 
 # Bitaxetool
 We also have a command line python tool for flashing Bitaxe and updating the config called Bitaxetool 
@@ -175,7 +175,7 @@ websocat ws://YOUR-BITAXE-IP/api/ws/live
 
 ## mDNS Support
 
-ESP-Miner now includes comprehensive mDNS (multicast DNS) support for seamless network discovery and device accessibility. This feature enables automatic device discovery on local networks without requiring manual IP address configuration.
+ESP-Miner-TCH now includes comprehensive mDNS (multicast DNS) support for seamless network discovery and device accessibility. This feature enables automatic device discovery on local networks without requiring manual IP address configuration.
 
 ### Features
 
@@ -222,7 +222,7 @@ http://<hostname>.local
 
 ### Hostname Conflict Resolution
 
-If multiple devices attempt to use the same hostname, ESP-Miner automatically resolves conflicts by appending a MAC address-derived suffix (e.g., `bitaxe-12ab` if `bitaxe` is taken). This ensures unique network identification without manual intervention.
+If multiple devices attempt to use the same hostname, ESP-Miner-TCH automatically resolves conflicts by appending a MAC address-derived suffix (e.g., `bitaxe-12ab` if `bitaxe` is taken). This ensures unique network identification without manual intervention.
 
 ### Benefits
 
@@ -247,7 +247,7 @@ In order to unlock the Input fields for ASIC Frequency and ASIC Core Voltage you
 
 ## Unified Firmware & Rollbacks
 
-Starting with the unified firmware releases, ESP-Miner uses a unified architecture where the AxeOS frontend is compiled, gzipped, and embedded directly into the firmware application binary (`esp-miner.bin`). 
+Starting with the unified firmware releases, ESP-Miner-TCH uses a unified architecture where the AxeOS frontend is compiled, gzipped, and embedded directly into the firmware application binary (`esp-miner.bin`). 
 
 A separate Web UI image (`www.bin`) is no longer required for standard usage since the web interface is served directly from the firmware. If you want to use a custom or modified AxeOS frontend, you can still enable the **custom web UI** option in the settings. This allows you to upload and serve a separate `www.bin` from the SPIFFS partition, which takes priority over the built-in assets.
 
@@ -322,7 +322,7 @@ Once the build is done exit out of the docker session and flash the new firmware
 
 This project uses git submodules (e.g. libsecp256k1). Clone with `--recursive`:
 ```
-git clone --recursive https://github.com/bitaxeorg/ESP-Miner.git
+git clone --recursive https://github.com/bitaxeorg/ESP-Miner-TCH.git
 ```
 
 If you already have a checkout, initialize the submodules with:
@@ -356,7 +356,7 @@ A custom board version is also possible with `config-custom.cvs`. A custom board
 **Notes:** 
   - If you are developing within a dev container, you will need to run the bitaxetool command from outside the container. Otherwise, you will get an error about the device not being found.
   - Some Bitaxe versions can't directly connect to a USB-C port. If yours is affected use a USB-A adapter as a workaround. More about it [here](https://github.com/bitaxeorg/bitaxeGamma/issues/37).
-  - Only ESP32-S3-WROOM-1 module type N16R8 (16MB Flash, 8MB Octal SPI PSRAM) is supported. This model number should be visible on the ESP32 module. Other module types without PSRAM or with Quad SPI PSRAM will not work with the normal firmware. More about it [here](https://github.com/bitaxeorg/ESP-Miner/issues/826).
+  - Only ESP32-S3-WROOM-1 module type N16R8 (16MB Flash, 8MB Octal SPI PSRAM) is supported. This model number should be visible on the ESP32 module. Other module types without PSRAM or with Quad SPI PSRAM will not work with the normal firmware. More about it [here](https://github.com/bitaxeorg/ESP-Miner-TCH/issues/826).
 
 ### Wi-Fi routers
 
